@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
     <description>
-        🔥热门推荐🔥 大学春招、秋招、应届项目，SpringBoot3+Java17+SpringCloudAlibaba+RocketMQ等技术架构，完成12306用户+购票+订单服务，帮助学生主打就业的项目。
+        🔥热门推荐🔥 大学春招、秋招、应届项目，SpringBoot3+Java17+SpringCloudAlibaba+RocketMQ等技术架构，完成铁路12306用户+购票+订单+支付服务，帮助学生主打就业的项目。
     </description>
 
     <properties>
@@ -17,12 +17,15 @@
         <spotless-maven-plugin.version>2.22.1</spotless-maven-plugin.version>
         <skip.checkstyle.check>true</skip.checkstyle.check>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
     </properties>
 
     <modules>
         <module>dependencies</module>
         <module>frameworks</module>
         <module>services</module>
+        <module>tests</module>
     </modules>
 
     <dependencies>
@@ -34,6 +37,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 
@@ -115,6 +123,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
