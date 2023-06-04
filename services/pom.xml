@@ -13,7 +13,6 @@
 
     <modules>
         <module>gateway-service</module>
-        <module>message-service</module>
         <module>order-service</module>
         <module>pay-service</module>
         <module>ticket-service</module>

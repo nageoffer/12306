@@ -15,22 +15,56 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice;
+package org.opengoofy.index12306.biz.ticketservice.dto.resp;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
+
+import java.util.Date;
 
 /**
- * 购票服务应用启动器
+ * 车票分页查询返回参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@SpringBootApplication
-@MapperScan("org.opengoofy.index12306.biz.ticketservice.dao.mapper")
-public class TicketServiceApplication {
+@Data
+public class TicketPageQueryRespDTO {
 
-    public static void main(String[] args) {
-        SpringApplication.run(TicketServiceApplication.class, args);
-    }
+    /**
+     * 车次
+     */
+    private String trainNumber;
+
+    /**
+     * 出发时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
+    private Date departureTime;
+
+    /**
+     * 到达时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
+    private Date arrivalTime;
+
+    /**
+     * 历时
+     */
+    private String duration;
+
+    /**
+     * 出发站点
+     */
+    private String departure;
+
+    /**
+     * 到达站点
+     */
+    private String arrival;
+
+    /**
+     * 高铁属性
+     */
+    private BulletTrainDTO bulletTrain;
 }

@@ -15,22 +15,63 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice;
+package org.opengoofy.index12306.biz.ticketservice.dao.entity;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
 
 /**
- * 购票服务应用启动器
+ * 座位实体
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@SpringBootApplication
-@MapperScan("org.opengoofy.index12306.biz.ticketservice.dao.mapper")
-public class TicketServiceApplication {
+@Data
+@TableName("t_seat")
+public class SeatDO extends BaseDO {
 
-    public static void main(String[] args) {
-        SpringApplication.run(TicketServiceApplication.class, args);
-    }
+    /**
+     * id
+     */
+    private Long id;
+
+    /**
+     * 列车id
+     */
+    private Long trainId;
+
+    /**
+     * 车厢号
+     */
+    private String carriageNumber;
+
+    /**
+     * 座位号
+     */
+    private String seatNumber;
+
+    /**
+     * 座位类型
+     */
+    private Integer seatType;
+
+    /**
+     * 起始站
+     */
+    private String startStation;
+
+    /**
+     * 终点站
+     */
+    private String endStation;
+
+    /**
+     * 座位状态
+     */
+    private Integer seatStatus;
+
+    /**
+     * 车票价格
+     */
+    private Integer price;
 }
