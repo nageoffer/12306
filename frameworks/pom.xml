@@ -10,4 +10,15 @@
 
     <artifactId>index12306-frameworks</artifactId>
     <packaging>pom</packaging>
+
+    <modules>
+        <module>base</module>
+        <module>cache</module>
+        <module>common</module>
+        <module>convention</module>
+        <module>database</module>
+        <module>designpattern</module>
+        <module>distributedid</module>
+        <module>web</module>
+    </modules>
 </project>
