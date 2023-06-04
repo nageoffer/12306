@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opengoofy.index12306</groupId>
-        <artifactId>index12306-services</artifactId>
+        <artifactId>index12306-tests</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>index12306-message-service</artifactId>
+    <artifactId>index12306-general-test</artifactId>
 
     <dependencies>
         <dependency>
