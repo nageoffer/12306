@@ -1,0 +1,26 @@
+
+dataSources:
+  ds_0:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/12306?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+
+rules:
+  - !SHARDING
+    tables:
+      t_user:
+        actualDataNodes: ds_0.t_user_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: username
+            shardingAlgorithmName: user_hash_mod
+    shardingAlgorithms:
+      user_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+
+props:
+  sql-show: true

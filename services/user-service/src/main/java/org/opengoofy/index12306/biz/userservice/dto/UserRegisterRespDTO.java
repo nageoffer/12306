@@ -15,22 +15,30 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice;
+package org.opengoofy.index12306.biz.userservice.dto;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import lombok.Data;
 
 /**
- * 用户服务应用启动器
+ * 用户注册返回参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@SpringBootApplication
-@MapperScan("org.opengoofy.index12306.biz.userservice.dao.mapper")
-public class UserServiceApplication {
+@Data
+public class UserRegisterRespDTO {
 
-    public static void main(String[] args) {
-        SpringApplication.run(UserServiceApplication.class, args);
-    }
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
+     * 真实姓名
+     */
+    private String realName;
+
+    /**
+     * 手机号
+     */
+    private String phone;
 }
