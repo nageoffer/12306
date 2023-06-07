@@ -33,10 +33,10 @@ public class PageRequest {
     /**
      * 当前页
      */
-    private Long current;
+    private Long current = 1L;
 
     /**
      * 每页显示条数
      */
-    private Long size;
+    private Long size = 10L;
 }
