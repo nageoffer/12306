@@ -15,66 +15,32 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dto.resp;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
-
-import java.util.Date;
+package org.opengoofy.index12306.biz.ticketservice.common.constant;
 
 /**
- * 车票分页查询响应参数
+ * Redis Key 定义常量类
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-public class TicketPageQueryRespDTO {
+public final class RedisKeyConstant {
 
     /**
-     * 车次
+     * 站点查询，Key Prefix + 起始城市_终点城市_日期
      */
-    private String trainNumber;
+    public static final String REGION_TRAIN_STATION = "region_train_station:";
 
     /**
-     * 出发时间
+     * 站点余票查询，Key Prefix + 列车ID_起始站点_终点
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date departureTime;
+    public static final String TRAIN_STATION_REMAINING_TICKET = "train_station_remaining_ticket:";
 
     /**
-     * 到达时间
+     * 站点详细信息查询，Key Prefix + 列车ID_起始站点_终点
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date arrivalTime;
+    public static final String TRAIN_STATION_DETAIL = "train_station_detail:";
 
     /**
-     * 历时
+     * 列车路线信息查询，Key Prefix + 列车ID
      */
-    private String duration;
-
-    /**
-     * 出发站点
-     */
-    private String departure;
-
-    /**
-     * 到达站点
-     */
-    private String arrival;
-
-    /**
-     * 始发站标识
-     */
-    private Boolean departureFlag;
-
-    /**
-     * 终点站标识
-     */
-    private Boolean arrivalFlag;
-
-    /**
-     * 高铁属性
-     */
-    private BulletTrainDTO bulletTrain;
+    public static final String TRAIN_STATION_STOPOVER_DETAIL = "train_station_stopover_detail:";
 }

@@ -36,17 +36,27 @@ public class StationDO extends BaseDO {
     private Long id;
 
     /**
+     * 车站编码
+     */
+    private String code;
+
+    /**
      * 车站名称
      */
     private String name;
 
     /**
-     * 车站编号
+     * 拼音
      */
-    private String code;
+    private String spell;
 
     /**
-     * 车站城市
+     * 地区编号
      */
-    private String city;
+    private String region;
+
+    /**
+     * 地区名称
+     */
+    private String regionName;
 }

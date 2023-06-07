@@ -15,66 +15,53 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dto.resp;
+package org.opengoofy.index12306.biz.ticketservice.dao.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
-
-import java.util.Date;
+import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
 
 /**
- * 车票分页查询响应参数
+ * 地区表
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-public class TicketPageQueryRespDTO {
+@TableName("t_region")
+public class RegionDO extends BaseDO {
 
     /**
-     * 车次
+     * id
      */
-    private String trainNumber;
+    private Long id;
 
     /**
-     * 出发时间
+     * 地区名称
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date departureTime;
+    private String name;
 
     /**
-     * 到达时间
+     * 地区全名
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date arrivalTime;
+    private String fullName;
 
     /**
-     * 历时
+     * 地区编码
      */
-    private String duration;
+    private String code;
 
     /**
-     * 出发站点
+     * 地区首字母
      */
-    private String departure;
+    private String initial;
 
     /**
-     * 到达站点
+     * 拼音
      */
-    private String arrival;
+    private String spell;
 
     /**
-     * 始发站标识
+     * 热门标识
      */
-    private Boolean departureFlag;
-
-    /**
-     * 终点站标识
-     */
-    private Boolean arrivalFlag;
-
-    /**
-     * 高铁属性
-     */
-    private BulletTrainDTO bulletTrain;
+    private Integer popularFlag;
 }

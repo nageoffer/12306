@@ -55,12 +55,22 @@ public class TrainStationRelationDO extends BaseDO {
     /**
      * 起始城市
      */
-    private String startCity;
+    private String startRegion;
 
     /**
      * 终点城市
      */
-    private String endCity;
+    private String endRegion;
+
+    /**
+     * 始发站标识
+     */
+    private Boolean departureFlag;
+
+    /**
+     * 终点站标识
+     */
+    private Boolean arrivalFlag;
 
     /**
      * 出发时间

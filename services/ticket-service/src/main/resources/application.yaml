@@ -38,4 +38,5 @@ framework:
   cache:
     redis:
       prefix: '${spring.application.name}:'
-      value-timeout: 50000
+      value-timeout: 16
+      value-time-unit: days

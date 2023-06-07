@@ -64,8 +64,8 @@ class TicketStationRelationTests {
                 actual.setTrainId(trainStationDO.getTrainId());
                 actual.setDeparture(trainStations.get(i).getDeparture());
                 actual.setArrival(trainStations.get(j).getDeparture());
-                actual.setStartCity(trainStations.get(i).getStartCity());
-                actual.setEndCity(trainStations.get(j).getStartCity());
+                actual.setStartRegion(trainStations.get(i).getStartRegion());
+                actual.setEndRegion(trainStations.get(j).getStartRegion());
                 actual.setDepartureTime(trainStations.get(i).getDepartureTime());
                 actual.setCreateTime(new Date());
                 actual.setUpdateTime(new Date());

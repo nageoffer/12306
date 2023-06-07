@@ -53,6 +53,11 @@ public class TrainDO extends BaseDO {
     private Integer trainType;
 
     /**
+     * 列车品牌 0：复兴号
+     */
+    private Integer trainBrand;
+
+    /**
      * 起始站
      */
     private String startStation;
@@ -65,17 +70,22 @@ public class TrainDO extends BaseDO {
     /**
      * 起始城市
      */
-    private String startCity;
+    private String startRegion;
 
     /**
      * 终点城市
      */
-    private String endCity;
+    private String endRegion;
 
     /**
      * 销售时间
      */
     private Date saleTime;
+
+    /**
+     * 销售状态 0：可售 1：不可售 2：未知
+     */
+    private Integer saleStatus;
 
     /**
      * 出发时间

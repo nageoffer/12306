@@ -17,22 +17,22 @@
 
 package org.opengoofy.index12306.biz.ticketservice.service;
 
-import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
-import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.TrainStationQueryRespDTO;
+
+import java.util.List;
 
 /**
- * 车票接口
+ * 列车站点接口层
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface TicketService {
+public interface TrainStationService {
 
     /**
-     * 根据条件分页查询车票
+     * 根据列车 ID 查询站点信息
      *
-     * @param requestParam 分页查询车票请求参数
-     * @return 查询车票返回结果
+     * @param trainId 列车 ID
+     * @return 列车经停站信息
      */
-    PageResponse<TicketPageQueryRespDTO> pageListTicketQuery(TicketPageQueryReqDTO requestParam);
+    List<TrainStationQueryRespDTO> listTrainStationQuery(String trainId);
 }

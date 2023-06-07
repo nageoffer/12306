@@ -17,64 +17,28 @@
 
 package org.opengoofy.index12306.biz.ticketservice.dto.resp;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
-
-import java.util.Date;
 
 /**
- * 车票分页查询响应参数
+ * 地区&站点分页查询响应参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-public class TicketPageQueryRespDTO {
+public class RegionStationQueryRespDTO {
 
     /**
-     * 车次
+     * 名称
      */
-    private String trainNumber;
+    private String name;
 
     /**
-     * 出发时间
+     * 地区编码
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date departureTime;
+    private String code;
 
     /**
-     * 到达时间
+     * 拼音
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date arrivalTime;
-
-    /**
-     * 历时
-     */
-    private String duration;
-
-    /**
-     * 出发站点
-     */
-    private String departure;
-
-    /**
-     * 到达站点
-     */
-    private String arrival;
-
-    /**
-     * 始发站标识
-     */
-    private Boolean departureFlag;
-
-    /**
-     * 终点站标识
-     */
-    private Boolean arrivalFlag;
-
-    /**
-     * 高铁属性
-     */
-    private BulletTrainDTO bulletTrain;
+    private String spell;
 }
