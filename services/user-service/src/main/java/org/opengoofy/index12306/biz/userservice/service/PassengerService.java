@@ -15,78 +15,39 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice.dao.entity;
+package org.opengoofy.index12306.biz.userservice.service;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Data;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
+import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
+
+import java.util.List;
 
 /**
- * 用户信息实体
+ * 乘车人接口层
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-@TableName("t_user")
-public class UserDO extends BaseDO {
+public interface PassengerService {
 
     /**
-     * id
+     * 根据用户名查询乘车人列表
+     *
+     * @param username 用户名
+     * @return 乘车人返回列表
      */
-    private Long id;
+    List<PassengerRespDTO> listPassengerQuery(String username);
 
     /**
-     * 用户名
+     * 新增乘车人
+     *
+     * @param requestParam 乘车人信息
      */
-    private String username;
+    void savePassenger(PassengerReqDTO requestParam);
 
     /**
-     * 密码
+     * 修改乘车人
+     *
+     * @param requestParam 乘车人信息
      */
-    private String password;
-
-    /**
-     * 真实姓名
-     */
-    private String realName;
-
-    /**
-     * 证件类型
-     */
-    private Integer idType;
-
-    /**
-     * 证件号
-     */
-    private String idCard;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 邮箱
-     */
-    private String mail;
-
-    /**
-     * 旅客类型
-     */
-    private Integer userType;
-
-    /**
-     * 审核状态
-     */
-    private Integer verifyStatus;
-
-    /**
-     * 邮编
-     */
-    private String postCode;
-
-    /**
-     * 地址
-     */
-    private String address;
+    void updatePassenger(PassengerReqDTO requestParam);
 }

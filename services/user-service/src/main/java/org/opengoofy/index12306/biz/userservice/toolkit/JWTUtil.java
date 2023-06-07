@@ -21,7 +21,7 @@ import com.alibaba.fastjson2.JSON;
 import com.google.common.collect.Maps;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
 
 import java.util.Date;
 import java.util.Map;
@@ -45,7 +45,7 @@ public final class JWTUtil {
      */
     public static String generateAccessToken(UserLoginReqDTO userInfo) {
         Map<String, Object> customerUserMap = Maps.newHashMap();
-        customerUserMap.put("username", userInfo.getUsername());
+        customerUserMap.put("usernameOrMailOrPhone", userInfo.getUsernameOrMailOrPhone());
         customerUserMap.put("password", userInfo.getPassword());
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, SECRET)

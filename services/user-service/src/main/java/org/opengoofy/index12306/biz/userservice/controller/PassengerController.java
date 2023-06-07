@@ -17,55 +17,53 @@
 
 package org.opengoofy.index12306.biz.userservice.controller;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
-import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
-import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
-import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
-import org.opengoofy.index12306.biz.userservice.service.UserService;
+import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
+import org.opengoofy.index12306.biz.userservice.service.PassengerService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
- * 用户控制层
+ * 乘车人控制层
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @RestController
 @RequiredArgsConstructor
-public class UserInfoController {
+public class PassengerController {
 
-    private final UserLoginService userLoginService;
-    private final UserService userService;
+    private final PassengerService passengerService;
 
     /**
-     * 根据用户名查询用户信息
+     * 根据用户名查询乘车人列表
      */
-    @GetMapping("/api/user-service/query")
-    public Result<UserQueryRespDTO> queryUserByUsername(@RequestParam("username") @NotEmpty String username) {
-        return Results.success(userService.queryUserByUsername(username));
+    @GetMapping("/api/user-service/passenger/query")
+    public Result<List<PassengerRespDTO>> listPassengerQuery(String username) {
+        return Results.success(passengerService.listPassengerQuery(username));
     }
 
     /**
-     * 检查用户名是否已存在
+     * 新增乘车人
      */
-    @GetMapping("/api/user-service/has-username")
-    public Result<Boolean> hasUsername(@RequestParam("username") @NotEmpty String username) {
-        return Results.success(userLoginService.hasUsername(username));
+    @PostMapping("/api/user-service/passenger/save")
+    public Result<Void> savePassenger(@RequestBody PassengerReqDTO requestParam) {
+        passengerService.savePassenger(requestParam);
+        return Results.success();
     }
 
     /**
-     * 注册用户
+     * 修改乘车人
      */
-    @PostMapping("/api/user-service/register")
-    public Result<UserRegisterRespDTO> register(@RequestBody @Valid UserRegisterReqDTO requestParam) {
-        return Results.success(userLoginService.register(requestParam));
+    @PostMapping("/api/user-service/passenger/update")
+    public Result<Void> updatePassenger(@RequestBody PassengerReqDTO requestParam) {
+        passengerService.updatePassenger(requestParam);
+        return Results.success();
     }
 }

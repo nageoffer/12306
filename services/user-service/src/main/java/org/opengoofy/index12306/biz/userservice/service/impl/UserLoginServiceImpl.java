@@ -24,10 +24,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginRespDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserRegisterReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserRegisterRespDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
 import org.opengoofy.index12306.biz.userservice.toolkit.JWTUtil;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
@@ -53,12 +53,12 @@ public class UserLoginServiceImpl implements UserLoginService {
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
-                .eq(UserDO::getUsername, requestParam.getUsername())
+                .eq(UserDO::getUsername, requestParam.getUsernameOrMailOrPhone())
                 .eq(UserDO::getPassword, requestParam.getPassword());
         UserDO userDO = userMapper.selectOne(queryWrapper);
         if (userDO != null) {
             String accessToken = JWTUtil.generateAccessToken(requestParam);
-            UserLoginRespDTO actual = new UserLoginRespDTO(requestParam.getUsername(), userDO.getRealName(), accessToken);
+            UserLoginRespDTO actual = new UserLoginRespDTO(requestParam.getUsernameOrMailOrPhone(), userDO.getRealName(), accessToken);
             distributedCache.put(accessToken, JSON.toJSONString(actual), 30, TimeUnit.MINUTES);
             return actual;
         }

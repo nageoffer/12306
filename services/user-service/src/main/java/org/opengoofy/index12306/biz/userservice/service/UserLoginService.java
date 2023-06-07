@@ -17,10 +17,10 @@
 
 package org.opengoofy.index12306.biz.userservice.service;
 
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginRespDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserRegisterReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserRegisterRespDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 
 /**
  * 用户登录接口

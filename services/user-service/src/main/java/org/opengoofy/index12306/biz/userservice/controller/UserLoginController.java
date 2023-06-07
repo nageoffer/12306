@@ -18,8 +18,8 @@
 package org.opengoofy.index12306.biz.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.UserLoginRespDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;

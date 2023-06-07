@@ -15,21 +15,22 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice.dto;
+package org.opengoofy.index12306.biz.userservice.dto.req;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
- * 用户登录返回参数
+ * 乘车人添加&修改请求参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserLoginRespDTO {
+public class PassengerReqDTO {
+
+    /**
+     * 乘车人id
+     */
+    private String id;
 
     /**
      * 用户名
@@ -42,7 +43,22 @@ public class UserLoginRespDTO {
     private String realName;
 
     /**
-     * Token
+     * 证件类型
      */
-    private String accessToken;
+    private Integer idType;
+
+    /**
+     * 证件号码
+     */
+    private String idCard;
+
+    /**
+     * 优惠类型
+     */
+    private Integer discountType;
+
+    /**
+     * 手机号
+     */
+    private String phone;
 }
