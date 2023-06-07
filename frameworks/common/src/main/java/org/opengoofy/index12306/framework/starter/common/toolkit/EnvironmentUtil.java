@@ -38,6 +38,17 @@ public class EnvironmentUtil {
     }
 
     /**
+     * 判断当前是否为开发环境
+     *
+     * @return
+     */
+    public static boolean isDevEnvironment() {
+        ConfigurableEnvironment configurableEnvironment = ApplicationContextHolder.getBean(ConfigurableEnvironment.class);
+        String propertyActive = configurableEnvironment.getProperty("spring.profiles.active", "dev");
+        return ENVIRONMENT_LIST.stream().filter(each -> propertyActive.contains(each)).findFirst().isPresent();
+    }
+
+    /**
      * 判断当前是否为正式环境
      *
      * @return
