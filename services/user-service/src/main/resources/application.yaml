@@ -13,6 +13,12 @@ spring:
       host: 127.0.0.1
       port: 6379
       password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      password: nacos
+      username: nacos
 
 mybatis-plus:
   global-config:
@@ -28,5 +34,4 @@ framework:
     safa-mode: true
   cache:
     redis:
-      prefix: '${spring.application.name}:'
       value-timeout: 50000

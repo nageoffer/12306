@@ -25,15 +25,16 @@ import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
-import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
-import org.opengoofy.index12306.biz.userservice.toolkit.JWTUtil;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
+import org.opengoofy.index12306.frameworks.starter.user.core.UserInfoDTO;
+import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,12 @@ public class UserLoginServiceImpl implements UserLoginService {
                 .eq(UserDO::getPassword, requestParam.getPassword());
         UserDO userDO = userMapper.selectOne(queryWrapper);
         if (userDO != null) {
-            String accessToken = JWTUtil.generateAccessToken(requestParam);
+            UserInfoDTO userInfo = UserInfoDTO.builder()
+                    .userId(String.valueOf(userDO.getId()))
+                    .username(userDO.getUsername())
+                    .realName(userDO.getRealName())
+                    .build();
+            String accessToken = JWTUtil.generateAccessToken(userInfo);
             UserLoginRespDTO actual = new UserLoginRespDTO(requestParam.getUsernameOrMailOrPhone(), userDO.getRealName(), accessToken);
             distributedCache.put(accessToken, JSON.toJSONString(actual), 30, TimeUnit.MINUTES);
             return actual;
