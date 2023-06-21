@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dao.mapper;
-
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Param;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
+package org.opengoofy.index12306.biz.ticketservice.service;
 
 import java.util.List;
 
 /**
- * 座位持久层
+ * 列车车厢接口层
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface SeatMapper extends BaseMapper<SeatDO> {
+public interface CarriageService {
 
     /**
-     * 获取列车车厢余票集合
+     * 查询列车车厢号集合
+     *
+     * @param trainId      列车 ID
+     * @param carriageType 车厢类型
+     * @return 车厢号集合
      */
-    List<Integer> listSeatRemainingTicket(@Param("seatDO") SeatDO seatDO, @Param("trainCarriageList") List<String> trainCarriageList);
+    List<String> listCarriageNumber(String trainId, Integer carriageType);
 }

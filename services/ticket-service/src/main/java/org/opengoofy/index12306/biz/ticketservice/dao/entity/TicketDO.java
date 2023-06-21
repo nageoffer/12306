@@ -56,24 +56,9 @@ public class TicketDO extends BaseDO {
     private String seatNumber;
 
     /**
-     * 乘客姓名
+     * 乘车人 ID
      */
-    private String passengerName;
-
-    /**
-     * 乘客证件类型
-     */
-    private Integer passengerIdType;
-
-    /**
-     * 乘客证件号码
-     */
-    private String passengerIdCard;
-
-    /**
-     * 乘客手机号
-     */
-    private String passengerPhone;
+    private String passengerId;
 
     /**
      * 车票状态

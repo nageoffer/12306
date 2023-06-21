@@ -15,69 +15,51 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dao.entity;
+package org.opengoofy.index12306.biz.ticketservice.common.enums;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
- * 座位实体
+ * 交通工具座位类型
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-@TableName("t_seat")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SeatDO extends BaseDO {
+@RequiredArgsConstructor
+public enum VehicleSeatTypeEnum {
 
     /**
-     * id
+     * 商务座
      */
-    private Long id;
+    BUSINESS_CLASS(0, "BUSINESS_CLASS"),
 
     /**
-     * 列车id
+     * 一等座
      */
-    private Long trainId;
+    FIRST_CLASS(1, "FIRST_CLASS"),
 
     /**
-     * 车厢号
+     * 二等座
      */
-    private String carriageNumber;
+    SECOND_CLASS(2, "SECOND_CLASS");
+
+    @Getter
+    private final Integer code;
+
+    @Getter
+    private final String name;
 
     /**
-     * 座位号
+     * 根据编码查找名称
      */
-    private String seatNumber;
-
-    /**
-     * 座位类型
-     */
-    private Integer seatType;
-
-    /**
-     * 起始站
-     */
-    private String startStation;
-
-    /**
-     * 终点站
-     */
-    private String endStation;
-
-    /**
-     * 座位状态
-     */
-    private Integer seatStatus;
-
-    /**
-     * 车票价格
-     */
-    private Integer price;
+    public static String findNameByCode(Integer code) {
+        return Arrays.stream(VehicleSeatTypeEnum.values())
+                .filter(each -> Objects.equals(each.getCode(), code))
+                .findFirst()
+                .map(VehicleSeatTypeEnum::getName)
+                .orElse(null);
+    }
 }

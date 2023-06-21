@@ -15,46 +15,29 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dao.entity;
+package org.opengoofy.index12306.biz.ticketservice.dto.req;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
+
+import java.util.List;
 
 /**
- * 座位实体
+ * 购票请求入参
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@TableName("t_seat")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SeatDO extends BaseDO {
+public class PurchaseTicketReqDTO {
 
     /**
-     * id
+     * 车次 ID
      */
-    private Long id;
+    private String trainId;
 
     /**
-     * 列车id
+     * 乘车人
      */
-    private Long trainId;
-
-    /**
-     * 车厢号
-     */
-    private String carriageNumber;
-
-    /**
-     * 座位号
-     */
-    private String seatNumber;
+    private List<String> passengerIds;
 
     /**
      * 座位类型
@@ -62,22 +45,17 @@ public class SeatDO extends BaseDO {
     private Integer seatType;
 
     /**
-     * 起始站
+     * 选择座位
      */
-    private String startStation;
+    private List<String> chooseSeats;
 
     /**
-     * 终点站
+     * 出发站点
      */
-    private String endStation;
+    private String departure;
 
     /**
-     * 座位状态
+     * 到达站点
      */
-    private Integer seatStatus;
-
-    /**
-     * 车票价格
-     */
-    private Integer price;
+    private String arrival;
 }

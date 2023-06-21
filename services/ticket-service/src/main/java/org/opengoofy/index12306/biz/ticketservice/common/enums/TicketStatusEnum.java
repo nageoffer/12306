@@ -15,69 +15,39 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dao.entity;
+package org.opengoofy.index12306.biz.ticketservice.common.enums;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * 座位实体
+ * 车票状态枚举
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-@TableName("t_seat")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SeatDO extends BaseDO {
+@RequiredArgsConstructor
+public enum TicketStatusEnum {
 
     /**
-     * id
+     * 未支付
      */
-    private Long id;
+    UNPAID(0),
 
     /**
-     * 列车id
+     * 已支付
      */
-    private Long trainId;
+    PAID(1),
 
     /**
-     * 车厢号
+     * 改签
      */
-    private String carriageNumber;
+    CHANGED(2),
 
     /**
-     * 座位号
+     * 退票
      */
-    private String seatNumber;
+    REFUNDED(3);
 
-    /**
-     * 座位类型
-     */
-    private Integer seatType;
-
-    /**
-     * 起始站
-     */
-    private String startStation;
-
-    /**
-     * 终点站
-     */
-    private String endStation;
-
-    /**
-     * 座位状态
-     */
-    private Integer seatStatus;
-
-    /**
-     * 车票价格
-     */
-    private Integer price;
+    @Getter
+    private final Integer code;
 }

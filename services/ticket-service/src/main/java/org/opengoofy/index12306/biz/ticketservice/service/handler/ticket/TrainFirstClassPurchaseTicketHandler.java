@@ -15,34 +15,32 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.service;
+package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket;
 
+import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
-import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base.AbstractTrainPurchaseTicketTemplate;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
- * 车票接口
+ * 高铁一等座购票组件
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface TicketService {
+@Component
+public class TrainFirstClassPurchaseTicketHandler extends AbstractTrainPurchaseTicketTemplate {
 
-    /**
-     * 根据条件分页查询车票
-     *
-     * @param requestParam 分页查询车票请求参数
-     * @return 查询车票返回结果
-     */
-    PageResponse<TicketPageQueryRespDTO> pageListTicketQuery(TicketPageQueryReqDTO requestParam);
+    @Override
+    public String mark() {
+        return VehicleTypeEnum.HIGH_SPEED_RAIN.getName() + VehicleSeatTypeEnum.FIRST_CLASS.getName();
+    }
 
-    /**
-     * 购买车票
-     *
-     * @param requestParam 车票购买请求参数
-     * @return 订单号
-     */
-    String purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam);
+    @Override
+    protected List<TrainPurchaseTicketRespDTO> selectSeats(PurchaseTicketReqDTO requestParam) {
+        return null;
+    }
 }
