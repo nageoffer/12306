@@ -1,0 +1,37 @@
+
+server:
+  port: 9095
+
+spring:
+  application:
+    name: index12306-aggregation-service
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      password: nacos
+      username: nacos
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+framework:
+  fastjson:
+    safa-mode: true
+  cache:
+    redis:
+      value-timeout: 50000

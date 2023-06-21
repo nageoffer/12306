@@ -1,0 +1,13 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: index12306-user-service
+          uri: lb://index12306-user-service/api/user-service/**
+          predicates:
+            - Path=/api/user-service/**
+
+        - id: index12306-ticket-service
+          uri: lb://index12306-ticket-service/api/ticket-service/**
+          predicates:
+            - Path=/api/ticket-service/**

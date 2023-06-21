@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: index12306-user-aggregation-service
+          uri: lb://index12306-aggregation-service/api/user-service/**
+          predicates:
+            - Path=/api/user-service/**
+
+        - id: index12306-ticket-aggregation-service
+          uri: lb://index12306-aggregation-service/api/ticket-service/**
+          predicates:
+            - Path=/api/ticket-service/**
+          filters:
+            - name: TokenValidate
+              args:
+                blackPathPre: /api/ticket-service/ticket/purchase
