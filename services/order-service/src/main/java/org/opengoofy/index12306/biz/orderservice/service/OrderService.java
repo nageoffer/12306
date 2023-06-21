@@ -15,22 +15,22 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.orderservice;
+package org.opengoofy.index12306.biz.orderservice.service;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.opengoofy.index12306.biz.orderservice.dto.TicketOrderCreateReqDTO;
 
 /**
- * 订单服务应用启动器
+ * 订单接口层
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@SpringBootApplication
-@MapperScan("org.opengoofy.index12306.biz.orderservice.dao.mapper")
-public class OrderServiceApplication {
+public interface OrderService {
 
-    public static void main(String[] args) {
-        SpringApplication.run(OrderServiceApplication.class, args);
-    }
+    /**
+     * 创建火车票订单
+     *
+     * @param requestParam 商品订单入参
+     * @return 订单号
+     */
+    String createTicketOrder(TicketOrderCreateReqDTO requestParam);
 }

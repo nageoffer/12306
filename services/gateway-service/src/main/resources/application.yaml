@@ -1,0 +1,12 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: gateway-service
+  profiles:
+    active: aggregation
+    # active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848

@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.orderservice;
+package org.opengoofy.index12306.biz.orderservice.dao.mapper;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderDO;
 
 /**
- * 订单服务应用启动器
+ * 订单持久层
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@SpringBootApplication
-@MapperScan("org.opengoofy.index12306.biz.orderservice.dao.mapper")
-public class OrderServiceApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(OrderServiceApplication.class, args);
-    }
+public interface OrderMapper extends BaseMapper<OrderDO> {
 }
