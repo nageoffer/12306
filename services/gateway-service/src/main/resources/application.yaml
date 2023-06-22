@@ -2,7 +2,7 @@ server:
   port: 9000
 spring:
   application:
-    name: gateway-service
+    name: index12306-gateway-service
   profiles:
     active: aggregation
     # active: dev

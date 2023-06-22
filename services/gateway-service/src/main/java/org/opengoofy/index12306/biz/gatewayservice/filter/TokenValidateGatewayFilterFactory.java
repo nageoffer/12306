@@ -18,9 +18,9 @@
 package org.opengoofy.index12306.biz.gatewayservice.filter;
 
 import org.opengoofy.index12306.biz.gatewayservice.config.Config;
+import org.opengoofy.index12306.biz.gatewayservice.toolkit.JWTUtil;
+import org.opengoofy.index12306.biz.gatewayservice.toolkit.UserInfoDTO;
 import org.opengoofy.index12306.framework.starter.bases.constant.UserConstant;
-import org.opengoofy.index12306.frameworks.starter.user.core.UserInfoDTO;
-import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
