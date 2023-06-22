@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
@@ -56,6 +57,7 @@ import org.opengoofy.index12306.framework.starter.designpattern.strategy.Abstrac
 import org.slf4j.MDC;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -147,6 +149,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
+    @Transactional(rollbackFor = Throwable.class)
     public String purchaseTickets(PurchaseTicketReqDTO requestParam) {
         String trainId = requestParam.getTrainId();
         TrainDO trainDO = distributedCache.get(
@@ -190,6 +193,7 @@ public class TicketServiceImpl implements TicketService {
                     .departure(requestParam.getDeparture())
                     .arrival(requestParam.getArrival())
                     .orderTime(new Date())
+                    .source(SourceEnum.INTERNET.getCode())
                     // TODO 创建用户上下文
                     .username(MDC.get(UserConstant.USER_NAME_KEY))
                     .trainId(Long.parseLong(requestParam.getTrainId()))

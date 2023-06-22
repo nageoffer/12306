@@ -15,56 +15,27 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.remote.dto;
+package org.opengoofy.index12306.biz.ticketservice.remote;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.PassengerRespDTO;
+import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 /**
- * 车票订单详情创建请求参数
+ * 用户远程服务调用
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TicketOrderItemCreateRemoteReqDTO {
+@FeignClient("index12306-user-service")
+public interface UserRemoteService {
 
     /**
-     * 车厢号
+     * 根据乘车人 ID 集合查询乘车人列表
      */
-    private String carriageNumber;
-
-    /**
-     * 座位号
-     */
-    private String seatNumber;
-
-    /**
-     * 真实姓名
-     */
-    private String realName;
-
-    /**
-     * 证件类型
-     */
-    private Integer idType;
-
-    /**
-     * 证件号
-     */
-    private String idCard;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 订单金额
-     */
-    private Integer amount;
+    @GetMapping("/api/user-service/passenger/query/ids")
+    Result<List<PassengerRespDTO>> listPassengerQueryByIds(@RequestParam("username") String username, @RequestParam("ids") List<String> ids);
 }

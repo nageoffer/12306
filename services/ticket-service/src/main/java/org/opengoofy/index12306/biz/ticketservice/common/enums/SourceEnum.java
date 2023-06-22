@@ -15,56 +15,29 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.remote.dto;
+package org.opengoofy.index12306.biz.ticketservice.common.enums;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * 车票订单详情创建请求参数
+ * 购票来源
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TicketOrderItemCreateRemoteReqDTO {
+@RequiredArgsConstructor
+public enum SourceEnum {
 
     /**
-     * 车厢号
+     * 互联网购票
      */
-    private String carriageNumber;
+    INTERNET(0),
 
     /**
-     * 座位号
+     * 线下窗口购票
      */
-    private String seatNumber;
+    OFFLINE(1);
 
-    /**
-     * 真实姓名
-     */
-    private String realName;
-
-    /**
-     * 证件类型
-     */
-    private Integer idType;
-
-    /**
-     * 证件号
-     */
-    private String idCard;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 订单金额
-     */
-    private Integer amount;
+    @Getter
+    private final Integer code;
 }

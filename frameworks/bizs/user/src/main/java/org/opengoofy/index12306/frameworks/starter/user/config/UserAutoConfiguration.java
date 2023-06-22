@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.frameworks.starter.user.config;
 
 import org.opengoofy.index12306.frameworks.starter.user.core.UserTransmitFilter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
@@ -28,6 +29,7 @@ import static org.opengoofy.index12306.framework.starter.bases.constant.FilterOr
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
+@ConditionalOnWebApplication
 public class UserAutoConfiguration {
 
     /**

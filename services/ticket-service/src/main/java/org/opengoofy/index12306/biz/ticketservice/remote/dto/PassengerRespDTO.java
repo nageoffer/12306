@@ -17,31 +17,28 @@
 
 package org.opengoofy.index12306.biz.ticketservice.remote.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
- * 车票订单详情创建请求参数
+ * 乘车人返回参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class TicketOrderItemCreateRemoteReqDTO {
+public class PassengerRespDTO {
 
     /**
-     * 车厢号
+     * 乘车人id
      */
-    private String carriageNumber;
+    private String id;
 
     /**
-     * 座位号
+     * 用户名
      */
-    private String seatNumber;
+    private String username;
 
     /**
      * 真实姓名
@@ -54,9 +51,14 @@ public class TicketOrderItemCreateRemoteReqDTO {
     private Integer idType;
 
     /**
-     * 证件号
+     * 证件号码
      */
     private String idCard;
+
+    /**
+     * 优惠类型
+     */
+    private Integer discountType;
 
     /**
      * 手机号
@@ -64,7 +66,13 @@ public class TicketOrderItemCreateRemoteReqDTO {
     private String phone;
 
     /**
-     * 订单金额
+     * 添加日期
      */
-    private Integer amount;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date createDate;
+
+    /**
+     * 审核状态
+     */
+    private Integer verifyStatus;
 }
