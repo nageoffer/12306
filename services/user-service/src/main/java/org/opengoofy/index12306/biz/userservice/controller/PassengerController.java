@@ -26,6 +26,7 @@ import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -45,8 +46,16 @@ public class PassengerController {
      * 根据用户名查询乘车人列表
      */
     @GetMapping("/api/user-service/passenger/query")
-    public Result<List<PassengerRespDTO>> listPassengerQuery(String username) {
-        return Results.success(passengerService.listPassengerQuery(username));
+    public Result<List<PassengerRespDTO>> listPassengerQueryByUsername(String username) {
+        return Results.success(passengerService.listPassengerQueryByUsername(username));
+    }
+
+    /**
+     * 根据乘车人 ID 集合查询乘车人列表
+     */
+    @GetMapping("/api/user-service/passenger/query/ids")
+    public Result<List<PassengerRespDTO>> listPassengerQueryByIds(@RequestParam("username") String username, @RequestParam("ids") List<Long> ids) {
+        return Results.success(passengerService.listPassengerQueryByIds(username, ids));
     }
 
     /**

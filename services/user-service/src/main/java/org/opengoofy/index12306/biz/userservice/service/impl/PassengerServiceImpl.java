@@ -44,9 +44,18 @@ public class PassengerServiceImpl implements PassengerService {
     private final PassengerMapper passengerMapper;
 
     @Override
-    public List<PassengerRespDTO> listPassengerQuery(String username) {
+    public List<PassengerRespDTO> listPassengerQueryByUsername(String username) {
         LambdaQueryWrapper<PassengerDO> queryWrapper = Wrappers.lambdaQuery(PassengerDO.class)
                 .eq(PassengerDO::getUsername, username);
+        List<PassengerDO> passengerDOList = passengerMapper.selectList(queryWrapper);
+        return BeanUtil.convert(passengerDOList, PassengerRespDTO.class);
+    }
+
+    @Override
+    public List<PassengerRespDTO> listPassengerQueryByIds(String username, List<Long> ids) {
+        LambdaQueryWrapper<PassengerDO> queryWrapper = Wrappers.lambdaQuery(PassengerDO.class)
+                .eq(PassengerDO::getUsername, username)
+                .in(PassengerDO::getId, ids);
         List<PassengerDO> passengerDOList = passengerMapper.selectList(queryWrapper);
         return BeanUtil.convert(passengerDOList, PassengerRespDTO.class);
     }
