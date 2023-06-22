@@ -1,4 +1,3 @@
-
 server:
   port: 9095
 
@@ -19,6 +18,8 @@ spring:
         server-addr: 127.0.0.1:8848
       password: nacos
       username: nacos
+  main:
+    allow-bean-definition-overriding: true
 
 mybatis-plus:
   global-config:
@@ -28,6 +29,10 @@ mybatis-plus:
       logic-not-delete-value: 0
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+aggregation:
+  remote-url: http://127.0.0.1:${server.port}
 
 framework:
   fastjson:

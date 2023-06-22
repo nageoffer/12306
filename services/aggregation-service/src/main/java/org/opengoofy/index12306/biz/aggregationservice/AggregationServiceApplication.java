@@ -17,8 +17,10 @@
 
 package org.opengoofy.index12306.biz.aggregationservice;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * 12306 聚合服务应用启动器
@@ -27,8 +29,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication(scanBasePackages = {
         "org.opengoofy.index12306.biz.userservice",
-        "org.opengoofy.index12306.biz.ticketservice"
+        "org.opengoofy.index12306.biz.ticketservice",
+        "org.opengoofy.index12306.biz.orderservice"
 })
+@MapperScan(value = {
+        "org.opengoofy.index12306.biz.userservice.dao.mapper",
+        "org.opengoofy.index12306.biz.ticketservice.dao.mapper",
+        "org.opengoofy.index12306.biz.orderservice.dao.mapper"
+})
+@EnableFeignClients("org.opengoofy.index12306.biz.ticketservice.remote")
 public class AggregationServiceApplication {
 
     public static void main(String[] args) {
