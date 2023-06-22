@@ -52,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
                 .departure(requestParam.getDeparture())
                 .arrival(requestParam.getArrival())
                 .trainId(requestParam.getTrainId())
+                .source(requestParam.getSource())
                 .status(0)
                 .username(requestParam.getUsername())
                 .build();
