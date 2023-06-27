@@ -88,6 +88,12 @@
 
         <dependency>
             <groupId>org.opengoofy.index12306</groupId>
+            <artifactId>index12306-common-spring-boot-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opengoofy.index12306</groupId>
             <artifactId>index12306-base-spring-boot-starter</artifactId>
             <version>${project.version}</version>
         </dependency>

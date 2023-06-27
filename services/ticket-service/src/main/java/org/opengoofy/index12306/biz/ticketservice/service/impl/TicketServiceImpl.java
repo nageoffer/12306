@@ -20,12 +20,12 @@ package org.opengoofy.index12306.biz.ticketservice.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.TrainTagEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TicketDO;
@@ -37,7 +37,10 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.HighSpeedTrainDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.PassengerInfoDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.RegularTrainDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
@@ -50,9 +53,7 @@ import org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil;
 import org.opengoofy.index12306.framework.starter.bases.constant.UserConstant;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
-import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
-import org.opengoofy.index12306.framework.starter.database.toolkit.PageUtil;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
 import org.slf4j.MDC;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -61,9 +62,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant.ADVANCE_TICKET_DAY;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_INFO;
@@ -88,16 +93,18 @@ public class TicketServiceImpl implements TicketService {
     private final TicketOrderRemoteService ticketOrderRemoteService;
 
     @Override
-    public PageResponse<TicketPageQueryRespDTO> pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
+    public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
         // TODO 责任链模式 验证城市名称是否存在、不存在加载缓存等等
         LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
                 .eq(TrainStationRelationDO::getStartRegion, requestParam.getFromStation())
                 .eq(TrainStationRelationDO::getEndRegion, requestParam.getToStation());
-        IPage<TrainStationRelationDO> trainStationRelationPage = trainStationRelationMapper.selectPage(PageUtil.convert(requestParam), queryWrapper);
-        return PageUtil.convert(trainStationRelationPage, each -> {
+        List<TrainStationRelationDO> trainStationRelationList = trainStationRelationMapper.selectList(queryWrapper);
+        List<TicketListDTO> seatResults = new ArrayList<>();
+        List<String> trainBrandList = new ArrayList<>();
+        for (TrainStationRelationDO each : trainStationRelationList) {
             LambdaQueryWrapper<TrainDO> trainQueryWrapper = Wrappers.lambdaQuery(TrainDO.class).eq(TrainDO::getId, each.getTrainId());
             TrainDO trainDO = trainMapper.selectOne(trainQueryWrapper);
-            TicketPageQueryRespDTO result = new TicketPageQueryRespDTO();
+            TicketListDTO result = new TicketListDTO();
             result.setTrainNumber(trainDO.getTrainNumber());
             result.setDepartureTime(each.getDepartureTime());
             result.setArrivalTime(each.getArrivalTime());
@@ -106,8 +113,11 @@ public class TicketServiceImpl implements TicketService {
             result.setArrival(each.getArrival());
             result.setDepartureFlag(each.getDepartureFlag());
             result.setArrivalFlag(each.getArrivalFlag());
+            if (StrUtil.isNotBlank(trainDO.getTrainBrand())) {
+                trainBrandList.addAll(TrainTagEnum.findNameByCode(StrUtil.split(trainDO.getTrainBrand(), ",")));
+            }
             if (Objects.equals(trainDO.getTrainType(), 0)) {
-                BulletTrainDTO bulletTrainDTO = new BulletTrainDTO();
+                HighSpeedTrainDTO highSpeedTrainDTO = new HighSpeedTrainDTO();
                 LambdaQueryWrapper<TrainStationPriceDO> trainStationPriceQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
                         .eq(TrainStationPriceDO::getDeparture, each.getDeparture())
                         .eq(TrainStationPriceDO::getArrival, each.getArrival())
@@ -119,33 +129,40 @@ public class TicketServiceImpl implements TicketService {
                     switch (item.getSeatType()) {
                         case 0:
                             String businessClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "0");
-                            bulletTrainDTO.setBusinessClassQuantity(Integer.parseInt(businessClassQuantity));
-                            bulletTrainDTO.setBusinessClassPrice(item.getPrice());
+                            highSpeedTrainDTO.setBusinessClassQuantity(Integer.parseInt(businessClassQuantity));
+                            highSpeedTrainDTO.setBusinessClassPrice(item.getPrice());
                             // TODO 候补逻辑后续补充
-                            bulletTrainDTO.setBusinessClassCandidate(false);
+                            highSpeedTrainDTO.setBusinessClassCandidate(false);
                             break;
                         case 1:
                             String firstClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "1");
-                            bulletTrainDTO.setFirstClassQuantity(Integer.parseInt(firstClassQuantity));
-                            bulletTrainDTO.setFirstClassPrice(item.getPrice());
+                            highSpeedTrainDTO.setFirstClassQuantity(Integer.parseInt(firstClassQuantity));
+                            highSpeedTrainDTO.setFirstClassPrice(item.getPrice());
                             // TODO 候补逻辑后续补充
-                            bulletTrainDTO.setFirstClassCandidate(false);
+                            highSpeedTrainDTO.setFirstClassCandidate(false);
                             break;
                         case 2:
                             String secondClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "2");
-                            bulletTrainDTO.setSecondClassQuantity(Integer.parseInt(secondClassQuantity));
-                            bulletTrainDTO.setSecondClassPrice(item.getPrice());
+                            highSpeedTrainDTO.setSecondClassQuantity(Integer.parseInt(secondClassQuantity));
+                            highSpeedTrainDTO.setSecondClassPrice(item.getPrice());
                             // TODO 候补逻辑后续补充
-                            bulletTrainDTO.setSecondClassCandidate(false);
+                            highSpeedTrainDTO.setSecondClassCandidate(false);
                             break;
                         default:
                             break;
                     }
                 });
-                result.setBulletTrain(bulletTrainDTO);
+                result.setHighSpeedTrain(highSpeedTrainDTO);
+                seatResults.add(result);
             }
-            return result;
-        });
+        }
+        return TicketPageQueryRespDTO.builder()
+                .trainList(seatResults)
+                .departureStationList(buildDepartureStationList(seatResults))
+                .arrivalStationList(buildArrivalStationList(seatResults))
+                .trainBrandList(trainBrandList)
+                .seatClassList(buildSeatClassList(seatResults))
+                .build();
     }
 
     @Override
@@ -211,5 +228,27 @@ public class TicketServiceImpl implements TicketService {
             throw new ServiceException(ticketOrderResult.getMessage());
         }
         return ticketOrderResult.getData();
+    }
+
+    private List<String> buildDepartureStationList(List<TicketListDTO> seatResults) {
+        return seatResults.stream().map(TicketListDTO::getDeparture).distinct().collect(Collectors.toList());
+    }
+
+    private List<String> buildArrivalStationList(List<TicketListDTO> seatResults) {
+        return seatResults.stream().map(TicketListDTO::getArrival).distinct().collect(Collectors.toList());
+    }
+
+    private List<String> buildSeatClassList(List<TicketListDTO> seatResults) {
+        Set<String> resultSeatClassList = new HashSet<>();
+        for (TicketListDTO each : seatResults) {
+            HighSpeedTrainDTO highSpeedTrain = each.getHighSpeedTrain();
+            Optional.ofNullable(highSpeedTrain.getBusinessClassPrice()).ifPresent(item -> resultSeatClassList.add("商务座"));
+            Optional.ofNullable(highSpeedTrain.getFirstClassPrice()).ifPresent(item -> resultSeatClassList.add("一等座"));
+            Optional.ofNullable(highSpeedTrain.getSecondClassQuantity()).ifPresent(item -> resultSeatClassList.add("二等座"));
+            // 其余省略... 后续有精力再补充
+            BulletTrainDTO bulletTrain = each.getBulletTrain();
+            RegularTrainDTO regularTrain = each.getRegularTrain();
+        }
+        return resultSeatClassList.stream().toList();
     }
 }

@@ -53,9 +53,9 @@ public class TrainDO extends BaseDO {
     private Integer trainType;
 
     /**
-     * 列车品牌 0：复兴号
+     * 列车标签 0：复兴号
      */
-    private Integer trainBrand;
+    private String trainBrand;
 
     /**
      * 起始站

@@ -28,34 +28,49 @@ import lombok.Data;
 public class BulletTrainDTO {
 
     /**
-     * 商务座数量
+     * 动卧数量
      */
-    private Integer businessClassQuantity;
+    private Integer sleeperQuantity;
 
     /**
-     * 商务座候选标识
+     * 动卧候选标识
      */
-    private Boolean businessClassCandidate;
+    private Boolean sleeperCandidate;
 
     /**
-     * 商务座价格
+     * 动卧价格
      */
-    private Integer businessClassPrice;
+    private Integer sleeperPrice;
 
     /**
-     * 一等座数量
+     * 一等卧数量
      */
-    private Integer firstClassQuantity;
+    private Integer firstSleeperQuantity;
 
     /**
-     * 一等座候选标识
+     * 一等卧候选标识
      */
-    private Boolean firstClassCandidate;
+    private Boolean firstSleeperCandidate;
 
     /**
-     * 一等座价格
+     * 一等卧价格
      */
-    private Integer firstClassPrice;
+    private Integer firstSleeperPrice;
+
+    /**
+     * 二等卧数量
+     */
+    private Integer secondSleeperQuantity;
+
+    /**
+     * 二等卧候选标识
+     */
+    private Boolean secondSleeperCandidate;
+
+    /**
+     * 二等卧价格
+     */
+    private Integer secondSleeperPrice;
 
     /**
      * 二等座数量

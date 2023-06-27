@@ -17,11 +17,13 @@
 
 package org.opengoofy.index12306.biz.ticketservice.dto.resp;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
+import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 
-import java.util.Date;
+import java.util.List;
 
 /**
  * 车票分页查询响应参数
@@ -29,52 +31,33 @@ import java.util.Date;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TicketPageQueryRespDTO {
 
     /**
-     * 车次
+     * 车次集合数据
      */
-    private String trainNumber;
+    private List<TicketListDTO> trainList;
 
     /**
-     * 出发时间
+     * 车次类型：D-动车 Z-直达 复兴号等
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date departureTime;
+    private List<String> trainBrandList;
 
     /**
-     * 到达时间
+     * 出发车站
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date arrivalTime;
+    private List<String> departureStationList;
 
     /**
-     * 历时
+     * 到达车站
      */
-    private String duration;
+    private List<String> arrivalStationList;
 
     /**
-     * 出发站点
+     * 车次席别
      */
-    private String departure;
-
-    /**
-     * 到达站点
-     */
-    private String arrival;
-
-    /**
-     * 始发站标识
-     */
-    private Boolean departureFlag;
-
-    /**
-     * 终点站标识
-     */
-    private Boolean arrivalFlag;
-
-    /**
-     * 高铁属性
-     */
-    private BulletTrainDTO bulletTrain;
+    private List<String> seatClassList;
 }

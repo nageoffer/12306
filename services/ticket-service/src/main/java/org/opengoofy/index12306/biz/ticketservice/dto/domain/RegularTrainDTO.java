@@ -15,71 +15,75 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice.dao.entity;
+package org.opengoofy.index12306.biz.ticketservice.dto.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
-
-import java.util.Date;
 
 /**
- * 乘车人实体
+ * 普通车实体
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@TableName("t_passenger")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PassengerDO extends BaseDO {
+public class RegularTrainDTO {
 
     /**
-     * id
+     * 软卧数量
      */
-    private Long id;
+    private Integer softSleeperQuantity;
 
     /**
-     * 用户名
+     * 软卧候选标识
      */
-    private String username;
+    private Boolean softSleeperCandidate;
 
     /**
-     * 真实姓名
+     * 软卧价格
      */
-    private String realName;
+    private Integer softSleeperPrice;
 
     /**
-     * 证件类型
+     * 高级软卧数量
      */
-    private Integer idType;
+    private Integer deluxeSoftSleeperQuantity;
 
     /**
-     * 证件号码
+     * 高级软卧候选标识
      */
-    private String idCard;
+    private Boolean deluxeSoftSleeperCandidate;
 
     /**
-     * 优惠类型
+     * 高级软卧价格
      */
-    private Integer discountType;
+    private Integer deluxeSoftSleeperPrice;
 
     /**
-     * 手机号
+     * 硬卧数量
      */
-    private String phone;
+    private Integer hardSleeperQuantity;
 
     /**
-     * 添加日期
+     * 硬卧候选标识
      */
-    private Date createDate;
+    private Boolean hardSleeperCandidate;
 
     /**
-     * 审核状态
+     * 硬卧价格
      */
-    private Integer verifyStatus;
+    private Integer hardSleeperPrice;
+
+    /**
+     * 硬座数量
+     */
+    private Integer hardSeatQuantity;
+
+    /**
+     * 硬座候选标识
+     */
+    private Boolean hardSeatCandidate;
+
+    /**
+     * 硬座价格
+     */
+    private Integer hardSeatPrice;
 }

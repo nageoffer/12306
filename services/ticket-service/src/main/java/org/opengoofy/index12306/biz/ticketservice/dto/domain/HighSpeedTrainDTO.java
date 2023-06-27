@@ -15,33 +15,60 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.service;
+package org.opengoofy.index12306.biz.ticketservice.dto.domain;
 
-import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
-import org.springframework.web.bind.annotation.RequestBody;
+import lombok.Data;
 
 /**
- * 车票接口
+ * 动车实体
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface TicketService {
+@Data
+public class HighSpeedTrainDTO {
 
     /**
-     * 根据条件分页查询车票
-     *
-     * @param requestParam 分页查询车票请求参数
-     * @return 查询车票返回结果
+     * 商务座数量
      */
-    TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam);
+    private Integer businessClassQuantity;
 
     /**
-     * 购买车票
-     *
-     * @param requestParam 车票购买请求参数
-     * @return 订单号
+     * 商务座候选标识
      */
-    String purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam);
+    private Boolean businessClassCandidate;
+
+    /**
+     * 商务座价格
+     */
+    private Integer businessClassPrice;
+
+    /**
+     * 一等座数量
+     */
+    private Integer firstClassQuantity;
+
+    /**
+     * 一等座候选标识
+     */
+    private Boolean firstClassCandidate;
+
+    /**
+     * 一等座价格
+     */
+    private Integer firstClassPrice;
+
+    /**
+     * 二等座数量
+     */
+    private Integer secondClassQuantity;
+
+    /**
+     * 二等座候选标识
+     */
+    private Boolean secondClassCandidate;
+
+    /**
+     * 二等座价格
+     */
+    private Integer secondClassPrice;
 }

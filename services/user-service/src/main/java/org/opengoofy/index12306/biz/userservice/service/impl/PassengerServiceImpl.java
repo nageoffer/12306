@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.dao.entity.PassengerDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.PassengerMapper;
+import org.opengoofy.index12306.biz.userservice.dto.req.PassengerRemoveReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.PassengerService;
@@ -77,5 +78,15 @@ public class PassengerServiceImpl implements PassengerService {
                 .eq(PassengerDO::getUsername, requestParam.getUsername())
                 .eq(PassengerDO::getId, requestParam.getId());
         passengerMapper.update(passengerDO, updateWrapper);
+    }
+
+    @Override
+    public void removePassenger(PassengerRemoveReqDTO requestParam) {
+        LambdaUpdateWrapper<PassengerDO> deleteWrapper = Wrappers.lambdaUpdate(PassengerDO.class)
+                // TODO 用户名和当前用户比对
+                .eq(PassengerDO::getUsername, requestParam.getUsername())
+                .eq(PassengerDO::getId, requestParam.getId());
+        // 逻辑删除，修改数据库表记录 del_flag
+        passengerMapper.delete(deleteWrapper);
     }
 }

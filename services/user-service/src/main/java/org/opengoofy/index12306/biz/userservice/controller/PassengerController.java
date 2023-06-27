@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.userservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.userservice.dto.req.PassengerRemoveReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.PassengerService;
@@ -73,6 +74,15 @@ public class PassengerController {
     @PostMapping("/api/user-service/passenger/update")
     public Result<Void> updatePassenger(@RequestBody PassengerReqDTO requestParam) {
         passengerService.updatePassenger(requestParam);
+        return Results.success();
+    }
+
+    /**
+     * 移除乘车人
+     */
+    @PostMapping("/api/user-service/passenger/remote")
+    public Result<Void> removePassenger(@RequestBody PassengerRemoveReqDTO requestParam) {
+        passengerService.removePassenger(requestParam);
         return Results.success();
     }
 }

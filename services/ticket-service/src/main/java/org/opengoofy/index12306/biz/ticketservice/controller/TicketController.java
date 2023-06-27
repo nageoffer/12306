@@ -22,7 +22,6 @@ import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
-import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +44,7 @@ public class TicketController {
      * 根据条件查询车票
      */
     @GetMapping("/api/ticket-service/ticket/query")
-    public Result<PageResponse<TicketPageQueryRespDTO>> pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
+    public Result<TicketPageQueryRespDTO> pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
         return Results.success(ticketService.pageListTicketQuery(requestParam));
     }
 

@@ -15,71 +15,75 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice.dao.entity;
+package org.opengoofy.index12306.biz.ticketservice.dto.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
 
 import java.util.Date;
 
 /**
- * 乘车人实体
+ * 车次集合实体
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@TableName("t_passenger")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class PassengerDO extends BaseDO {
+public class TicketListDTO {
 
     /**
-     * id
+     * 车次
      */
-    private Long id;
+    private String trainNumber;
 
     /**
-     * 用户名
+     * 出发时间
      */
-    private String username;
+    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
+    private Date departureTime;
 
     /**
-     * 真实姓名
+     * 到达时间
      */
-    private String realName;
+    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
+    private Date arrivalTime;
 
     /**
-     * 证件类型
+     * 历时
      */
-    private Integer idType;
+    private String duration;
 
     /**
-     * 证件号码
+     * 出发站点
      */
-    private String idCard;
+    private String departure;
 
     /**
-     * 优惠类型
+     * 到达站点
      */
-    private Integer discountType;
+    private String arrival;
 
     /**
-     * 手机号
+     * 始发站标识
      */
-    private String phone;
+    private Boolean departureFlag;
 
     /**
-     * 添加日期
+     * 终点站标识
      */
-    private Date createDate;
+    private Boolean arrivalFlag;
 
     /**
-     * 审核状态
+     * 高铁属性
      */
-    private Integer verifyStatus;
+    private HighSpeedTrainDTO highSpeedTrain;
+
+    /**
+     * 动车属性
+     */
+    private BulletTrainDTO bulletTrain;
+
+    /**
+     * 普通车属性
+     */
+    private RegularTrainDTO regularTrain;
 }
