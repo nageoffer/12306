@@ -1,0 +1,46 @@
+server:
+  port: 9004
+
+spring:
+  application:
+    name: index12306-pay-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://127.0.0.1:3306/12306?characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&serverTimezone=GMT%2B8
+    hikari:
+      connection-test-query: select 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+      maximum-pool-size: 5
+      minimum-idle: 5
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      password: nacos
+      username: nacos
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # mapper-locations: classpath:mapper/*.xml
+
+framework:
+  fastjson:
+    safa-mode: true
+  cache:
+    redis:
+      value-timeout: 16
+      value-time-unit: days
