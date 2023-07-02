@@ -61,6 +61,11 @@
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+        </dependency>
+
         <!-- NoClassDefFoundError: javax/xml/bind/JAXBException start -->
         <dependency>
             <groupId>javax.xml.bind</groupId>

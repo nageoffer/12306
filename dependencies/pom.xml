@@ -23,6 +23,7 @@
         <redisson.version>3.21.3</redisson.version>
         <guava.version>30.0-jre</guava.version>
         <xxl-job.version>2.3.1</xxl-job.version>
+        <alipay-sdk-java.version>4.22.110.ALL</alipay-sdk-java.version>
     </properties>
 
     <dependencyManagement>
@@ -109,6 +110,12 @@
                 <groupId>com.xuxueli</groupId>
                 <artifactId>xxl-job-core</artifactId>
                 <version>${xxl-job.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alipay.sdk</groupId>
+                <artifactId>alipay-sdk-java</artifactId>
+                <version>${alipay-sdk-java.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
