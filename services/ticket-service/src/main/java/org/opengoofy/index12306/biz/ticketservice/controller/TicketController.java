@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
@@ -52,7 +53,7 @@ public class TicketController {
      * 购买车票
      */
     @PostMapping("/api/ticket-service/ticket/purchase")
-    public Result<String> purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam) {
+    public Result<TicketPurchaseRespDTO> purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam) {
         return Results.success(ticketService.purchaseTickets(requestParam));
     }
 }

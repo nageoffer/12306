@@ -44,6 +44,7 @@ import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderCreateRemoteReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderItemCreateRemoteReqDTO;
@@ -167,7 +168,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public String purchaseTickets(PurchaseTicketReqDTO requestParam) {
+    public TicketPurchaseRespDTO purchaseTickets(PurchaseTicketReqDTO requestParam) {
         String trainId = requestParam.getTrainId();
         TrainDO trainDO = distributedCache.get(
                 TRAIN_INFO + trainId,
@@ -227,7 +228,7 @@ public class TicketServiceImpl implements TicketService {
             // TODO 回退锁定车票
             throw new ServiceException(ticketOrderResult.getMessage());
         }
-        return ticketOrderResult.getData();
+        return new TicketPurchaseRespDTO(ticketOrderResult.getData());
     }
 
     private List<String> buildDepartureStationList(List<TicketListDTO> seatResults) {

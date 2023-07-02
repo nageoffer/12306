@@ -15,34 +15,26 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.service;
+package org.opengoofy.index12306.biz.ticketservice.dto.resp;
 
-import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
-import org.springframework.web.bind.annotation.RequestBody;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * 车票接口
+ * 车票购买返回参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface TicketService {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class TicketPurchaseRespDTO {
 
     /**
-     * 根据条件分页查询车票
-     *
-     * @param requestParam 分页查询车票请求参数
-     * @return 查询车票返回结果
+     * 订单号
      */
-    TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam);
-
-    /**
-     * 购买车票
-     *
-     * @param requestParam 车票购买请求参数
-     * @return 订单号
-     */
-    TicketPurchaseRespDTO purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam);
+    private String orderSn;
 }
