@@ -45,6 +45,8 @@ import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
+import org.opengoofy.index12306.biz.ticketservice.mq.produce.DelayCloseOrderSendProduce;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderCreateRemoteReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderItemCreateRemoteReqDTO;
@@ -92,6 +94,7 @@ public class TicketServiceImpl implements TicketService {
     private final AbstractStrategyChoose abstractStrategyChoose;
     private final TicketMapper ticketMapper;
     private final TicketOrderRemoteService ticketOrderRemoteService;
+    private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
@@ -218,6 +221,8 @@ public class TicketServiceImpl implements TicketService {
                     .ticketOrderItems(orderItemCreateRemoteReqDTOList)
                     .build();
             ticketOrderResult = ticketOrderRemoteService.createTicketOrder(orderCreateRemoteReqDTO);
+            // 发送 RocketMQ 延时消息，指定时间后取消订单
+            delayCloseOrderSendProduce.sendMessage(new DelayCloseOrderEvent(ticketOrderResult.getData()));
         } catch (Throwable ex) {
             log.error("远程调用订单服务创建错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
             // TODO 回退锁定车票

@@ -24,6 +24,7 @@
         <guava.version>30.0-jre</guava.version>
         <xxl-job.version>2.3.1</xxl-job.version>
         <alipay-sdk-java.version>4.22.110.ALL</alipay-sdk-java.version>
+        <rocketmq-spring-boot-starter.version>2.2.3</rocketmq-spring-boot-starter.version>
     </properties>
 
     <dependencyManagement>
@@ -116,6 +117,12 @@
                 <groupId>com.alipay.sdk</groupId>
                 <artifactId>alipay-sdk-java</artifactId>
                 <version>${alipay-sdk-java.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq-spring-boot-starter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

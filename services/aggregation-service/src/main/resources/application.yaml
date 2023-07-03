@@ -21,6 +21,14 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+rocketmq:
+  name-server: 127.0.0.1:9876
+  producer:
+    group: index12306_aggregation-service_common-message-execute_pg
+    send-message-timeout: 2000
+    retry-times-when-send-failed: 1
+    retry-times-when-send-async-failed: 1
+
 mybatis-plus:
   global-config:
     db-config:
