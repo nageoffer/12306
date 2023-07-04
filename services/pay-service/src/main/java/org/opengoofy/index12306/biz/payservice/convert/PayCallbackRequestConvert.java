@@ -17,7 +17,7 @@
 
 package org.opengoofy.index12306.biz.payservice.convert;
 
-import org.opengoofy.index12306.biz.payservice.common.PayChannelEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
 import org.opengoofy.index12306.biz.payservice.dto.PayCallbackCommand;
 import org.opengoofy.index12306.biz.payservice.dto.base.AliPayCallbackRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayCallbackRequest;
@@ -40,7 +40,7 @@ public final class PayCallbackRequestConvert {
      */
     public static PayCallbackRequest command2PayCallbackRequest(PayCallbackCommand payCallbackCommand) {
         PayCallbackRequest payCallbackRequest = null;
-        if (Objects.equals(payCallbackCommand.getChannel(), PayChannelEnum.ALI_PAY.name())) {
+        if (Objects.equals(payCallbackCommand.getChannel(), PayChannelEnum.ALI_PAY.getCode())) {
             payCallbackRequest = BeanUtil.convert(payCallbackCommand, AliPayCallbackRequest.class);
             ((AliPayCallbackRequest) payCallbackRequest).setOrderRequestId(payCallbackCommand.getOrderRequestId());
         }

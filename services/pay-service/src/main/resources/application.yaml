@@ -27,6 +27,14 @@ spring:
       port: 6379
       password: 123456
 
+rocketmq:
+  name-server: 127.0.0.1:9876
+  producer:
+    group: index12306_pay-service_common-message-execute_pg
+    send-message-timeout: 2000
+    retry-times-when-send-failed: 1
+    retry-times-when-send-async-failed: 1
+
 pay:
   alipay:
     alipay-public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApVrN+wLx7USg0cD1IPbH7UC4WX8Mh/Wtd8WBycYDyK/5xg5ndpTJ5S4zrWsObxOnq0OVzWno0LxhCAPaH89gBLHab+KSvX85AaJjkWJwf4u92Wtlr7BeC9r2cCqeK6JPQVMt8bRRM19dC7D7ls93tjdXSzUC/QAMarRoS6D5bLn4hHQBN2gMRyDuPv2E/tpXgotMa/gkpY4SuYmzqaK2UPnv7K04eYhZg5IIevWqMveSJeoQQjsqO4aqQWnSOs8XOZ5hHqxUownYqIis0oHA7mcRX2Pm7RtR8staHFbNALk0wvm1Wa0s3NNYOGl6Or33VMLJuflH26TaXWJZyZideQIDAQAB

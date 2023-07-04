@@ -15,78 +15,51 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.dto;
+package org.opengoofy.index12306.biz.payservice.mq.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-import java.util.Date;
+import java.io.Serializable;
+import java.util.UUID;
 
 /**
- * 支付单回调请求参数
+ * 消息体包装器
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class PayCallbackReqDTO {
+@NoArgsConstructor(force = true)
+@AllArgsConstructor
+@RequiredArgsConstructor
+public final class MessageWrapper<T> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
-     * 订单号
+     * 消息发送 Keys
      */
-    private String orderSn;
+    @NonNull
+    private String keys;
 
     /**
-     * 商户订单号
+     * 消息体
      */
-    private String outOrderSn;
+    @NonNull
+    private T message;
 
     /**
-     * 支付渠道
+     * 唯一标识，用于客户端幂等验证
      */
-    private String channel;
+    private String uuid = UUID.randomUUID().toString();
 
     /**
-     * 支付环境
+     * 消息发送时间
      */
-    private String tradeType;
-
-    /**
-     * 订单标题
-     */
-    private String subject;
-
-    /**
-     * 交易凭证号
-     */
-    private String tradeNo;
-
-    /**
-     * 交易总金额
-     */
-    private Integer totalAmount;
-
-    /**
-     * 付款时间
-     */
-    private Date gmtPayment;
-
-    /**
-     * 支付金额
-     */
-    private Integer payAmount;
-
-    /**
-     * 支付状态
-     */
-    private Integer status;
-
-    /**
-     * 商户订单号
-     */
-    private String orderRequestId;
+    private Long timestamp = System.currentTimeMillis();
 }

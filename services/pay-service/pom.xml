@@ -66,6 +66,11 @@
             <artifactId>alipay-sdk-java</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+        </dependency>
+
         <!-- NoClassDefFoundError: javax/xml/bind/JAXBException start -->
         <dependency>
             <groupId>javax.xml.bind</groupId>

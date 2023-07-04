@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.common;
+package org.opengoofy.index12306.biz.payservice.common.enums;
 
 import cn.hutool.core.collection.ListUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
@@ -36,6 +36,10 @@ public enum TradeStatusEnum {
      * 交易创建，等待买家付款
      */
     WAIT_BUYER_PAY {
+        @Override
+        public Integer tradeCode() {
+            return 0;
+        }
 
         @Override
         protected List<String> tradeStatus() {
@@ -47,6 +51,10 @@ public enum TradeStatusEnum {
      * 未付款交易超时关闭，或支付完成后全额退款
      */
     TRADE_CLOSED {
+        @Override
+        public Integer tradeCode() {
+            return 10;
+        }
 
         @Override
         protected List<String> tradeStatus() {
@@ -58,6 +66,10 @@ public enum TradeStatusEnum {
      * 交易支付成功
      */
     TRADE_SUCCESS {
+        @Override
+        public Integer tradeCode() {
+            return 20;
+        }
 
         @Override
         protected List<String> tradeStatus() {
@@ -69,12 +81,21 @@ public enum TradeStatusEnum {
      * 交易结束，不可退款
      */
     TRADE_FINISHED {
+        @Override
+        public Integer tradeCode() {
+            return 30;
+        }
 
         @Override
         protected List<String> tradeStatus() {
             return ListUtil.of("TRADE_FINISHED");
         }
     };
+
+    /**
+     * 获取交易状态码
+     */
+    public abstract Integer tradeCode();
 
     /**
      * 获取交易状态集合
@@ -90,5 +111,16 @@ public enum TradeStatusEnum {
     public static String queryActualTradeStatus(String tradeStatus) {
         Optional<TradeStatusEnum> tradeStatusEnum = Arrays.stream(TradeStatusEnum.values()).filter(each -> each.tradeStatus().contains(tradeStatus)).findFirst();
         return tradeStatusEnum.orElseThrow(() -> new ServiceException("未找到支付状态")).toString();
+    }
+
+    /**
+     * 查询真实的交易状态
+     *
+     * @param tradeStatus 三方交易状态
+     * @return 真实的交易状态，入库使用
+     */
+    public static Integer queryActualTradeStatusCode(String tradeStatus) {
+        Optional<TradeStatusEnum> tradeStatusEnum = Arrays.stream(TradeStatusEnum.values()).filter(each -> each.tradeStatus().contains(tradeStatus)).findFirst();
+        return tradeStatusEnum.orElseThrow(() -> new ServiceException("未找到支付状态")).tradeCode();
     }
 }

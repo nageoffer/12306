@@ -18,7 +18,7 @@
 package org.opengoofy.index12306.biz.payservice.dto.base;
 
 import lombok.Data;
-import org.opengoofy.index12306.biz.payservice.common.PayChannelEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
 
 import java.util.Date;
 
@@ -62,6 +62,6 @@ public final class AliPayCallbackRequest extends AbstractPayCallbackRequest {
 
     @Override
     public String buildMark() {
-        return PayChannelEnum.ALI_PAY.name();
+        return PayChannelEnum.ALI_PAY.getName();
     }
 }

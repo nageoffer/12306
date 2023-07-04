@@ -15,60 +15,53 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.dto.base;
+package org.opengoofy.index12306.biz.payservice.common.enums;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.opengoofy.index12306.framework.starter.distributedid.toolkit.SnowflakeIdUtil;
+import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
- * 抽象支付入参实体
+ * 交易环境枚举
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public abstract class AbstractPayRequest implements PayRequest {
+@RequiredArgsConstructor
+public enum PayTradeTypeEnum {
 
     /**
-     * 交易环境，H5、小程序、网站等
+     * 扫码支付环境
      */
-    @Getter
-    @Setter
-    private Integer tradeType;
+    NATIVE(0),
 
     /**
-     * 订单号
+     * 移动端 Web 应用中支付环境
      */
-    @Getter
-    @Setter
-    private String orderSn;
+    JSAPI(1),
 
     /**
-     * 支付渠道
+     * 手机浏览器中打开的H5网页支付环境
      */
-    @Getter
-    @Setter
-    private Integer channel;
+    MWEB(2),
 
     /**
-     * 商户订单号
-     * 由商家自定义，64个字符以内，仅支持字母、数字、下划线且需保证在商户端不重复
+     * 去中心化应用程序中支付环境
      */
+    DAPP(3);
+
     @Getter
-    @Setter
-    private String orderRequestId = SnowflakeIdUtil.nextIdStr();
+    private final Integer code;
 
-    @Override
-    public AliPayRequest getAliPayRequest() {
-        return null;
-    }
-
-    @Override
-    public String getOrderRequestId() {
-        return orderRequestId;
-    }
-
-    @Override
-    public String buildMark() {
-        return null;
+    /**
+     * 根据名称查找码值
+     */
+    public static String findNameByCode(Integer code) {
+        return Arrays.stream(PayTradeTypeEnum.values())
+                .filter(each -> Objects.equals(each.getCode(), code))
+                .findFirst()
+                .map(PayTradeTypeEnum::name)
+                .orElse(null);
     }
 }

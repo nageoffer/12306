@@ -15,60 +15,30 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.dto.base;
+package org.opengoofy.index12306.biz.payservice.common.enums;
 
 import lombok.Getter;
-import lombok.Setter;
-import org.opengoofy.index12306.framework.starter.distributedid.toolkit.SnowflakeIdUtil;
+import lombok.RequiredArgsConstructor;
 
 /**
- * 抽象支付入参实体
+ * 支付渠道枚举
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public abstract class AbstractPayRequest implements PayRequest {
+@RequiredArgsConstructor
+public enum PayChannelEnum {
 
     /**
-     * 交易环境，H5、小程序、网站等
+     * 支付宝
      */
+    ALI_PAY(0, "ALI_PAY", "支付宝");
+
     @Getter
-    @Setter
-    private Integer tradeType;
+    private final Integer code;
 
-    /**
-     * 订单号
-     */
     @Getter
-    @Setter
-    private String orderSn;
+    private final String name;
 
-    /**
-     * 支付渠道
-     */
     @Getter
-    @Setter
-    private Integer channel;
-
-    /**
-     * 商户订单号
-     * 由商家自定义，64个字符以内，仅支持字母、数字、下划线且需保证在商户端不重复
-     */
-    @Getter
-    @Setter
-    private String orderRequestId = SnowflakeIdUtil.nextIdStr();
-
-    @Override
-    public AliPayRequest getAliPayRequest() {
-        return null;
-    }
-
-    @Override
-    public String getOrderRequestId() {
-        return orderRequestId;
-    }
-
-    @Override
-    public String buildMark() {
-        return null;
-    }
+    private final String value;
 }

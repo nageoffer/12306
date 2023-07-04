@@ -15,17 +15,15 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.dto;
+package org.opengoofy.index12306.biz.payservice.mq.produce;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 /**
- * 支付单回调请求参数
+ * 消息发送事件基础扩充属性实体
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
@@ -33,60 +31,30 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PayCallbackReqDTO {
+public final class BaseSendExtendDTO {
 
     /**
-     * 订单号
+     * 事件名称
      */
-    private String orderSn;
+    private String eventName;
 
     /**
-     * 商户订单号
+     * 主题
      */
-    private String outOrderSn;
+    private String topic;
 
     /**
-     * 支付渠道
+     * 标签
      */
-    private String channel;
+    private String tag;
 
     /**
-     * 支付环境
+     * 业务标识
      */
-    private String tradeType;
+    private String keys;
 
     /**
-     * 订单标题
+     * 发送消息超时时间
      */
-    private String subject;
-
-    /**
-     * 交易凭证号
-     */
-    private String tradeNo;
-
-    /**
-     * 交易总金额
-     */
-    private Integer totalAmount;
-
-    /**
-     * 付款时间
-     */
-    private Date gmtPayment;
-
-    /**
-     * 支付金额
-     */
-    private Integer payAmount;
-
-    /**
-     * 支付状态
-     */
-    private Integer status;
-
-    /**
-     * 商户订单号
-     */
-    private String orderRequestId;
+    private Long sentTimeout;
 }

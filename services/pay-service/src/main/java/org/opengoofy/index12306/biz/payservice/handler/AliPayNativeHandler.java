@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.payservice.handler;
 
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.StrUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
@@ -28,8 +29,8 @@ import com.alipay.api.response.AlipayTradePagePayResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.opengoofy.index12306.biz.payservice.common.PayChannelEnum;
-import org.opengoofy.index12306.biz.payservice.common.PayTradeTypeEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.PayTradeTypeEnum;
 import org.opengoofy.index12306.biz.payservice.config.AliPayProperties;
 import org.opengoofy.index12306.biz.payservice.dto.base.AliPayRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
@@ -72,7 +73,7 @@ public final class AliPayNativeHandler extends AbstractPayHandler implements Abs
                 aliPayRequest.getOrderRequestId(),
                 aliPayRequest.getTotalAmount(),
                 response.getBody());
-        return new PayResponse(response.getBody());
+        return new PayResponse(StrUtil.replace(StrUtil.replace(response.getBody(), "\"", "'"), "\n", ""));
     }
 
     @Override

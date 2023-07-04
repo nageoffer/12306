@@ -19,7 +19,8 @@ package org.opengoofy.index12306.biz.payservice.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengoofy.index12306.biz.payservice.common.PayChannelEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.TradeStatusEnum;
 import org.opengoofy.index12306.biz.payservice.dto.PayCallbackReqDTO;
 import org.opengoofy.index12306.biz.payservice.dto.base.AliPayCallbackRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayCallbackRequest;
@@ -44,7 +45,7 @@ public final class AliPayCallbackHandler extends AbstractPayCallbackHandler impl
     public void callback(PayCallbackRequest payCallbackRequest) {
         AliPayCallbackRequest aliPayCallBackRequest = payCallbackRequest.getAliPayCallBackRequest();
         PayCallbackReqDTO payCallbackRequestParam = PayCallbackReqDTO.builder()
-                .status(aliPayCallBackRequest.getTradeStatus())
+                .status(TradeStatusEnum.queryActualTradeStatusCode(aliPayCallBackRequest.getTradeStatus()))
                 .payAmount(aliPayCallBackRequest.getBuyerPayAmount())
                 .tradeNo(aliPayCallBackRequest.getTradeNo())
                 .gmtPayment(aliPayCallBackRequest.getGmtPayment())

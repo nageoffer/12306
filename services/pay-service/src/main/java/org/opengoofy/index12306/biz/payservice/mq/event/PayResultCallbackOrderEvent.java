@@ -15,22 +15,24 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.dao.entity;
+package org.opengoofy.index12306.biz.payservice.mq.event;
 
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.opengoofy.index12306.framework.starter.database.base.BaseDO;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 支付实体
+ * 支付结果回调订单服务事件
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@TableName("t_pay")
-public class PayDO extends BaseDO {
+@NoArgsConstructor
+@AllArgsConstructor
+public final class PayResultCallbackOrderEvent {
 
     /**
      * id
@@ -50,12 +52,12 @@ public class PayDO extends BaseDO {
     /**
      * 支付渠道
      */
-    private Integer channel;
+    private String channel;
 
     /**
      * 支付环境
      */
-    private Integer tradeType;
+    private String tradeType;
 
     /**
      * 订单标题
@@ -76,7 +78,7 @@ public class PayDO extends BaseDO {
     /**
      * 交易总金额
      */
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
 
     /**
      * 付款时间
@@ -86,10 +88,10 @@ public class PayDO extends BaseDO {
     /**
      * 支付金额
      */
-    private Integer payAmount;
+    private BigDecimal payAmount;
 
     /**
      * 支付状态
      */
-    private Integer status;
+    private String status;
 }

@@ -22,13 +22,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengoofy.index12306.biz.payservice.common.TradeStatusEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.TradeStatusEnum;
 import org.opengoofy.index12306.biz.payservice.dao.entity.PayDO;
 import org.opengoofy.index12306.biz.payservice.dao.mapper.PayMapper;
 import org.opengoofy.index12306.biz.payservice.dto.PayCallbackReqDTO;
 import org.opengoofy.index12306.biz.payservice.dto.PayRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayResponse;
+import org.opengoofy.index12306.biz.payservice.handler.AliPayNativeHandler;
+import org.opengoofy.index12306.biz.payservice.mq.event.PayResultCallbackOrderEvent;
+import org.opengoofy.index12306.biz.payservice.mq.produce.PayResultCallbackOrderSendProduce;
 import org.opengoofy.index12306.biz.payservice.service.PayService;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
@@ -51,7 +54,7 @@ public class PayServiceImpl implements PayService {
 
     private final PayMapper payMapper;
     private final AbstractStrategyChoose abstractStrategyChoose;
-    // private final PayMessageSendProduce payMessageSendProduce;
+    private final PayResultCallbackOrderSendProduce payResultCallbackOrderSendProduce;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -62,7 +65,7 @@ public class PayServiceImpl implements PayService {
         // 策略模式：通过策略模式封装支付渠道和支付场景，用户支付时动态选择对应的支付组件
         PayResponse result = abstractStrategyChoose.chooseAndExecuteResp(requestParam.buildMark(), requestParam);
         PayDO insertPay = BeanUtil.convert(requestParam, PayDO.class);
-        insertPay.setStatus(TradeStatusEnum.WAIT_BUYER_PAY.name());
+        insertPay.setStatus(TradeStatusEnum.WAIT_BUYER_PAY.tradeCode());
         insertPay.setTotalAmount(requestParam.getTotalAmount().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_HALF_UP).intValue());
         int insert = payMapper.insert(insertPay);
         if (insert <= 0) {
@@ -92,9 +95,8 @@ public class PayServiceImpl implements PayService {
             throw new ServiceException("修改支付单支付结果失败");
         }
         // 交易成功，回调订单服务告知支付结果，修改订单流转状态
-        if (Objects.equals(requestParam.getStatus(), TradeStatusEnum.TRADE_SUCCESS.name())) {
-            // TODO 发送订单回调消息
-            // payMessageSendProduce.payResultNotifyMessageSend(BeanUtil.convert(payDO, PayResultNotifyMessageEvent.class));
+        if (Objects.equals(requestParam.getStatus(), TradeStatusEnum.TRADE_SUCCESS.tradeCode())) {
+            payResultCallbackOrderSendProduce.sendMessage(BeanUtil.convert(payDO, PayResultCallbackOrderEvent.class));
         }
     }
 }
