@@ -15,38 +15,39 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.remote;
+package org.opengoofy.index12306.biz.ticketservice.controller;
 
-import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderCreateRemoteReqDTO;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
-import org.springframework.cloud.openfeign.FeignClient;
+import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 车票订单远程服务调用
+ * TODO 待删除，联调临时解决方案
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@FeignClient(value = "index12306-order-service", url = "${aggregation.remote-url:}")
-public interface TicketOrderRemoteService {
+@Deprecated
+@RestController
+@RequiredArgsConstructor
+public class TempSeatController {
+
+    private final SeatMapper seatMapper;
 
     /**
-     * 创建车票订单
-     *
-     * @param requestParam 创建车票订单请求参数
-     * @return 订单号
+     * 座位重置
      */
-    @PostMapping("/api/order-service/order/ticket/create")
-    Result<String> createTicketOrder(@RequestBody TicketOrderCreateRemoteReqDTO requestParam);
-
-    /**
-     * 车票订单关闭
-     *
-     * @param orderSn 订单号
-     * @return 关闭订单返回结果
-     */
-    @PostMapping("/api/order-service/order/ticket/close")
-    Result<Void> closeTickOrder(@RequestParam("orderSn") String orderSn);
+    @PostMapping("/api/ticket-service/temp/seat/reset")
+    public Result<Void> purchaseTickets(@RequestParam String trainId) {
+        SeatDO seatDO = new SeatDO();
+        seatDO.setTrainId(Long.parseLong(trainId));
+        seatDO.setSeatStatus(0);
+        seatMapper.update(seatDO, Wrappers.lambdaUpdate());
+        return Results.success();
+    }
 }
