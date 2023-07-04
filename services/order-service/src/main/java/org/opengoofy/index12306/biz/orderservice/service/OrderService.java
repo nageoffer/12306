@@ -17,7 +17,9 @@
 
 package org.opengoofy.index12306.biz.orderservice.service;
 
-import org.opengoofy.index12306.biz.orderservice.dto.TicketOrderCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
 
 /**
  * 订单接口层
@@ -33,4 +35,32 @@ public interface OrderService {
      * @return 订单号
      */
     String createTicketOrder(TicketOrderCreateReqDTO requestParam);
+
+    /**
+     * 关闭火车票订单
+     *
+     * @param orderSn 订单号
+     */
+    void closeTickOrder(String orderSn);
+
+    /**
+     * 取消火车票订单
+     *
+     * @param orderSn 订单号
+     */
+    void cancelTickOrder(String orderSn);
+
+    /**
+     * 订单状态反转
+     *
+     * @param requestParam 请求参数
+     */
+    void statusReversal(OrderStatusReversalDTO requestParam);
+
+    /**
+     * 支付结果回调订单
+     *
+     * @param requestParam 请求参数
+     */
+    void payCallbackOrder(PayResultCallbackOrderEvent requestParam);
 }

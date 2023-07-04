@@ -18,12 +18,13 @@
 package org.opengoofy.index12306.biz.orderservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.opengoofy.index12306.biz.orderservice.dto.TicketOrderCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -43,5 +44,23 @@ public class TicketOrderController {
     @PostMapping("/api/order-service/order/ticket/create")
     public Result<String> createTicketOrder(@RequestBody TicketOrderCreateReqDTO requestParam) {
         return Results.success(orderService.createTicketOrder(requestParam));
+    }
+
+    /**
+     * 车票订单关闭
+     */
+    @PostMapping("/api/order-service/order/ticket/close")
+    public Result<Void> closeTickOrder(@RequestParam("orderSn") String orderSn) {
+        orderService.closeTickOrder(orderSn);
+        return Results.success();
+    }
+
+    /**
+     * 车票订单取消
+     */
+    @PostMapping("/api/order-service/order/ticket/cancel")
+    public Result<Void> cancelTickOrder(@RequestParam("orderSn") String orderSn) {
+        orderService.cancelTickOrder(orderSn);
+        return Results.success();
     }
 }

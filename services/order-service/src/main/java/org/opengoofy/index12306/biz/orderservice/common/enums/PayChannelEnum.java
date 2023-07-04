@@ -15,53 +15,33 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.orderservice.dto;
+package org.opengoofy.index12306.biz.orderservice.common.enums;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
- * 车票订单创建请求参数
+ * 支付渠道枚举
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-public class TicketOrderCreateReqDTO {
+@RequiredArgsConstructor
+public enum PayChannelEnum {
 
     /**
-     * 用户名
+     * 支付宝
      */
-    private String username;
+    ALI_PAY(0, "ALI_PAY", "支付宝");
 
-    /**
-     * 车次 ID
-     */
-    private Long trainId;
+    @Getter
+    private final Integer code;
 
-    /**
-     * 出发站点
-     */
-    private String departure;
+    @Getter
+    private final String name;
 
-    /**
-     * 到达站点
-     */
-    private String arrival;
-
-    /**
-     * 订单来源
-     */
-    private Integer source;
-
-    /**
-     * 下单时间
-     */
-    private Date orderTime;
-
-    /**
-     * 订单明细
-     */
-    private List<TicketOrderItemCreateReqDTO> ticketOrderItems;
+    @Getter
+    private final String value;
 }

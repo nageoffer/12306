@@ -15,50 +15,49 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.orderservice.dto;
+package org.opengoofy.index12306.biz.orderservice.common.enums;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * 车票订单详情创建请求参数
+ * 订单状态枚举
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-public class TicketOrderItemCreateReqDTO {
+@RequiredArgsConstructor
+public enum OrderStatusEnum {
 
     /**
-     * 车厢号
+     * 待付款：用户选好车票下单，但还未付款的状态
      */
-    private String carriageNumber;
+    PENDING_PAYMENT(0),
 
     /**
-     * 座位号
+     * 已支付：用户支付订单费用
      */
-    private String seatNumber;
+    ALREADY_PAID(10),
 
     /**
-     * 真实姓名
+     * 部分退款：用户支付订单费用后部分车票退款
      */
-    private String realName;
+    PARTIAL_REFUND(11),
 
     /**
-     * 证件类型
+     * 全部退款：用户支付订单费用后全部车票退款
      */
-    private Integer idType;
+    FULL_REFUND(12),
 
     /**
-     * 证件号
+     * 已完成：用户车票已过上站时间，订单完成
      */
-    private String idCard;
+    COMPLETED(20),
 
     /**
-     * 手机号
+     * 已取消：用户选好车票下单，未支付状态下取消订单
      */
-    private String phone;
+    CLOSED(30);
 
-    /**
-     * 订单金额
-     */
-    private Integer amount;
+    @Getter
+    private final int status;
 }
