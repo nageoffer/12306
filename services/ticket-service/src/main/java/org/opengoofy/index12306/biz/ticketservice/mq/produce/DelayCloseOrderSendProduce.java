@@ -51,6 +51,9 @@ public class DelayCloseOrderSendProduce extends AbstractCommonSendProduceTemplat
                 .keys(messageSendEvent.getOrderSn())
                 .topic(TicketRocketMQConstant.TICKET_CREATE_TOPIC_KEY)
                 .tag(TicketRocketMQConstant.TICKET_DELAY_CLOSE_TAG_KEY)
+                .sentTimeout(2000L)
+                // RocketMQ 延迟消息级别 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
+                .delayLevel(14)
                 .build();
     }
 
@@ -61,9 +64,6 @@ public class DelayCloseOrderSendProduce extends AbstractCommonSendProduceTemplat
                 .withPayload(new MessageWrapper(requestParam.getKeys(), messageSendEvent))
                 .setHeader(MessageConst.PROPERTY_KEYS, keys)
                 .setHeader(MessageConst.PROPERTY_TAGS, requestParam.getTag())
-                // RocketMQ 延迟消息级别 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
-                // 16 代表 30m，为了演示效果所以选择该级别，正常按照需求设置
-                .setHeader(MessageConst.PROPERTY_DELAY_TIME_LEVEL, 4)
                 .build();
     }
 }

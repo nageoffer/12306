@@ -52,4 +52,14 @@ public final class BaseSendExtendDTO {
      * 业务标识
      */
     private String keys;
+
+    /**
+     * 发送消息超时时间
+     */
+    private Long sentTimeout;
+
+    /**
+     * 延迟消息
+     */
+    private Integer delayLevel;
 }

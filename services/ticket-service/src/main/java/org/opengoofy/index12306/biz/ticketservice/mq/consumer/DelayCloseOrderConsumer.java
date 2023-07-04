@@ -25,6 +25,7 @@ import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.opengoofy.index12306.biz.ticketservice.common.constant.TicketRocketMQConstant;
 import org.opengoofy.index12306.biz.ticketservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
+import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,13 +36,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@RocketMQMessageListener(topic = TicketRocketMQConstant.TICKET_CREATE_TOPIC_KEY, selectorExpression = TicketRocketMQConstant.TICKET_DELAY_CLOSE_TAG_KEY, consumerGroup = TicketRocketMQConstant.TICKET_DELAY_CLOSE_CG_KEY)
+@RocketMQMessageListener(
+        topic = TicketRocketMQConstant.TICKET_CREATE_TOPIC_KEY,
+        selectorExpression = TicketRocketMQConstant.TICKET_DELAY_CLOSE_TAG_KEY,
+        consumerGroup = TicketRocketMQConstant.TICKET_DELAY_CLOSE_CG_KEY
+)
 public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWrapper<DelayCloseOrderEvent>> {
+
+    private final TicketOrderRemoteService ticketOrderRemoteService;
 
     @Override
     public void onMessage(MessageWrapper<DelayCloseOrderEvent> delayCloseOrderEventMessageWrapper) {
-        log.info("延迟关闭订单消费者：{}", JSON.toJSONString(delayCloseOrderEventMessageWrapper));
-        // TODO 反转订单状态
+        log.info("[延迟关闭订单] 开始消费：{}", JSON.toJSONString(delayCloseOrderEventMessageWrapper));
+        DelayCloseOrderEvent delayCloseOrderEvent = delayCloseOrderEventMessageWrapper.getMessage();
+        ticketOrderRemoteService.closeTickOrder(delayCloseOrderEvent.getOrderSn());
         // TODO 释放车票余量
         // TODO 修改座位状态
     }
