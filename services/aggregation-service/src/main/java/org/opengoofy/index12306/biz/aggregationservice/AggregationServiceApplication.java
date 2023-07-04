@@ -30,12 +30,14 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication(scanBasePackages = {
         "org.opengoofy.index12306.biz.userservice",
         "org.opengoofy.index12306.biz.ticketservice",
-        "org.opengoofy.index12306.biz.orderservice"
+        "org.opengoofy.index12306.biz.orderservice",
+        "org.opengoofy.index12306.biz.payservice"
 })
 @MapperScan(value = {
         "org.opengoofy.index12306.biz.userservice.dao.mapper",
         "org.opengoofy.index12306.biz.ticketservice.dao.mapper",
-        "org.opengoofy.index12306.biz.orderservice.dao.mapper"
+        "org.opengoofy.index12306.biz.orderservice.dao.mapper",
+        "org.opengoofy.index12306.biz.payservice.dao.mapper"
 })
 @EnableFeignClients("org.opengoofy.index12306.biz.ticketservice.remote")
 public class AggregationServiceApplication {
