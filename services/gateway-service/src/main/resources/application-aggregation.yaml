@@ -15,3 +15,8 @@ spring:
             - name: TokenValidate
               args:
                 blackPathPre: /api/ticket-service/ticket/purchase
+
+        - id: index12306-pay-aggregation-service
+          uri: lb://index12306-aggregation-service/api/pay-service/**
+          predicates:
+            - Path=/api/pay-service/**

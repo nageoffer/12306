@@ -11,3 +11,8 @@ spring:
           uri: lb://index12306-ticket-service/api/ticket-service/**
           predicates:
             - Path=/api/ticket-service/**
+
+        - id: index12306-pay-service
+          uri: lb://index12306-pay-service/api/pay-service/**
+          predicates:
+            - Path=/api/pay-service/**
