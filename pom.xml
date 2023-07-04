@@ -74,9 +74,9 @@
                 <version>${spotless-maven-plugin.version}</version>
                 <configuration>
                     <java>
-                        <eclipse>
+                        <!--<eclipse>
                             <file>${maven.multiModuleProjectDirectory}/format/12306_spotless_formatter.xml</file>
-                        </eclipse>
+                        </eclipse>-->
                         <licenseHeader>
                             <file>${maven.multiModuleProjectDirectory}/format/license-header</file>
                         </licenseHeader>
