@@ -28,6 +28,8 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * SpringCloud Gateway Token 拦截器
  *
@@ -45,30 +47,36 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             String requestPath = request.getPath().toString();
-            if (requiresTokenValidation(requestPath, config.getBlackPathPre())) {
-                String token = request.getHeaders().getFirst("Authorization");
-                UserInfoDTO userInfo;
-                if (!validateToken(token) || (userInfo = JWTUtil.parseJwtToken(token)) == null) {
-                    ServerHttpResponse response = exchange.getResponse();
-                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return response.setComplete();
+            if (!isPathInWhiteList(requestPath, config.getWhitePathList())) {
+                if (isPathInBlackPreList(requestPath, config.getBlackPathPreList())) {
+                    String token = request.getHeaders().getFirst("Authorization");
+                    UserInfoDTO userInfo = JWTUtil.parseJwtToken(token);
+                    if (!validateToken(userInfo)) {
+                        ServerHttpResponse response = exchange.getResponse();
+                        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return response.setComplete();
+                    }
+                    ServerHttpRequest.Builder builder = exchange.getRequest().mutate().headers(httpHeaders -> {
+                        httpHeaders.set(UserConstant.USER_ID_KEY, userInfo.getUserId());
+                        httpHeaders.set(UserConstant.USER_NAME_KEY, userInfo.getUsername());
+                        httpHeaders.set(UserConstant.REAL_NAME_KEY, userInfo.getRealName());
+                    });
+                    return chain.filter(exchange.mutate().request(builder.build()).build());
                 }
-                ServerHttpRequest.Builder builder = exchange.getRequest().mutate().headers(httpHeaders -> {
-                    httpHeaders.set(UserConstant.USER_ID_KEY, userInfo.getUserId());
-                    httpHeaders.set(UserConstant.USER_NAME_KEY, userInfo.getUsername());
-                    httpHeaders.set(UserConstant.REAL_NAME_KEY, userInfo.getRealName());
-                });
-                return chain.filter(exchange.mutate().request(builder.build()).build());
             }
             return chain.filter(exchange);
         };
     }
 
-    private boolean requiresTokenValidation(String requestPath, String blackPathPre) {
-        return requestPath.startsWith(blackPathPre);
+    private boolean isPathInWhiteList(String requestPath, List<String> whitelist) {
+        return whitelist.stream().anyMatch(requestPath::startsWith);
     }
 
-    private boolean validateToken(String token) {
-        return true;
+    private boolean isPathInBlackPreList(String requestPath, List<String> blackPathPre) {
+        return blackPathPre.stream().anyMatch(requestPath::startsWith);
+    }
+
+    private boolean validateToken(UserInfoDTO userInfo) {
+        return userInfo != null ? true : false;
     }
 }

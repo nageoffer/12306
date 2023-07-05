@@ -6,6 +6,15 @@ spring:
           uri: lb://index12306-user-service/api/user-service/**
           predicates:
             - Path=/api/user-service/**
+          filters:
+            - name: TokenValidate
+              args:
+                whitePathList:
+                  - /api/user-service/passenger/query/ids
+                blackPathPreList:
+                  - /api/user-service/passenger
+                  - /api/user-service/query
+                  - /api/user-service/logout
 
         - id: index12306-ticket-service
           uri: lb://index12306-ticket-service/api/ticket-service/**
