@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.ticketservice;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @SpringBootTest
 class TicketStationRelationTests {
@@ -64,12 +66,17 @@ class TicketStationRelationTests {
                 actual.setTrainId(trainStationDO.getTrainId());
                 actual.setDeparture(trainStations.get(i).getDeparture());
                 actual.setArrival(trainStations.get(j).getDeparture());
+                actual.setArrivalTime(trainStations.get(j).getArrivalTime());
                 actual.setStartRegion(trainStations.get(i).getStartRegion());
                 actual.setEndRegion(trainStations.get(j).getStartRegion());
                 actual.setDepartureTime(trainStations.get(i).getDepartureTime());
                 actual.setCreateTime(new Date());
                 actual.setUpdateTime(new Date());
                 actual.setDelFlag(0);
+                actual.setDepartureFlag(i == 0);
+                TrainStationDO last = CollUtil.getLast(trainStations);
+                String departure = trainStations.get(j).getDeparture();
+                actual.setArrivalFlag(Objects.equals(departure, last.getDeparture()));
                 result.add(actual);
             }
         }
