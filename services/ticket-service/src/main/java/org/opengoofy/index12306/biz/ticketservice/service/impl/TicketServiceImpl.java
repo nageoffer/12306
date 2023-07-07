@@ -118,6 +118,11 @@ public class TicketServiceImpl implements TicketService {
             result.setDepartureFlag(each.getDepartureFlag());
             result.setArrivalFlag(each.getArrivalFlag());
             result.setTrainType(trainDO.getTrainType());
+            if (StrUtil.isNotBlank(trainDO.getTrainBrand())) {
+                result.setTrainTag(StrUtil.split(trainDO.getTrainBrand(), ","));
+            }
+            long betweenDay = cn.hutool.core.date.DateUtil.betweenDay(each.getDepartureTime(), each.getArrivalTime(), false);
+            result.setDaysArrived((int) betweenDay);
             result.setSaleStatus(new Date().after(trainDO.getSaleTime()) ? 0 : 1);
             result.setSaleTime(trainDO.getSaleTime());
             if (StrUtil.isNotBlank(trainDO.getTrainBrand())) {
