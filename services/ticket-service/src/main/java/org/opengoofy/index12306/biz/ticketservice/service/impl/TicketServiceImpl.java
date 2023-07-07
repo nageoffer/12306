@@ -104,7 +104,7 @@ public class TicketServiceImpl implements TicketService {
                 .eq(TrainStationRelationDO::getEndRegion, requestParam.getToStation());
         List<TrainStationRelationDO> trainStationRelationList = trainStationRelationMapper.selectList(queryWrapper);
         List<TicketListDTO> seatResults = new ArrayList<>();
-        List<String> trainBrandList = new ArrayList<>();
+        Set<String> trainBrandSet = new HashSet<>();
         for (TrainStationRelationDO each : trainStationRelationList) {
             LambdaQueryWrapper<TrainDO> trainQueryWrapper = Wrappers.lambdaQuery(TrainDO.class).eq(TrainDO::getId, each.getTrainId());
             TrainDO trainDO = trainMapper.selectOne(trainQueryWrapper);
@@ -118,7 +118,7 @@ public class TicketServiceImpl implements TicketService {
             result.setDepartureFlag(each.getDepartureFlag());
             result.setArrivalFlag(each.getArrivalFlag());
             if (StrUtil.isNotBlank(trainDO.getTrainBrand())) {
-                trainBrandList.addAll(TrainTagEnum.findNameByCode(StrUtil.split(trainDO.getTrainBrand(), ",")));
+                trainBrandSet.addAll(TrainTagEnum.findNameByCode(StrUtil.split(trainDO.getTrainBrand(), ",")));
             }
             if (Objects.equals(trainDO.getTrainType(), 0)) {
                 HighSpeedTrainDTO highSpeedTrainDTO = new HighSpeedTrainDTO();
@@ -164,7 +164,7 @@ public class TicketServiceImpl implements TicketService {
                 .trainList(seatResults)
                 .departureStationList(buildDepartureStationList(seatResults))
                 .arrivalStationList(buildArrivalStationList(seatResults))
-                .trainBrandList(trainBrandList)
+                .trainBrandList(trainBrandSet.stream().toList())
                 .seatClassList(buildSeatClassList(seatResults))
                 .build();
     }
@@ -248,9 +248,9 @@ public class TicketServiceImpl implements TicketService {
         Set<String> resultSeatClassList = new HashSet<>();
         for (TicketListDTO each : seatResults) {
             HighSpeedTrainDTO highSpeedTrain = each.getHighSpeedTrain();
-            Optional.ofNullable(highSpeedTrain.getBusinessClassPrice()).ifPresent(item -> resultSeatClassList.add("商务座"));
-            Optional.ofNullable(highSpeedTrain.getFirstClassPrice()).ifPresent(item -> resultSeatClassList.add("一等座"));
-            Optional.ofNullable(highSpeedTrain.getSecondClassQuantity()).ifPresent(item -> resultSeatClassList.add("二等座"));
+            Optional.ofNullable(highSpeedTrain.getBusinessClassPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.BUSINESS_CLASS.getValue()));
+            Optional.ofNullable(highSpeedTrain.getFirstClassPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.FIRST_CLASS.getValue()));
+            Optional.ofNullable(highSpeedTrain.getSecondClassQuantity()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.SECOND_CLASS.getValue()));
             // 其余省略... 后续有精力再补充
             BulletTrainDTO bulletTrain = each.getBulletTrain();
             RegularTrainDTO regularTrain = each.getRegularTrain();
