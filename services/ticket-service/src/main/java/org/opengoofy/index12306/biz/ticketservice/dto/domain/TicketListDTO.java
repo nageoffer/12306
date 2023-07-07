@@ -73,6 +73,22 @@ public class TicketListDTO {
     private Boolean arrivalFlag;
 
     /**
+     * 列车类型 0：高铁 1：动车 2：普通车
+     */
+    private Integer trainType;
+
+    /**
+     * 可售时间
+     */
+    @JsonFormat(pattern = "MM-dd HH:mm", timezone = "GMT+8")
+    private Date saleTime;
+
+    /**
+     * 销售状态 0：可售 1：不可售 2：未知
+     */
+    private Integer saleStatus;
+
+    /**
      * 高铁属性
      */
     private HighSpeedTrainDTO highSpeedTrain;
