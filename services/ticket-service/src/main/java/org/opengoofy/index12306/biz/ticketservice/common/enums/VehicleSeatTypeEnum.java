@@ -34,23 +34,26 @@ public enum VehicleSeatTypeEnum {
     /**
      * 商务座
      */
-    BUSINESS_CLASS(0, "BUSINESS_CLASS"),
+    BUSINESS_CLASS(0, "BUSINESS_CLASS", "商务座"),
 
     /**
      * 一等座
      */
-    FIRST_CLASS(1, "FIRST_CLASS"),
+    FIRST_CLASS(1, "FIRST_CLASS", "一等座"),
 
     /**
      * 二等座
      */
-    SECOND_CLASS(2, "SECOND_CLASS");
+    SECOND_CLASS(2, "SECOND_CLASS", "二等座");
 
     @Getter
     private final Integer code;
 
     @Getter
     private final String name;
+
+    @Getter
+    private final String value;
 
     /**
      * 根据编码查找名称
