@@ -38,7 +38,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @SpringBootTest
-class TicketTests {
+class TicketSeatTests {
 
     @Autowired
     private TrainStationPriceMapper trainStationPriceMapper;
