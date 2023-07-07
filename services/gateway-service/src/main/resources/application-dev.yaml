@@ -9,9 +9,7 @@ spring:
           filters:
             - name: TokenValidate
               args:
-                whitePathList:
-                  - /api/user-service/passenger/query/ids
-                blackPathPreList:
+                blackPathPre:
                   - /api/user-service/passenger
                   - /api/user-service/query
                   - /api/user-service/logout

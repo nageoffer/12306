@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.gatewayservice.filter;
 
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import org.opengoofy.index12306.biz.gatewayservice.config.Config;
 import org.opengoofy.index12306.biz.gatewayservice.toolkit.JWTUtil;
 import org.opengoofy.index12306.biz.gatewayservice.toolkit.UserInfoDTO;
@@ -47,36 +48,33 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
             String requestPath = request.getPath().toString();
-            if (!isPathInWhiteList(requestPath, config.getWhitePathList())) {
-                if (isPathInBlackPreList(requestPath, config.getBlackPathPreList())) {
-                    String token = request.getHeaders().getFirst("Authorization");
-                    UserInfoDTO userInfo = JWTUtil.parseJwtToken(token);
-                    if (!validateToken(userInfo)) {
-                        ServerHttpResponse response = exchange.getResponse();
-                        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                        return response.setComplete();
-                    }
-                    ServerHttpRequest.Builder builder = exchange.getRequest().mutate().headers(httpHeaders -> {
-                        httpHeaders.set(UserConstant.USER_ID_KEY, userInfo.getUserId());
-                        httpHeaders.set(UserConstant.USER_NAME_KEY, userInfo.getUsername());
-                        httpHeaders.set(UserConstant.REAL_NAME_KEY, userInfo.getRealName());
-                    });
-                    return chain.filter(exchange.mutate().request(builder.build()).build());
+            if (isPathInBlackPreList(requestPath, config.getBlackPathPre())) {
+                String token = request.getHeaders().getFirst("Authorization");
+                UserInfoDTO userInfo = JWTUtil.parseJwtToken(token);
+                if (!validateToken(userInfo)) {
+                    ServerHttpResponse response = exchange.getResponse();
+                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    return response.setComplete();
                 }
+                ServerHttpRequest.Builder builder = exchange.getRequest().mutate().headers(httpHeaders -> {
+                    httpHeaders.set(UserConstant.USER_ID_KEY, userInfo.getUserId());
+                    httpHeaders.set(UserConstant.USER_NAME_KEY, userInfo.getUsername());
+                    httpHeaders.set(UserConstant.REAL_NAME_KEY, userInfo.getRealName());
+                });
+                return chain.filter(exchange.mutate().request(builder.build()).build());
             }
             return chain.filter(exchange);
         };
     }
 
-    private boolean isPathInWhiteList(String requestPath, List<String> whitelist) {
-        return whitelist.stream().anyMatch(requestPath::startsWith);
-    }
-
     private boolean isPathInBlackPreList(String requestPath, List<String> blackPathPre) {
+        if (CollectionUtils.isEmpty(blackPathPre)) {
+            return false;
+        }
         return blackPathPre.stream().anyMatch(requestPath::startsWith);
     }
 
     private boolean validateToken(UserInfoDTO userInfo) {
-        return userInfo != null ? true : false;
+        return userInfo != null;
     }
 }

@@ -30,12 +30,7 @@ import java.util.List;
 public class Config {
 
     /**
-     * 白名单路径
-     */
-    private List<String> whitePathList;
-
-    /**
      * 黑名单前置路径
      */
-    private List<String> blackPathPreList;
+    private List<String> blackPathPre;
 }
