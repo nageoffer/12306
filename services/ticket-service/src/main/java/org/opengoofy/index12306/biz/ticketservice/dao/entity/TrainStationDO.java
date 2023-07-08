@@ -45,7 +45,7 @@ public class TrainStationDO extends BaseDO {
     /**
      * 站点顺序
      */
-    private Integer sequence;
+    private String sequence;
 
     /**
      * 出发站点
