@@ -24,9 +24,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import org.junit.jupiter.api.Test;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.CarriageDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
+import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationPriceDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.CarriageMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,11 +37,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 class TicketSeatTests {
 
+    @Autowired
+    private TrainMapper trainMapper;
     @Autowired
     private TrainStationPriceMapper trainStationPriceMapper;
     @Autowired
@@ -49,56 +52,61 @@ class TicketSeatTests {
 
     @Test
     void testInitData() {
-        String trainId = "1";
+        String trainId = "3";
         List<TrainStationPriceDO> trainStationPrices = selectTrainStationPrices(trainId);
         List<CarriageDO> carriages = selectCarriages(trainId);
-        List<SeatDO> businessClass = buildBusinessClass(trainStationPrices, carriages);
-        businessClass.forEach(each -> seatMapper.insert(each));
-        List<SeatDO> firstClass = buildFirstClass(trainStationPrices, carriages);
-        firstClass.forEach(each -> seatMapper.insert(each));
-        List<SeatDO> secondClass = buildSecondClass(trainStationPrices, carriages);
-        secondClass.forEach(each -> seatMapper.insert(each));
+        TrainDO trainDO = trainMapper.selectById(trainId);
+        if (Objects.equals(trainDO.getTrainType(), 0)) {
+            List<SeatDO> businessClass = buildBusinessClass(trainStationPrices, carriages);
+            businessClass.forEach(each -> seatMapper.insert(each));
+            List<SeatDO> firstClass = buildFirstClass(trainStationPrices, carriages);
+            firstClass.forEach(each -> seatMapper.insert(each));
+            List<SeatDO> secondClass = buildSecondClass(trainStationPrices, carriages);
+            secondClass.forEach(each -> seatMapper.insert(each));
+        } else if (Objects.equals(trainDO.getTrainType(), 1)) {
+            List<SeatDO> secondClassCabinSeats = buildSecondClassCabinSeat(trainStationPrices, carriages);
+            secondClassCabinSeats.forEach(each -> seatMapper.insert(each));
+            List<SeatDO> firstSleepers = buildFirstSleeper(trainStationPrices, carriages);
+            firstSleepers.forEach(each -> seatMapper.insert(each));
+            List<SeatDO> secondSleepers = buildSecondSleeper(trainStationPrices, carriages);
+            secondSleepers.forEach(each -> seatMapper.insert(each));
+        }
     }
 
     public List<TrainStationPriceDO> selectTrainStationPrices(String trainId) {
         LambdaQueryWrapper<TrainStationPriceDO> queryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
                 .eq(TrainStationPriceDO::getTrainId, trainId);
-        List<TrainStationPriceDO> trainStationPriceDOS = trainStationPriceMapper.selectList(queryWrapper);
-        return trainStationPriceDOS;
+        return trainStationPriceMapper.selectList(queryWrapper);
     }
 
     public List<CarriageDO> selectCarriages(String trainId) {
         LambdaQueryWrapper<CarriageDO> queryWrapper = Wrappers.lambdaQuery(CarriageDO.class)
                 .eq(CarriageDO::getTrainId, trainId);
-        List<CarriageDO> carriageDOS = carriageMapper.selectList(queryWrapper);
-        return carriageDOS;
+        return carriageMapper.selectList(queryWrapper);
     }
 
     private List<SeatDO> buildBusinessClass(List<TrainStationPriceDO> trainStationPrices, List<CarriageDO> carriages) {
         List<SeatDO> seats = new ArrayList<>();
         List<CarriageDO> actualCarriages = carriages.stream()
                 .filter(each -> Objects.equals(each.getCarriageType(), 0))
-                .collect(Collectors.toList());
+                .toList();
         List<String> carriageNums = ListUtil.of("A", "C", "F");
         List<Integer> rows = ListUtil.of(1, 2);
-        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 0)).collect(Collectors.toList());
+        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 0)).toList();
         for (TrainStationPriceDO each : trainStationPriceDOList) {
             if (StrUtil.isEmpty(each.getArrival())) {
                 continue;
             }
-            for (int i = 0; i < actualCarriages.size(); i++) {
-                CarriageDO carriageDO = actualCarriages.get(i);
-                for (int k = 0; k < rows.size(); k++) {
-                    for (int j = 0; j < carriageNums.size(); j++) {
+            for (CarriageDO carriageDO : actualCarriages) {
+                for (Integer integer : rows) {
+                    for (String num : carriageNums) {
                         SeatDO seatDO = new SeatDO();
                         seatDO.setTrainId(carriageDO.getTrainId());
                         seatDO.setCarriageNumber(carriageDO.getCarriageNumber());
-                        Integer row = rows.get(k);
-                        String carriageNum = carriageNums.get(j);
-                        if (row == 1 && carriageNum == "C") {
+                        if (integer == 1 && Objects.equals(num, "C")) {
                             continue;
                         }
-                        seatDO.setSeatNumber("0" + row + carriageNum);
+                        seatDO.setSeatNumber("0" + integer + num);
                         seatDO.setSeatType(0);
                         seatDO.setStartStation(each.getDeparture());
                         seatDO.setEndStation(each.getArrival());
@@ -119,24 +127,21 @@ class TicketSeatTests {
         List<SeatDO> seats = new ArrayList<>();
         List<CarriageDO> actualCarriages = carriages.stream()
                 .filter(each -> Objects.equals(each.getCarriageType(), 1))
-                .collect(Collectors.toList());
+                .toList();
         List<String> carriageNums = ListUtil.of("A", "C", "D", "F");
         List<Integer> rows = ListUtil.of(1, 2, 3, 4, 5, 6, 7);
-        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 1)).collect(Collectors.toList());
+        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 1)).toList();
         for (TrainStationPriceDO each : trainStationPriceDOList) {
             if (StrUtil.isEmpty(each.getArrival())) {
                 continue;
             }
-            for (int i = 0; i < actualCarriages.size(); i++) {
-                CarriageDO carriageDO = actualCarriages.get(i);
-                for (int k = 0; k < rows.size(); k++) {
-                    for (int j = 0; j < carriageNums.size(); j++) {
+            for (CarriageDO carriageDO : actualCarriages) {
+                for (Integer integer : rows) {
+                    for (String num : carriageNums) {
                         SeatDO seatDO = new SeatDO();
                         seatDO.setTrainId(carriageDO.getTrainId());
                         seatDO.setCarriageNumber(carriageDO.getCarriageNumber());
-                        Integer row = rows.get(k);
-                        String carriageNum = carriageNums.get(j);
-                        seatDO.setSeatNumber("0" + row + carriageNum);
+                        seatDO.setSeatNumber("0" + integer + num);
                         seatDO.setSeatType(1);
                         seatDO.setStartStation(each.getDeparture());
                         seatDO.setEndStation(each.getArrival());
@@ -157,27 +162,136 @@ class TicketSeatTests {
         List<SeatDO> seats = new ArrayList<>();
         List<CarriageDO> actualCarriages = carriages.stream()
                 .filter(each -> Objects.equals(each.getCarriageType(), 2))
-                .collect(Collectors.toList());
+                .toList();
         List<String> carriageNums = ListUtil.of("A", "B", "C", "D", "F");
         List<Integer> rows = ListUtil.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18);
-        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 2)).collect(Collectors.toList());
+        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 2)).toList();
         for (TrainStationPriceDO each : trainStationPriceDOList) {
             if (StrUtil.isEmpty(each.getArrival())) {
                 continue;
             }
-            for (int i = 0; i < actualCarriages.size(); i++) {
-                CarriageDO carriageDO = actualCarriages.get(i);
-                for (int k = 0; k < rows.size(); k++) {
-                    for (int j = 0; j < carriageNums.size(); j++) {
+            for (CarriageDO carriageDO : actualCarriages) {
+                for (Integer integer : rows) {
+                    for (String num : carriageNums) {
                         SeatDO seatDO = new SeatDO();
                         seatDO.setTrainId(carriageDO.getTrainId());
                         seatDO.setCarriageNumber(carriageDO.getCarriageNumber());
-                        Integer row = rows.get(k);
-                        String carriageNum = carriageNums.get(j);
-                        if (row < 10) {
-                            seatDO.setSeatNumber("0" + row + carriageNum);
+                        if (integer < 10) {
+                            seatDO.setSeatNumber("0" + integer + num);
                         } else {
-                            seatDO.setSeatNumber(row + carriageNum);
+                            seatDO.setSeatNumber(integer + num);
+                        }
+                        seatDO.setSeatType(1);
+                        seatDO.setStartStation(each.getDeparture());
+                        seatDO.setEndStation(each.getArrival());
+                        seatDO.setSeatStatus(0);
+                        seatDO.setPrice(each.getPrice());
+                        seatDO.setCreateTime(new Date());
+                        seatDO.setUpdateTime(new Date());
+                        seatDO.setDelFlag(0);
+                        seats.add(seatDO);
+                    }
+                }
+            }
+        }
+        return seats;
+    }
+
+    private List<SeatDO> buildSecondClassCabinSeat(List<TrainStationPriceDO> trainStationPrices, List<CarriageDO> carriages) {
+        List<SeatDO> seats = new ArrayList<>();
+        List<CarriageDO> actualCarriages = carriages.stream()
+                .filter(each -> Objects.equals(each.getCarriageType(), 3))
+                .toList();
+        List<String> carriageNums = ListUtil.of("A", "C", "D", "F");
+        List<Integer> rows = ListUtil.of(1, 2, 3, 4, 5, 6);
+        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 3)).toList();
+        for (TrainStationPriceDO each : trainStationPriceDOList) {
+            if (StrUtil.isEmpty(each.getArrival())) {
+                continue;
+            }
+            for (CarriageDO carriageDO : actualCarriages) {
+                for (Integer integer : rows) {
+                    for (String num : carriageNums) {
+                        SeatDO seatDO = new SeatDO();
+                        seatDO.setTrainId(carriageDO.getTrainId());
+                        seatDO.setCarriageNumber(carriageDO.getCarriageNumber());
+                        if (integer == 1 && Objects.equals(num, "C")) {
+                            continue;
+                        }
+                        seatDO.setSeatNumber("0" + integer + num);
+                        seatDO.setSeatType(0);
+                        seatDO.setStartStation(each.getDeparture());
+                        seatDO.setEndStation(each.getArrival());
+                        seatDO.setSeatStatus(0);
+                        seatDO.setPrice(each.getPrice());
+                        seatDO.setCreateTime(new Date());
+                        seatDO.setUpdateTime(new Date());
+                        seatDO.setDelFlag(0);
+                        seats.add(seatDO);
+                    }
+                }
+            }
+        }
+        return seats;
+    }
+
+    private List<SeatDO> buildFirstSleeper(List<TrainStationPriceDO> trainStationPrices, List<CarriageDO> carriages) {
+        List<SeatDO> seats = new ArrayList<>();
+        List<CarriageDO> actualCarriages = carriages.stream()
+                .filter(each -> Objects.equals(each.getCarriageType(), 4))
+                .toList();
+        List<String> carriageNums = ListUtil.of("A", "C", "D", "F");
+        List<Integer> rows = ListUtil.of(1, 2, 3, 4, 5, 6, 7, 8);
+        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 4)).toList();
+        for (TrainStationPriceDO each : trainStationPriceDOList) {
+            if (StrUtil.isEmpty(each.getArrival())) {
+                continue;
+            }
+            for (CarriageDO carriageDO : actualCarriages) {
+                for (Integer integer : rows) {
+                    for (String num : carriageNums) {
+                        SeatDO seatDO = new SeatDO();
+                        seatDO.setTrainId(carriageDO.getTrainId());
+                        seatDO.setCarriageNumber(carriageDO.getCarriageNumber());
+                        seatDO.setSeatNumber("0" + integer + num);
+                        seatDO.setSeatType(1);
+                        seatDO.setStartStation(each.getDeparture());
+                        seatDO.setEndStation(each.getArrival());
+                        seatDO.setSeatStatus(0);
+                        seatDO.setPrice(each.getPrice());
+                        seatDO.setCreateTime(new Date());
+                        seatDO.setUpdateTime(new Date());
+                        seatDO.setDelFlag(0);
+                        seats.add(seatDO);
+                    }
+                }
+            }
+        }
+        return seats;
+    }
+
+    private List<SeatDO> buildSecondSleeper(List<TrainStationPriceDO> trainStationPrices, List<CarriageDO> carriages) {
+        List<SeatDO> seats = new ArrayList<>();
+        List<CarriageDO> actualCarriages = carriages.stream()
+                .filter(each -> Objects.equals(each.getCarriageType(), 5))
+                .toList();
+        List<String> carriageNums = ListUtil.of("A", "C", "D", "F");
+        List<Integer> rows = ListUtil.of(1, 2, 3, 4, 5, 6, 7, 8, 9);
+        List<TrainStationPriceDO> trainStationPriceDOList = trainStationPrices.stream().filter(each -> Objects.equals(each.getSeatType(), 5)).toList();
+        for (TrainStationPriceDO each : trainStationPriceDOList) {
+            if (StrUtil.isEmpty(each.getArrival())) {
+                continue;
+            }
+            for (CarriageDO carriageDO : actualCarriages) {
+                for (Integer integer : rows) {
+                    for (String num : carriageNums) {
+                        SeatDO seatDO = new SeatDO();
+                        seatDO.setTrainId(carriageDO.getTrainId());
+                        seatDO.setCarriageNumber(carriageDO.getCarriageNumber());
+                        if (integer < 10) {
+                            seatDO.setSeatNumber("0" + integer + num);
+                        } else {
+                            seatDO.setSeatNumber(integer + num);
                         }
                         seatDO.setSeatType(1);
                         seatDO.setStartStation(each.getDeparture());
