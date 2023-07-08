@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SpringBootTest
-public class TicketCarriageTests {
+public class TrainCarriageTests {
 
     @Autowired
     private CarriageMapper carriageMapper;
