@@ -32,11 +32,23 @@ import java.util.Objects;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @RequiredArgsConstructor
-public enum TrainTagEnum {
+public enum TrainBrandEnum {
 
-    FU_XING("0", "复兴号"),
+    GC_HIGH_SPEED_RAIL_INTERCITY("0", "GC-高铁/城际"),
 
-    HIGH_SPEED_TRAIN("1", "GC-高铁/城际");
+    D_ELECTRIC_MULTIPLE_UNIT_EMU("1", "D-动车"),
+
+    Z_DIRECT_EXPRESS("2", "Z-直达"),
+
+    T_EXPRESS("3", "Z-直达"),
+
+    K_FAST("4", "K-快速"),
+
+    OTHER("5", "其他"),
+
+    FU_XING("6", "复兴号"),
+
+    CRH_CHINA_RAILWAY_HIGH_SPEED_INTELLIGENT_EMU("7", "智能动车组");
 
     @Getter
     private final String code;
@@ -48,10 +60,10 @@ public enum TrainTagEnum {
      * 根据编码查找名称
      */
     public static String findNameByCode(String code) {
-        return Arrays.stream(TrainTagEnum.values())
+        return Arrays.stream(TrainBrandEnum.values())
                 .filter(each -> Objects.equals(each.getCode(), code))
                 .findFirst()
-                .map(TrainTagEnum::getName)
+                .map(TrainBrandEnum::getName)
                 .orElse(null);
     }
 
@@ -61,10 +73,10 @@ public enum TrainTagEnum {
     public static List<String> findNameByCode(List<String> codes) {
         List<String> resultNames = new ArrayList<>();
         for (String code : codes) {
-            String name = Arrays.stream(TrainTagEnum.values())
+            String name = Arrays.stream(TrainBrandEnum.values())
                     .filter(each -> Objects.equals(each.getCode(), code))
                     .findFirst()
-                    .map(TrainTagEnum::getName)
+                    .map(TrainBrandEnum::getName)
                     .orElse(null);
             if (StrUtil.isNotBlank(name)) {
                 resultNames.add(name);

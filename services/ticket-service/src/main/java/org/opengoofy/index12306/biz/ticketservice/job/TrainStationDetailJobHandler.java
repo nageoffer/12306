@@ -78,7 +78,7 @@ public class TrainStationDetailJobHandler extends AbstractTrainStationJobHandler
                         .put("departureTime", DateUtil.format(item.getDepartureTime(), "HH:mm"))
                         .put("arrivalTime", DateUtil.format(item.getArrivalTime(), "HH:mm"))
                         .put("saleTime", DateUtil.format(each.getSaleTime(), NORM_DATETIME_MINUTE_FORMAT))
-                        .put("trainBrand", each.getTrainBrand().toString())
+                        .put("trainTag", each.getTrainTag().toString())
                         .build();
                 StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
                 String buildCacheKey = TRAIN_STATION_DETAIL + StrUtil.join("_", each.getId(), item.getDeparture(), item.getArrival());

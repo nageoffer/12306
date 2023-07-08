@@ -55,6 +55,11 @@ public class TrainDO extends BaseDO {
     /**
      * 列车标签 0：复兴号 1：智能动车组 2：静音车厢 3：支持选铺
      */
+    private String trainTag;
+
+    /**
+     * 列车品牌类型 0：GC-高铁/城际 1：D-动车 2：Z-直达 3：T-特快 4：K-快速 5：其他 6：复兴号 7：智能动车组
+     */
     private String trainBrand;
 
     /**
