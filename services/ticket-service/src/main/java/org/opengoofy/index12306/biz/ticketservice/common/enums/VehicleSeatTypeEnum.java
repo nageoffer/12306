@@ -44,7 +44,27 @@ public enum VehicleSeatTypeEnum {
     /**
      * 二等座
      */
-    SECOND_CLASS(2, "SECOND_CLASS", "二等座");
+    SECOND_CLASS(2, "SECOND_CLASS", "二等座"),
+
+    /**
+     * 二等包座
+     */
+    SECOND_CLASS_CABIN_SEAT(3, "SECOND_CLASS_CABIN_SEAT", "二等包座"),
+
+    /**
+     * 一等卧
+     */
+    FIRST_SLEEPER(4, "FIRST_SLEEPER", "一等卧"),
+
+    /**
+     * 二等卧
+     */
+    SECOND_SLEEPER(5, "SECOND_SLEEPER", "二等卧"),
+
+    /**
+     * 无座
+     */
+    NO_SEAT_SLEEPER(10, "NO_SEAT_SLEEPER", "无座");
 
     @Getter
     private final Integer code;
