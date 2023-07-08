@@ -86,4 +86,19 @@ public class BulletTrainDTO {
      * 二等座价格
      */
     private Integer secondClassPrice;
+
+    /**
+     * 无座数量
+     */
+    private Integer noSeatQuantity;
+
+    /**
+     * 无座候选标识
+     */
+    private Boolean noSeatCandidate;
+
+    /**
+     * 无座价格
+     */
+    private Integer noSeatPrice;
 }

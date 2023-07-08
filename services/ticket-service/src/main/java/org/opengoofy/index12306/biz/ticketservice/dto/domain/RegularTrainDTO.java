@@ -86,4 +86,19 @@ public class RegularTrainDTO {
      * 硬座价格
      */
     private Integer hardSeatPrice;
+
+    /**
+     * 无座数量
+     */
+    private Integer noSeatQuantity;
+
+    /**
+     * 无座候选标识
+     */
+    private Boolean noSeatCandidate;
+
+    /**
+     * 无座价格
+     */
+    private Integer noSeatPrice;
 }
