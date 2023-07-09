@@ -39,12 +39,6 @@
             <property name="allowMissingParamTags" value="true"/>
             <message key="javadoc.missing" value="Class Comments: Missing Javadoc Comments"/>
         </module>
-        <!-- Do not scan method annotations for now -->
-        <!--<module name="JavadocMethod">
-            <property name="tokens" value="METHOD_DEF"/>
-            <property name="allowMissingPropertyJavadoc" value="true"/>
-            <message key="javadoc.missing" value="Method Comments: Missing Javadoc Comments"/>
-        </module>-->
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="PackageName">
