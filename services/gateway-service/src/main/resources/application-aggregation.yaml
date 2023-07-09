@@ -29,3 +29,13 @@ spring:
           uri: lb://index12306-aggregation-service/api/pay-service/**
           predicates:
             - Path=/api/pay-service/**
+
+        - id: index12306-order-aggregation-service
+          uri: lb://index12306-aggregation-service/api/order-service/**
+          predicates:
+            - Path=/api/order-service/**
+          filters:
+            - name: TokenValidate
+              args:
+                blackPathPre:
+                  - /api/order-service/order/ticket/query

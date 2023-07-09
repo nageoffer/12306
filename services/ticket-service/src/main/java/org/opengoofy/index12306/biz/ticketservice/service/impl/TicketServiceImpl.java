@@ -257,6 +257,11 @@ public class TicketServiceImpl implements TicketService {
                 () -> trainMapper.selectById(trainId),
                 ADVANCE_TICKET_DAY,
                 TimeUnit.DAYS);
+        LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
+                .eq(TrainStationRelationDO::getTrainId, trainId)
+                .eq(TrainStationRelationDO::getDeparture, requestParam.getDeparture())
+                .eq(TrainStationRelationDO::getArrival, requestParam.getArrival());
+        TrainStationRelationDO trainStationRelationDO = trainStationRelationMapper.selectOne(queryWrapper);
         List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults =
                 abstractStrategyChoose.chooseAndExecuteResp(VehicleTypeEnum.findNameByCode(trainDO.getTrainType()) + VehicleSeatTypeEnum.findNameByCode(requestParam.getPassengers().get(0).getSeatType()), requestParam);
         // TODO 批量插入
@@ -283,6 +288,8 @@ public class TicketServiceImpl implements TicketService {
                         .idCard(each.getIdCard())
                         .idType(each.getIdType())
                         .phone(each.getPhone())
+                        .seatType(each.getSeatType())
+                        .ticketType(each.getUserType())
                         .realName(each.getRealName())
                         .build();
                 TicketOrderDetailRespDTO ticketOrderDetailRespDTO = TicketOrderDetailRespDTO.builder()
@@ -290,7 +297,6 @@ public class TicketServiceImpl implements TicketService {
                         .carriageNumber(each.getCarriageNumber())
                         .seatNumber(each.getSeatNumber())
                         .idCard(each.getIdCard())
-                        .seatType(null)
                         .idType(each.getIdType())
                         .seatType(each.getSeatType())
                         .ticketType(each.getUserType())
@@ -304,6 +310,10 @@ public class TicketServiceImpl implements TicketService {
                     .arrival(requestParam.getArrival())
                     .orderTime(new Date())
                     .source(SourceEnum.INTERNET.getCode())
+                    .trainNumber(trainDO.getTrainNumber())
+                    .departureTime(trainStationRelationDO.getDepartureTime())
+                    .arrivalTime(trainStationRelationDO.getArrivalTime())
+                    .ridingDate(trainStationRelationDO.getDepartureTime())
                     // TODO 创建用户上下文
                     .username(MDC.get(UserConstant.USER_NAME_KEY))
                     .trainId(Long.parseLong(requestParam.getTrainId()))

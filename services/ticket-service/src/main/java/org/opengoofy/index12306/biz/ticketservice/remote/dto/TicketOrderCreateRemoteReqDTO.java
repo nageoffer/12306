@@ -67,6 +67,26 @@ public class TicketOrderCreateRemoteReqDTO {
     private Date orderTime;
 
     /**
+     * 乘车日期
+     */
+    private Date ridingDate;
+
+    /**
+     * 列车车次
+     */
+    private String trainNumber;
+
+    /**
+     * 出发时间
+     */
+    private Date departureTime;
+
+    /**
+     * 到达时间
+     */
+    private Date arrivalTime;
+
+    /**
      * 订单明细
      */
     private List<TicketOrderItemCreateRemoteReqDTO> ticketOrderItems;

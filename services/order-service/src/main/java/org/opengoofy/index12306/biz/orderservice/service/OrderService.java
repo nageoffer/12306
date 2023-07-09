@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.orderservice.service;
 
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
 
 /**
@@ -27,6 +28,14 @@ import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrder
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 public interface OrderService {
+
+    /**
+     * 查询火车票订单详情
+     *
+     * @param orderSn 订单号
+     * @return 订单详情
+     */
+    TicketOrderDetailRespDTO queryTicketOrder(String orderSn);
 
     /**
      * 创建火车票订单

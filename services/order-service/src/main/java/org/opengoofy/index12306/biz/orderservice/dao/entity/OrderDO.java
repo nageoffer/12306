@@ -59,6 +59,11 @@ public class OrderDO extends BaseDO {
     private Long trainId;
 
     /**
+     * 列车车次
+     */
+    private String trainNumber;
+
+    /**
      * 出发站点
      */
     private String departure;
@@ -92,4 +97,19 @@ public class OrderDO extends BaseDO {
      * 支付时间
      */
     private Date payTime;
+
+    /**
+     * 乘车日期
+     */
+    private Date ridingDate;
+
+    /**
+     * 出发时间
+     */
+    private Date departureTime;
+
+    /**
+     * 出发时间
+     */
+    private Date arrivalTime;
 }

@@ -33,9 +33,12 @@ import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderMapper;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderItemCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
 import org.opengoofy.index12306.biz.orderservice.service.OrderItemService;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
+import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.distributedid.toolkit.SnowflakeIdUtil;
@@ -62,16 +65,55 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemService orderItemService;
     private final RedissonClient redissonClient;
 
+    @Override
+    public TicketOrderDetailRespDTO queryTicketOrder(String orderSn) {
+        LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
+                .eq(OrderDO::getOrderSn, orderSn);
+        OrderDO orderDO = orderMapper.selectOne(queryWrapper);
+        TicketOrderDetailRespDTO result = BeanUtil.convert(orderDO, TicketOrderDetailRespDTO.class);
+        LambdaQueryWrapper<OrderItemDO> orderItemQueryWrapper = Wrappers.lambdaQuery(OrderItemDO.class)
+                .eq(OrderItemDO::getOrderSn, orderSn);
+        List<OrderItemDO> orderItemDOList = orderItemMapper.selectList(orderItemQueryWrapper);
+        result.setPassengerDetails(BeanUtil.convert(orderItemDOList, TicketOrderPassengerDetailRespDTO.class));
+        return result;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String createTicketOrder(TicketOrderCreateReqDTO requestParam) {
         String orderSn = SnowflakeIdUtil.nextIdStr();
-        OrderDO orderDO = OrderDO.builder().orderSn(orderSn).orderTime(requestParam.getOrderTime()).departure(requestParam.getDeparture()).arrival(requestParam.getArrival()).trainId(requestParam.getTrainId()).source(requestParam.getSource()).status(OrderStatusEnum.PENDING_PAYMENT.getStatus()).username(requestParam.getUsername()).build();
+        OrderDO orderDO = OrderDO.builder().orderSn(orderSn)
+                .orderTime(requestParam.getOrderTime())
+                .departure(requestParam.getDeparture())
+                .departureTime(requestParam.getDepartureTime())
+                .ridingDate(requestParam.getRidingDate())
+                .arrivalTime(requestParam.getArrivalTime())
+                .trainNumber(requestParam.getTrainNumber())
+                .arrival(requestParam.getArrival())
+                .trainId(requestParam.getTrainId())
+                .source(requestParam.getSource())
+                .status(OrderStatusEnum.PENDING_PAYMENT.getStatus())
+                .username(requestParam.getUsername())
+                .build();
         orderMapper.insert(orderDO);
         List<TicketOrderItemCreateReqDTO> ticketOrderItems = requestParam.getTicketOrderItems();
         List<OrderItemDO> orderItemDOList = new ArrayList<>();
         ticketOrderItems.forEach(each -> {
-            OrderItemDO orderItemDO = OrderItemDO.builder().trainId(requestParam.getTrainId()).seatNumber(each.getSeatNumber()).carriageNumber(each.getCarriageNumber()).realName(each.getRealName()).orderSn(orderSn).phone(each.getPhone()).amount(each.getAmount()).carriageNumber(each.getCarriageNumber()).idCard(each.getIdCard()).idType(each.getIdType()).status(0).build();
+            OrderItemDO orderItemDO = OrderItemDO.builder()
+                    .trainId(requestParam.getTrainId())
+                    .seatNumber(each.getSeatNumber())
+                    .carriageNumber(each.getCarriageNumber())
+                    .realName(each.getRealName())
+                    .orderSn(orderSn)
+                    .phone(each.getPhone())
+                    .seatType(each.getSeatType())
+                    .amount(each.getAmount())
+                    .carriageNumber(each.getCarriageNumber())
+                    .idCard(each.getIdCard())
+                    .ticketType(each.getTicketType())
+                    .idType(each.getIdType())
+                    .status(0)
+                    .build();
             orderItemDOList.add(orderItemDO);
         });
         orderItemService.saveBatch(orderItemDOList);
