@@ -47,7 +47,9 @@ import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDT
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
 import org.opengoofy.index12306.biz.ticketservice.mq.produce.DelayCloseOrderSendProduce;
+import org.opengoofy.index12306.biz.ticketservice.remote.PayRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderCreateRemoteReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderItemCreateRemoteReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
@@ -95,6 +97,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketMapper ticketMapper;
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
+    private final PayRemoteService payRemoteService;
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
@@ -308,6 +311,11 @@ public class TicketServiceImpl implements TicketService {
             throw new ServiceException(ticketOrderResult.getMessage());
         }
         return new TicketPurchaseRespDTO(ticketOrderResult.getData());
+    }
+
+    @Override
+    public PayInfoRespDTO getPayInfo(String orderSn) {
+        return payRemoteService.getPayInfo(orderSn).getData();
     }
 
     private List<String> buildDepartureStationList(List<TicketListDTO> seatResults) {

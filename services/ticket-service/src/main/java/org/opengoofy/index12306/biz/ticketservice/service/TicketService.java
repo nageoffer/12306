@@ -21,6 +21,7 @@ import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
 import org.springframework.web.bind.annotation.RequestBody;
 
 /**
@@ -45,4 +46,12 @@ public interface TicketService {
      * @return 订单号
      */
     TicketPurchaseRespDTO purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam);
+
+    /**
+     * 支付单详情查询
+     *
+     * @param orderSn 订单号
+     * @return 支付单详情
+     */
+    PayInfoRespDTO getPayInfo(String orderSn);
 }
