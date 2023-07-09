@@ -15,40 +15,37 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.service;
+package org.opengoofy.index12306.biz.payservice.dto;
 
-import org.opengoofy.index12306.biz.payservice.dto.PayCallbackReqDTO;
-import org.opengoofy.index12306.biz.payservice.dto.PayInfoRespDTO;
-import org.opengoofy.index12306.biz.payservice.dto.PayRespDTO;
-import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
+import lombok.Data;
+
+import java.util.Date;
 
 /**
- * 支付接口层
+ * 支付单详情信息返回参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface PayService {
+@Data
+public class PayInfoRespDTO {
 
     /**
-     * 创建支付单
-     *
-     * @param requestParam 创建支付单实体
-     * @return 支付返回详情
+     * 订单号
      */
-    PayRespDTO commonPay(PayRequest requestParam);
+    private String orderSn;
 
     /**
-     * 支付单回调
-     *
-     * @param requestParam 回调支付单实体
+     * 支付总金额
      */
-    void callbackPay(PayCallbackReqDTO requestParam);
+    private Integer totalAmount;
 
     /**
-     * 支付单详情查询
-     *
-     * @param orderSn 订单号
-     * @return 支付单详情
+     * 支付状态
      */
-    PayInfoRespDTO getPayInfo(String orderSn);
+    private Integer status;
+
+    /**
+     * 支付时间
+     */
+    private Date gmtPayment;
 }

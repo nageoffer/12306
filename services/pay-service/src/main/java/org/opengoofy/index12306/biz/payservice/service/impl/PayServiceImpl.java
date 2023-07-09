@@ -26,6 +26,7 @@ import org.opengoofy.index12306.biz.payservice.common.enums.TradeStatusEnum;
 import org.opengoofy.index12306.biz.payservice.dao.entity.PayDO;
 import org.opengoofy.index12306.biz.payservice.dao.mapper.PayMapper;
 import org.opengoofy.index12306.biz.payservice.dto.PayCallbackReqDTO;
+import org.opengoofy.index12306.biz.payservice.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.PayRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayResponse;
@@ -98,5 +99,13 @@ public class PayServiceImpl implements PayService {
         if (Objects.equals(requestParam.getStatus(), TradeStatusEnum.TRADE_SUCCESS.tradeCode())) {
             payResultCallbackOrderSendProduce.sendMessage(BeanUtil.convert(payDO, PayResultCallbackOrderEvent.class));
         }
+    }
+
+    @Override
+    public PayInfoRespDTO getPayInfo(String orderSn) {
+        LambdaQueryWrapper<PayDO> queryWrapper = Wrappers.lambdaQuery(PayDO.class)
+                .eq(PayDO::getOrderSn, orderSn);
+        PayDO payDO = payMapper.selectOne(queryWrapper);
+        return BeanUtil.convert(payDO, PayInfoRespDTO.class);
     }
 }
