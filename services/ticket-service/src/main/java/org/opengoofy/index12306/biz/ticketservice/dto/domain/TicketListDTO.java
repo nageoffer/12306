@@ -32,6 +32,11 @@ import java.util.List;
 public class TicketListDTO {
 
     /**
+     * 列车 ID
+     */
+    private String trainId;
+
+    /**
      * 车次
      */
     private String trainNumber;

@@ -112,6 +112,7 @@ public class TicketServiceImpl implements TicketService {
             LambdaQueryWrapper<TrainDO> trainQueryWrapper = Wrappers.lambdaQuery(TrainDO.class).eq(TrainDO::getId, each.getTrainId());
             TrainDO trainDO = trainMapper.selectOne(trainQueryWrapper);
             TicketListDTO result = new TicketListDTO();
+            result.setTrainId(String.valueOf(trainDO.getId()));
             result.setTrainNumber(trainDO.getTrainNumber());
             result.setDepartureTime(each.getDepartureTime());
             result.setArrivalTime(each.getArrivalTime());
