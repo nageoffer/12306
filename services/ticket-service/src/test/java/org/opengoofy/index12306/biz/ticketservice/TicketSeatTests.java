@@ -52,7 +52,7 @@ class TicketSeatTests {
 
     @Test
     void testInitData() {
-        String trainId = "3";
+        String trainId = "4";
         List<TrainStationPriceDO> trainStationPrices = selectTrainStationPrices(trainId);
         List<CarriageDO> carriages = selectCarriages(trainId);
         TrainDO trainDO = trainMapper.selectById(trainId);
@@ -64,6 +64,14 @@ class TicketSeatTests {
             List<SeatDO> secondClass = buildSecondClass(trainStationPrices, carriages);
             secondClass.forEach(each -> seatMapper.insert(each));
         } else if (Objects.equals(trainDO.getTrainType(), 1)) {
+            List<SeatDO> secondClassCabinSeats = buildSecondClassCabinSeat(trainStationPrices, carriages);
+            secondClassCabinSeats.forEach(each -> seatMapper.insert(each));
+            List<SeatDO> firstSleepers = buildFirstSleeper(trainStationPrices, carriages);
+            firstSleepers.forEach(each -> seatMapper.insert(each));
+            List<SeatDO> secondSleepers = buildSecondSleeper(trainStationPrices, carriages);
+            secondSleepers.forEach(each -> seatMapper.insert(each));
+        } else if (Objects.equals(trainDO.getTrainType(), 2)) {
+            // TODO 普通火车逻辑待完善
             List<SeatDO> secondClassCabinSeats = buildSecondClassCabinSeat(trainStationPrices, carriages);
             secondClassCabinSeats.forEach(each -> seatMapper.insert(each));
             List<SeatDO> firstSleepers = buildFirstSleeper(trainStationPrices, carriages);

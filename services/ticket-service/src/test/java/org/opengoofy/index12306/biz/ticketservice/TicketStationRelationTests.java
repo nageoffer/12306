@@ -44,7 +44,7 @@ class TicketStationRelationTests {
 
     @Test
     void testInitData() {
-        String trainId = "1";
+        String trainId = "4";
         List<TrainStationDO> trainStations = selectTrainStations(trainId);
         List<TrainStationRelationDO> trainStationRelations = buildTrainStationRelations(trainStations);
         trainStationRelations.forEach(each -> trainStationRelationMapper.insert(each));

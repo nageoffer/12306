@@ -46,11 +46,14 @@ public class TrainCarriageTests {
      */
     @Test
     void testInitData() {
-        long trainId = 3L;
+        long trainId = 4L;
         int num = 17;
-        Map<Integer, Map<Integer, Integer>> typeCountMap = MapUtil.of(3, MapUtil.of(5, 24));
-        typeCountMap.put(4, MapUtil.of(11, 32));
-        typeCountMap.put(5, MapUtil.of(17, 36));
+        // Map<Integer, Map<Integer, Integer>> typeCountMap = MapUtil.of(3, MapUtil.of(5, 24));
+        // typeCountMap.put(4, MapUtil.of(11, 32));
+        // typeCountMap.put(5, MapUtil.of(17, 36));
+        Map<Integer, Map<Integer, Integer>> typeCountMap = MapUtil.of(6, MapUtil.of(5, 24));
+        typeCountMap.put(7, MapUtil.of(11, 32));
+        typeCountMap.put(8, MapUtil.of(17, 36));
         List<CarriageDO> carriageDOList = new ArrayList<>();
         for (int i = 1; i < num; i++) {
             CarriageDO carriageDO = new CarriageDO();

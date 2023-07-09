@@ -50,24 +50,25 @@ class TicketStationPriceTests {
 
     @Test
     void testInitData() {
-        String trainId = "3";
+        String trainId = "4";
         Map<String, Map<Integer, Integer>> priceMap = new HashMap<>();
         // 初始化动车数据
-        priceMap.put("北京-德州", buildBulletPriceMap(7500, 15300, 13000, 7500));
-        priceMap.put("北京-南京", buildBulletPriceMap(23300, 44300, 37700, 23300));
-        priceMap.put("北京-嘉兴", buildBulletPriceMap(30900, 58700, 49900, 30900));
-        priceMap.put("北京-海宁", buildBulletPriceMap(31500, 59700, 50800, 31500));
-        priceMap.put("北京-杭州", buildBulletPriceMap(32800, 6220, 52900, 32800));
-        priceMap.put("德州-南京", buildBulletPriceMap(15700, 29900, 25400, 15700));
-        priceMap.put("德州-嘉兴", buildBulletPriceMap(23300, 44300, 37700, 23300));
-        priceMap.put("德州-海宁", buildBulletPriceMap(23900, 45400, 38600, 23900));
-        priceMap.put("德州-杭州", buildBulletPriceMap(25200, 47800, 40700, 25200));
-        priceMap.put("南京-嘉兴", buildBulletPriceMap(7600, 15300, 13000, 7600));
-        priceMap.put("南京-海宁", buildBulletPriceMap(8100, 15500, 13200, 8100));
-        priceMap.put("南京-杭州", buildBulletPriceMap(9400, 17900, 15300, 9400));
-        priceMap.put("嘉兴-海宁", buildBulletPriceMap(600, 15300, 13000, 600));
-        priceMap.put("嘉兴-杭州", buildBulletPriceMap(1900, 15300, 13000, 1900));
-        priceMap.put("海宁-杭州", buildBulletPriceMap(1300, 15300, 13000, 1300));
+        // priceMap.put("北京-德州", buildBulletPriceMap(7500, 15300, 13000, 7500));
+        // priceMap.put("北京-南京", buildBulletPriceMap(23300, 44300, 37700, 23300));
+        // priceMap.put("北京-嘉兴", buildBulletPriceMap(30900, 58700, 49900, 30900));
+        // priceMap.put("北京-海宁", buildBulletPriceMap(31500, 59700, 50800, 31500));
+        // priceMap.put("北京-杭州", buildBulletPriceMap(32800, 6220, 52900, 32800));
+        // priceMap.put("德州-南京", buildBulletPriceMap(15700, 29900, 25400, 15700));
+        // priceMap.put("德州-嘉兴", buildBulletPriceMap(23300, 44300, 37700, 23300));
+        // priceMap.put("德州-海宁", buildBulletPriceMap(23900, 45400, 38600, 23900));
+        // priceMap.put("德州-杭州", buildBulletPriceMap(25200, 47800, 40700, 25200));
+        // priceMap.put("南京-嘉兴", buildBulletPriceMap(7600, 15300, 13000, 7600));
+        // priceMap.put("南京-海宁", buildBulletPriceMap(8100, 15500, 13200, 8100));
+        // priceMap.put("南京-杭州", buildBulletPriceMap(9400, 17900, 15300, 9400));
+        // priceMap.put("嘉兴-海宁", buildBulletPriceMap(600, 15300, 13000, 600));
+        // priceMap.put("嘉兴-杭州", buildBulletPriceMap(1900, 15300, 13000, 1900));
+        // priceMap.put("海宁-杭州", buildBulletPriceMap(1300, 15300, 13000, 1300));
+        priceMap.put("北京南-杭州东", buildBulletPriceMap(32800, 6220, 52900, 32800));
         List<TrainStationDO> trainStations = selectTrainStations(trainId);
         List<TrainStationPriceDO> trainStationPrices = buildTrainStationPrices(trainId, priceMap, trainStations);
         trainStationPrices.forEach(each -> trainStationPriceMapper.insert(each));
@@ -110,9 +111,13 @@ class TicketStationPriceTests {
 
     private Map<Integer, Integer> buildBulletPriceMap(Integer secondClassCabinSeat, Integer firstSleeper, Integer secondSleeper, Integer noSeatSleeper) {
         Map<Integer, Integer> priceMap = new HashMap<>();
-        priceMap.put(3, secondClassCabinSeat);
-        priceMap.put(4, firstSleeper);
-        priceMap.put(5, secondSleeper);
+        // priceMap.put(3, secondClassCabinSeat);
+        // priceMap.put(4, firstSleeper);
+        // priceMap.put(5, secondSleeper);
+        // priceMap.put(10, noSeatSleeper);
+        priceMap.put(6, secondClassCabinSeat);
+        priceMap.put(7, firstSleeper);
+        priceMap.put(8, secondSleeper);
         priceMap.put(10, noSeatSleeper);
         return priceMap;
     }
