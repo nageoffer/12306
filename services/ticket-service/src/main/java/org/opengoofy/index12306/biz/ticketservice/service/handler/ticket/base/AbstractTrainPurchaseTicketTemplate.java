@@ -30,7 +30,6 @@ import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationPriceDO
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.PassengerInfoDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.UserRemoteService;
@@ -84,11 +83,10 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements Application
                 .eq(TrainStationPriceDO::getTrainId, requestParam.getTrainId())
                 .eq(TrainStationPriceDO::getDeparture, requestParam.getDeparture())
                 .eq(TrainStationPriceDO::getArrival, requestParam.getArrival())
-                .eq(TrainStationPriceDO::getSeatType, requestParam.getSeatType());
+                .eq(TrainStationPriceDO::getSeatType, requestParam.getPassengers().get(0).getSeatType());
         TrainStationPriceDO trainStationPriceDO = trainStationPriceMapper.selectOne(lambdaQueryWrapper);
         List<String> passengerIds = actualResult.stream()
-                .map(TrainPurchaseTicketRespDTO::getPassengerInfo)
-                .map(PassengerInfoDTO::getPassengerId)
+                .map(TrainPurchaseTicketRespDTO::getPassengerId)
                 .collect(Collectors.toList());
         Result<List<PassengerRespDTO>> passengerRemoteResult;
         List<PassengerRespDTO> passengerRemoteResultList;
@@ -97,16 +95,15 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements Application
             passengerRemoteResult = userRemoteService.listPassengerQueryByIds(MDC.get(UserConstant.USER_NAME_KEY), passengerIds);
             if (passengerRemoteResult.isSuccess() && CollUtil.isNotEmpty(passengerRemoteResultList = passengerRemoteResult.getData())) {
                 actualResult.forEach(each -> {
-                    PassengerInfoDTO passengerInfo = each.getPassengerInfo();
-                    String passengerId = passengerInfo.getPassengerId();
+                    String passengerId = each.getPassengerId();
                     passengerRemoteResultList.stream()
                             .filter(item -> Objects.equals(item.getId(), passengerId))
                             .findFirst()
                             .ifPresent(passenger -> {
-                                passengerInfo.setIdCard(passenger.getIdCard());
-                                passengerInfo.setPhone(passenger.getPhone());
-                                passengerInfo.setIdType(passenger.getIdType());
-                                passengerInfo.setRealName(passenger.getRealName());
+                                each.setIdCard(passenger.getIdCard());
+                                each.setPhone(passenger.getPhone());
+                                each.setIdType(passenger.getIdType());
+                                each.setRealName(passenger.getRealName());
                             });
                     each.setAmount(trainStationPriceDO.getPrice());
                 });

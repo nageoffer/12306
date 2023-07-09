@@ -22,7 +22,7 @@ import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.PassengerInfoDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.CarriageService;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
@@ -57,9 +57,9 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
 
     @Override
     protected List<TrainPurchaseTicketRespDTO> selectSeats(PurchaseTicketReqDTO requestParam) {
-        List<String> passengerIds = requestParam.getPassengerIds();
+        List<PurchaseTicketPassengerDetailDTO> passengerDetails = requestParam.getPassengers();
         // 判断哪个车厢有座位。获取对应座位类型的车厢号集合，依次进行判断数据是否有余票
-        List<String> trainCarriageList = carriageService.listCarriageNumber(requestParam.getTrainId(), requestParam.getSeatType());
+        List<String> trainCarriageList = carriageService.listCarriageNumber(requestParam.getTrainId(), requestParam.getPassengers().get(0).getSeatType());
         // 获取车厢余票
         List<Integer> trainStationCarriageRemainingTicket = seatService.listSeatRemainingTicket(requestParam.getTrainId(), requestParam.getDeparture(), requestParam.getArrival(), trainCarriageList);
         // 尽量让一起买票的乘车人在一个车厢
@@ -67,16 +67,20 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
         List<TrainPurchaseTicketRespDTO> actualResult = new ArrayList<>();
         for (int i = 0; i < trainStationCarriageRemainingTicket.size(); i++) {
             int remainingTicket = trainStationCarriageRemainingTicket.get(i);
-            if (remainingTicket > passengerIds.size()) {
+            if (remainingTicket > passengerDetails.size()) {
                 carriagesNumber = trainCarriageList.get(i);
                 List<String> listAvailableSeat = seatService.listAvailableSeat(requestParam.getTrainId(), carriagesNumber);
-                List<String> selectSeats = selectSeats(listAvailableSeat, passengerIds.size());
+                List<String> selectSeats = selectSeats(listAvailableSeat, passengerDetails.size());
                 for (int j = 0; j < selectSeats.size(); j++) {
                     TrainPurchaseTicketRespDTO result = new TrainPurchaseTicketRespDTO();
                     String seatNumber = selectSeats.get(j);
                     result.setSeatNumber(seatNumber);
+                    // TODO 席位
+                    result.setSeatType(0);
+                    // TODO 用户类型
+                    result.setUserType(0);
                     result.setCarriageNumber(carriagesNumber);
-                    result.setPassengerInfo(new PassengerInfoDTO().setPassengerId(passengerIds.get(j)));
+                    result.setPassengerId(passengerDetails.get(j).getPassengerId());
                     actualResult.add(result);
                 }
                 break;
@@ -87,7 +91,7 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
         if (CollUtil.isNotEmpty(actualResult)) {
             String keySuffix = StrUtil.join("_", requestParam.getTrainId(), requestParam.getDeparture(), requestParam.getArrival());
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-            stringRedisTemplate.opsForHash().increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(requestParam.getSeatType()), -passengerIds.size());
+            stringRedisTemplate.opsForHash().increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(requestParam.getPassengers().get(0).getSeatType()), -passengerDetails.size());
         }
         return actualResult;
     }

@@ -38,11 +38,11 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMa
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.HighSpeedTrainDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.PassengerInfoDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.RegularTrainDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
@@ -257,35 +257,46 @@ public class TicketServiceImpl implements TicketService {
                 ADVANCE_TICKET_DAY,
                 TimeUnit.DAYS);
         List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults =
-                abstractStrategyChoose.chooseAndExecuteResp(VehicleTypeEnum.findNameByCode(trainDO.getTrainType()) + VehicleSeatTypeEnum.findNameByCode(requestParam.getSeatType()), requestParam);
+                abstractStrategyChoose.chooseAndExecuteResp(VehicleTypeEnum.findNameByCode(trainDO.getTrainType()) + VehicleSeatTypeEnum.findNameByCode(requestParam.getPassengers().get(0).getSeatType()), requestParam);
         // TODO 批量插入
         trainPurchaseTicketResults.forEach(each -> {
-            PassengerInfoDTO passengerInfo = each.getPassengerInfo();
             TicketDO ticketDO = new TicketDO();
             // TODO 创建用户上下文
             ticketDO.setUsername(MDC.get(UserConstant.USER_NAME_KEY));
             ticketDO.setTrainId(Long.parseLong(requestParam.getTrainId()));
             ticketDO.setCarriageNumber(each.getCarriageNumber());
             ticketDO.setSeatNumber(each.getSeatNumber());
-            ticketDO.setPassengerId(passengerInfo.getPassengerId());
+            ticketDO.setPassengerId(each.getPassengerId());
             ticketDO.setTicketStatus(TicketStatusEnum.UNPAID.getCode());
             ticketMapper.insert(ticketDO);
         });
         Result<String> ticketOrderResult;
+        List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
         try {
             List<TicketOrderItemCreateRemoteReqDTO> orderItemCreateRemoteReqDTOList = new ArrayList<>();
             trainPurchaseTicketResults.forEach(each -> {
-                PassengerInfoDTO passengerInfo = each.getPassengerInfo();
                 TicketOrderItemCreateRemoteReqDTO orderItemCreateRemoteReqDTO = TicketOrderItemCreateRemoteReqDTO.builder()
                         .amount(each.getAmount())
                         .carriageNumber(each.getCarriageNumber())
                         .seatNumber(each.getSeatNumber())
-                        .idCard(passengerInfo.getIdCard())
-                        .idType(passengerInfo.getIdType())
-                        .phone(passengerInfo.getPhone())
-                        .realName(passengerInfo.getRealName())
+                        .idCard(each.getIdCard())
+                        .idType(each.getIdType())
+                        .phone(each.getPhone())
+                        .realName(each.getRealName())
+                        .build();
+                TicketOrderDetailRespDTO ticketOrderDetailRespDTO = TicketOrderDetailRespDTO.builder()
+                        .amount(each.getAmount())
+                        .carriageNumber(each.getCarriageNumber())
+                        .seatNumber(each.getSeatNumber())
+                        .idCard(each.getIdCard())
+                        .seatType(null)
+                        .idType(each.getIdType())
+                        .seatType(each.getSeatType())
+                        .ticketType(each.getUserType())
+                        .realName(each.getRealName())
                         .build();
                 orderItemCreateRemoteReqDTOList.add(orderItemCreateRemoteReqDTO);
+                ticketOrderDetailResults.add(ticketOrderDetailRespDTO);
             });
             TicketOrderCreateRemoteReqDTO orderCreateRemoteReqDTO = TicketOrderCreateRemoteReqDTO.builder()
                     .departure(requestParam.getDeparture())
@@ -310,7 +321,7 @@ public class TicketServiceImpl implements TicketService {
             // TODO 回退锁定车票
             throw new ServiceException(ticketOrderResult.getMessage());
         }
-        return new TicketPurchaseRespDTO(ticketOrderResult.getData());
+        return new TicketPurchaseRespDTO(ticketOrderResult.getData(), ticketOrderDetailResults);
     }
 
     @Override

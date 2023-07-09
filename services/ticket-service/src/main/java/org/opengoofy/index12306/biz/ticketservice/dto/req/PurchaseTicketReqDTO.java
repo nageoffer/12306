@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.ticketservice.dto.req;
 
 import lombok.Data;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
 
 import java.util.List;
 
@@ -37,12 +38,7 @@ public class PurchaseTicketReqDTO {
     /**
      * 乘车人
      */
-    private List<String> passengerIds;
-
-    /**
-     * 座位类型
-     */
-    private Integer seatType;
+    private List<PurchaseTicketPassengerDetailDTO> passengers;
 
     /**
      * 选择座位
