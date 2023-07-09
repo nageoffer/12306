@@ -55,8 +55,7 @@ public class PayController {
     }
 
     /**
-     * 公共支付接口
-     * 对接常用支付方式，比如：支付宝、微信以及银行卡等
+     * 支付单详情查询
      */
     @GetMapping("/api/pay-service/get/pay/info")
     public Result<PayInfoRespDTO> getPayInfo(@RequestParam(value = "orderSn") String orderSn) {
