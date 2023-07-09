@@ -77,6 +77,9 @@ public class TrainStationRemainingTicketJobHandler extends AbstractTrainStationJ
                         .put("3", "96")
                         .put("4", "192")
                         .put("5", "216")
+                        .put("6", "96")
+                        .put("7", "192")
+                        .put("8", "216")
                         .build();
                 String buildCacheKey = TRAIN_STATION_REMAINING_TICKET + StrUtil.join("_", each.getId(), item.getDeparture(), item.getArrival());
                 stringRedisTemplate.opsForHash().putAll(buildCacheKey, trainStationRemainingTicket);

@@ -62,6 +62,21 @@ public enum VehicleSeatTypeEnum {
     SECOND_SLEEPER(5, "SECOND_SLEEPER", "二等卧"),
 
     /**
+     * 软卧
+     */
+    SOFT_SLEEPER(6, "SOFT_SLEEPER", "软卧"),
+
+    /**
+     * 硬卧
+     */
+    HARD_SLEEPER(7, "HARD_SLEEPER", "硬卧"),
+
+    /**
+     * 硬座
+     */
+    HARD_SEAT(8, "HARD_SEAT", "硬座"),
+
+    /**
      * 无座
      */
     NO_SEAT_SLEEPER(10, "NO_SEAT_SLEEPER", "无座");

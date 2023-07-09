@@ -28,10 +28,13 @@ import java.util.Objects;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.BUSINESS_CLASS;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.FIRST_CLASS;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.FIRST_SLEEPER;
+import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.HARD_SEAT;
+import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.HARD_SLEEPER;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.NO_SEAT_SLEEPER;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.SECOND_CLASS;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.SECOND_CLASS_CABIN_SEAT;
 import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.SECOND_SLEEPER;
+import static org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum.SOFT_SLEEPER;
 
 /**
  * 交通工具类型
@@ -54,7 +57,7 @@ public enum VehicleTypeEnum {
     /**
      * 普通车
      */
-    REGULAR_TRAIN(2, "REGULAR_TRAIN", "普通车", null),
+    REGULAR_TRAIN(2, "REGULAR_TRAIN", "普通车", ListUtil.of(SOFT_SLEEPER.getCode(), HARD_SLEEPER.getCode(), HARD_SEAT.getCode(), NO_SEAT_SLEEPER.getCode())),
 
     /**
      * 汽车

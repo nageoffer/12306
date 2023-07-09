@@ -43,11 +43,6 @@ public class TrainDO extends BaseDO {
     private String trainNumber;
 
     /**
-     * 列车名称
-     */
-    private String trainName;
-
-    /**
      * 列车类型 0：高铁 1：动车 2：普通车
      */
     private Integer trainType;
