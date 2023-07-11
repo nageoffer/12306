@@ -187,7 +187,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                         .ticketStatus(TicketStatusEnum.UNPAID.getCode())
                         .build())
                 .toList();
-        this.saveBatch(ticketDOList);
+        saveBatch(ticketDOList);
         Result<String> ticketOrderResult;
         List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
         try {
