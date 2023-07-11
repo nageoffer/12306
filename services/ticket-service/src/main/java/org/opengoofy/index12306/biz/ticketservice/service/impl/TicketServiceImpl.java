@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
-import org.opengoofy.index12306.biz.ticketservice.common.enums.TrainBrandEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TicketDO;
@@ -36,9 +35,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TicketMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.BulletTrainDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.HighSpeedTrainDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.RegularTrainDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatClassDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
@@ -65,11 +62,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -107,7 +105,7 @@ public class TicketServiceImpl implements TicketService {
                 .eq(TrainStationRelationDO::getEndRegion, requestParam.getToStation());
         List<TrainStationRelationDO> trainStationRelationList = trainStationRelationMapper.selectList(queryWrapper);
         List<TicketListDTO> seatResults = new ArrayList<>();
-        Set<String> trainBrandSet = new HashSet<>();
+        Set<Integer> trainBrandSet = new HashSet<>();
         for (TrainStationRelationDO each : trainStationRelationList) {
             LambdaQueryWrapper<TrainDO> trainQueryWrapper = Wrappers.lambdaQuery(TrainDO.class).eq(TrainDO::getId, each.getTrainId());
             TrainDO trainDO = trainMapper.selectOne(trainQueryWrapper);
@@ -123,127 +121,43 @@ public class TicketServiceImpl implements TicketService {
             result.setArrivalFlag(each.getArrivalFlag());
             result.setTrainType(trainDO.getTrainType());
             if (StrUtil.isNotBlank(trainDO.getTrainTag())) {
-                result.setTrainTag(StrUtil.split(trainDO.getTrainTag(), ","));
+                result.setTrainTags(StrUtil.split(trainDO.getTrainTag(), ","));
             }
             long betweenDay = cn.hutool.core.date.DateUtil.betweenDay(each.getDepartureTime(), each.getArrivalTime(), false);
             result.setDaysArrived((int) betweenDay);
             result.setSaleStatus(new Date().after(trainDO.getSaleTime()) ? 0 : 1);
             result.setSaleTime(trainDO.getSaleTime());
             if (StrUtil.isNotBlank(trainDO.getTrainBrand())) {
-                trainBrandSet.addAll(TrainBrandEnum.findNameByCode(StrUtil.split(trainDO.getTrainBrand(), ",")));
+                trainBrandSet.addAll(StrUtil.split(trainDO.getTrainBrand(), ",").stream().map(Integer::parseInt).toList());
             }
             LambdaQueryWrapper<TrainStationPriceDO> trainStationPriceQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
                     .eq(TrainStationPriceDO::getDeparture, each.getDeparture())
                     .eq(TrainStationPriceDO::getArrival, each.getArrival())
                     .eq(TrainStationPriceDO::getTrainId, each.getTrainId());
             List<TrainStationPriceDO> trainStationPriceDOList = trainStationPriceMapper.selectList(trainStationPriceQueryWrapper);
-            if (Objects.equals(trainDO.getTrainType(), 0)) {
-                HighSpeedTrainDTO highSpeedTrainDTO = new HighSpeedTrainDTO();
-                StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-                trainStationPriceDOList.forEach(item -> {
-                    String keySuffix = StrUtil.join("_", each.getTrainId(), item.getDeparture(), item.getArrival());
-                    switch (item.getSeatType()) {
-                        case 0 -> {
-                            String businessClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "0");
-                            highSpeedTrainDTO.setBusinessClassQuantity(Integer.parseInt(businessClassQuantity));
-                            highSpeedTrainDTO.setBusinessClassPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            highSpeedTrainDTO.setBusinessClassCandidate(false);
-                        }
-                        case 1 -> {
-                            String firstClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "1");
-                            highSpeedTrainDTO.setFirstClassQuantity(Integer.parseInt(firstClassQuantity));
-                            highSpeedTrainDTO.setFirstClassPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            highSpeedTrainDTO.setFirstClassCandidate(false);
-                        }
-                        case 2 -> {
-                            String secondClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "2");
-                            highSpeedTrainDTO.setSecondClassQuantity(Integer.parseInt(secondClassQuantity));
-                            highSpeedTrainDTO.setSecondClassPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            highSpeedTrainDTO.setSecondClassCandidate(false);
-                        }
-                        default -> {
-                        }
-                    }
-                });
-                result.setHighSpeedTrain(highSpeedTrainDTO);
-                seatResults.add(result);
-            } else if (Objects.equals(trainDO.getTrainType(), 1)) {
-                BulletTrainDTO bulletTrainDTO = new BulletTrainDTO();
-                StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-                trainStationPriceDOList.forEach(item -> {
-                    String keySuffix = StrUtil.join("_", each.getTrainId(), item.getDeparture(), item.getArrival());
-                    switch (item.getSeatType()) {
-                        case 3 -> {
-                            String secondClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "3");
-                            bulletTrainDTO.setSecondClassQuantity(Integer.parseInt(secondClassQuantity));
-                            bulletTrainDTO.setSecondClassPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            bulletTrainDTO.setSecondSleeperCandidate(false);
-                        }
-                        case 4 -> {
-                            String firstSleeperQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "4");
-                            bulletTrainDTO.setFirstSleeperQuantity(Integer.parseInt(firstSleeperQuantity));
-                            bulletTrainDTO.setFirstSleeperPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            bulletTrainDTO.setFirstSleeperCandidate(false);
-                        }
-                        case 5 -> {
-                            String secondSleeperQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "5");
-                            bulletTrainDTO.setSecondSleeperQuantity(Integer.parseInt(secondSleeperQuantity));
-                            bulletTrainDTO.setSecondSleeperPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            bulletTrainDTO.setSecondSleeperCandidate(false);
-                        }
-                        default -> {
-                        }
-                    }
-                });
-                result.setBulletTrain(bulletTrainDTO);
-                seatResults.add(result);
-            } else if (Objects.equals(trainDO.getTrainType(), 2)) {
-                RegularTrainDTO regularTrainDTO = new RegularTrainDTO();
-                StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-                trainStationPriceDOList.forEach(item -> {
-                    String keySuffix = StrUtil.join("_", each.getTrainId(), item.getDeparture(), item.getArrival());
-                    switch (item.getSeatType()) {
-                        case 6 -> {
-                            String secondClassQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "3");
-                            regularTrainDTO.setSoftSleeperQuantity(Integer.parseInt(secondClassQuantity));
-                            regularTrainDTO.setSoftSleeperPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            regularTrainDTO.setSoftSleeperCandidate(false);
-                        }
-                        case 7 -> {
-                            String firstSleeperQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "4");
-                            regularTrainDTO.setHardSleeperQuantity(Integer.parseInt(firstSleeperQuantity));
-                            regularTrainDTO.setHardSleeperPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            regularTrainDTO.setHardSleeperCandidate(false);
-                        }
-                        case 8 -> {
-                            String secondSleeperQuantity = (String) stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, "5");
-                            regularTrainDTO.setHardSeatQuantity(Integer.parseInt(secondSleeperQuantity));
-                            regularTrainDTO.setHardSeatPrice(item.getPrice());
-                            // TODO 候补逻辑后续补充
-                            regularTrainDTO.setHardSeatCandidate(false);
-                        }
-                        default -> {
-                        }
-                    }
-                });
-                result.setRegularTrain(regularTrainDTO);
-                seatResults.add(result);
-            }
+            List<SeatClassDTO> seatClassList = new ArrayList<>();
+            StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
+            trainStationPriceDOList.forEach(item -> {
+                String keySuffix = StrUtil.join("_", each.getTrainId(), item.getDeparture(), item.getArrival());
+                Object quantityObj = stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(item.getSeatType()));
+                int quantity = Optional.ofNullable(quantityObj)
+                        .map(Object::toString)
+                        .map(Integer::parseInt)
+                        .orElseGet(() -> {
+                            // TODO 后续适配缓存时效逻辑
+                            return 0;
+                        });
+                seatClassList.add(new SeatClassDTO(item.getSeatType(), quantity, new BigDecimal(item.getPrice()).divide(new BigDecimal("100"), 1, RoundingMode.HALF_UP), false));
+            });
+            result.setSeatClassList(seatClassList);
+            seatResults.add(result);
         }
         return TicketPageQueryRespDTO.builder()
                 .trainList(seatResults)
                 .departureStationList(buildDepartureStationList(seatResults))
                 .arrivalStationList(buildArrivalStationList(seatResults))
                 .trainBrandList(trainBrandSet.stream().toList())
-                .seatClassList(buildSeatClassList(seatResults))
+                .seatClassTypeList(buildSeatClassList(seatResults))
                 .build();
     }
 
@@ -348,28 +262,11 @@ public class TicketServiceImpl implements TicketService {
         return seatResults.stream().map(TicketListDTO::getArrival).distinct().collect(Collectors.toList());
     }
 
-    private List<String> buildSeatClassList(List<TicketListDTO> seatResults) {
-        Set<String> resultSeatClassList = new HashSet<>();
+    private List<Integer> buildSeatClassList(List<TicketListDTO> seatResults) {
+        Set<Integer> resultSeatClassList = new HashSet<>();
         for (TicketListDTO each : seatResults) {
-            HighSpeedTrainDTO highSpeedTrain = each.getHighSpeedTrain();
-            if (highSpeedTrain != null) {
-                Optional.ofNullable(highSpeedTrain.getBusinessClassPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.BUSINESS_CLASS.getValue()));
-                Optional.ofNullable(highSpeedTrain.getFirstClassPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.FIRST_CLASS.getValue()));
-                Optional.ofNullable(highSpeedTrain.getSecondClassQuantity()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.SECOND_CLASS.getValue()));
-            }
-            BulletTrainDTO bulletTrain = each.getBulletTrain();
-            if (bulletTrain != null) {
-                Optional.ofNullable(bulletTrain.getFirstSleeperPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.FIRST_SLEEPER.getValue()));
-                Optional.ofNullable(bulletTrain.getSecondSleeperPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.SECOND_SLEEPER.getValue()));
-                Optional.ofNullable(bulletTrain.getSecondClassPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.SECOND_CLASS_CABIN_SEAT.getValue()));
-                Optional.ofNullable(bulletTrain.getNoSeatPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.NO_SEAT_SLEEPER.getValue()));
-            }
-            RegularTrainDTO regularTrain = each.getRegularTrain();
-            if (regularTrain != null) {
-                Optional.ofNullable(regularTrain.getSoftSleeperPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.SOFT_SLEEPER.getValue()));
-                Optional.ofNullable(regularTrain.getHardSleeperPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.HARD_SLEEPER.getValue()));
-                Optional.ofNullable(regularTrain.getHardSeatPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.HARD_SEAT.getValue()));
-                Optional.ofNullable(regularTrain.getNoSeatPrice()).ifPresent(item -> resultSeatClassList.add(VehicleSeatTypeEnum.NO_SEAT_SLEEPER.getValue()));
+            for (SeatClassDTO item : each.getSeatClassList()) {
+                resultSeatClassList.add(item.getType());
             }
         }
         return resultSeatClassList.stream().toList();

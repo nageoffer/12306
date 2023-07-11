@@ -15,49 +15,43 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dto.resp;
+package org.opengoofy.index12306.biz.ticketservice.dto.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 /**
- * 车票分页查询响应参数
+ * 席别类型实体
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TicketPageQueryRespDTO {
+@Builder
+public class SeatClassDTO {
 
     /**
-     * 车次集合数据
+     * 席别类型
      */
-    private List<TicketListDTO> trainList;
+    private Integer type;
 
     /**
-     * 车次类型：D-动车 Z-直达 复兴号等
+     * 席别数量
      */
-    private List<Integer> trainBrandList;
+    private Integer quantity;
 
     /**
-     * 出发车站
+     * 席别价格
      */
-    private List<String> departureStationList;
+    private BigDecimal price;
 
     /**
-     * 到达车站
+     * 席别候补标识
      */
-    private List<String> arrivalStationList;
-
-    /**
-     * 车次席别
-     */
-    private List<Integer> seatClassTypeList;
+    private Boolean candidate;
 }

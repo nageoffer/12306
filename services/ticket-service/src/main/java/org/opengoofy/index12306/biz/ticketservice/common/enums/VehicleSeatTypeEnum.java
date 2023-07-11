@@ -77,9 +77,34 @@ public enum VehicleSeatTypeEnum {
     HARD_SEAT(8, "HARD_SEAT", "硬座"),
 
     /**
+     * 高级软卧
+     */
+    DELUXE_SOFT_SLEEPER(9, "DELUXE_SOFT_SLEEPER", "高级软卧"),
+
+    /**
+     * 动卧
+     */
+    DINING_CAR_SLEEPER(10, "DINING_CAR_SLEEPER", "动卧"),
+
+    /**
+     * 软座
+     */
+    SOFT_SEAT(11, "SOFT_SEAT", "软座"),
+
+    /**
+     * 特等座
+     */
+    FIRST_CLASS_SEAT(12, "FIRST_CLASS_SEAT", "特等座"),
+
+    /**
      * 无座
      */
-    NO_SEAT_SLEEPER(10, "NO_SEAT_SLEEPER", "无座");
+    NO_SEAT_SLEEPER(13, "NO_SEAT_SLEEPER", "无座"),
+
+    /**
+     * 其他
+     */
+    OTHER(14, "OTHER", "其他");
 
     @Getter
     private final Integer code;
@@ -98,6 +123,17 @@ public enum VehicleSeatTypeEnum {
                 .filter(each -> Objects.equals(each.getCode(), code))
                 .findFirst()
                 .map(VehicleSeatTypeEnum::getName)
+                .orElse(null);
+    }
+
+    /**
+     * 根据编码查找值
+     */
+    public static String findValueByCode(Integer code) {
+        return Arrays.stream(VehicleSeatTypeEnum.values())
+                .filter(each -> Objects.equals(each.getCode(), code))
+                .findFirst()
+                .map(VehicleSeatTypeEnum::getValue)
                 .orElse(null);
     }
 }

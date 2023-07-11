@@ -102,20 +102,10 @@ public class TicketListDTO {
     /**
      * 列车标签集合 0：复兴号 1：智能动车组 2：静音车厢 3：支持选铺
      */
-    private List<String> trainTag;
+    private List<String> trainTags;
 
     /**
-     * 高铁属性
+     * 席别实体集合
      */
-    private HighSpeedTrainDTO highSpeedTrain;
-
-    /**
-     * 动车属性
-     */
-    private BulletTrainDTO bulletTrain;
-
-    /**
-     * 普通车属性
-     */
-    private RegularTrainDTO regularTrain;
+    private List<SeatClassDTO> seatClassList;
 }
