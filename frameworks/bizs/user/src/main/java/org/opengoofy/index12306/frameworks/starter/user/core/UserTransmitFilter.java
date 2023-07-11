@@ -24,11 +24,12 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.opengoofy.index12306.framework.starter.bases.constant.UserConstant;
-import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 用户信息传输过滤器
@@ -45,19 +46,22 @@ public class UserTransmitFilter implements Filter {
             String userName = httpServletRequest.getHeader(UserConstant.USER_NAME_KEY);
             String realMame = httpServletRequest.getHeader(UserConstant.REAL_NAME_KEY);
             if (StringUtils.hasText(userName)) {
-                userName = URLDecoder.decode(userName, "UTF-8");
+                userName = URLDecoder.decode(userName, UTF_8);
             }
             if (StringUtils.hasText(realMame)) {
-                realMame = URLDecoder.decode(realMame, "UTF-8");
+                realMame = URLDecoder.decode(realMame, UTF_8);
             }
-            MDC.put(UserConstant.USER_ID_KEY, userId);
-            MDC.put(UserConstant.USER_NAME_KEY, userName);
-            MDC.put(UserConstant.REAL_NAME_KEY, realMame);
+            UserInfoDTO userInfoDTO = UserInfoDTO.builder()
+                    .userId(userId)
+                    .username(userName)
+                    .realName(realMame)
+                    .build();
+            UserContext.setUser(userInfoDTO);
         }
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
-            MDC.clear();
+            UserContext.removeUser();
         }
     }
 }
