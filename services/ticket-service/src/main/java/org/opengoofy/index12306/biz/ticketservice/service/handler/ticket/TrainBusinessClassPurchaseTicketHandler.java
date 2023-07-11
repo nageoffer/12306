@@ -77,8 +77,6 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                     PurchaseTicketPassengerDetailDTO currentTicketPassenger = passengerDetails.get(j);
                     result.setSeatNumber(seatNumber);
                     result.setSeatType(currentTicketPassenger.getSeatType());
-                    // TODO 用户类型
-                    result.setUserType(0);
                     result.setCarriageNumber(carriagesNumber);
                     result.setPassengerId(currentTicketPassenger.getPassengerId());
                     actualResult.add(result);
