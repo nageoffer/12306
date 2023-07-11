@@ -20,6 +20,7 @@
         <module>database</module>
         <module>designpattern</module>
         <module>distributedid</module>
+        <module>log</module>
         <module>web</module>
     </modules>
 </project>
