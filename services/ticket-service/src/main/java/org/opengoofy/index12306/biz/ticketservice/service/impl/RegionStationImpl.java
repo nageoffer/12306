@@ -60,35 +60,21 @@ public class RegionStationImpl implements RegionStationService {
             return BeanUtil.convert(stationDOList, RegionStationQueryRespDTO.class);
         }
         // TODO 请求缓存
-        LambdaQueryWrapper<RegionDO> queryWrapper;
-        switch (requestParam.getQueryType()) {
-            case 0:
-                queryWrapper = Wrappers.lambdaQuery(RegionDO.class)
-                        .eq(RegionDO::getPopularFlag, FlagEnum.TRUE.code());
-                break;
-            case 1:
-                queryWrapper = Wrappers.lambdaQuery(RegionDO.class)
-                        .in(RegionDO::getInitial, RegionStationQueryTypeEnum.A_E.getSpells());
-                break;
-            case 2:
-                queryWrapper = Wrappers.lambdaQuery(RegionDO.class)
-                        .in(RegionDO::getInitial, RegionStationQueryTypeEnum.F_J.getSpells());
-                break;
-            case 3:
-                queryWrapper = Wrappers.lambdaQuery(RegionDO.class)
-                        .in(RegionDO::getInitial, RegionStationQueryTypeEnum.K_O.getSpells());
-                break;
-            case 4:
-                queryWrapper = Wrappers.lambdaQuery(RegionDO.class)
-                        .in(RegionDO::getInitial, RegionStationQueryTypeEnum.P_T.getSpells());
-                break;
-            case 5:
-                queryWrapper = Wrappers.lambdaQuery(RegionDO.class)
-                        .in(RegionDO::getInitial, RegionStationQueryTypeEnum.U_Z.getSpells());
-                break;
-            default:
-                throw new ClientException("查询失败，请检查查询参数是否正确");
-        }
+        LambdaQueryWrapper<RegionDO> queryWrapper = switch (requestParam.getQueryType()) {
+            case 0 -> Wrappers.lambdaQuery(RegionDO.class)
+                    .eq(RegionDO::getPopularFlag, FlagEnum.TRUE.code());
+            case 1 -> Wrappers.lambdaQuery(RegionDO.class)
+                    .in(RegionDO::getInitial, RegionStationQueryTypeEnum.A_E.getSpells());
+            case 2 -> Wrappers.lambdaQuery(RegionDO.class)
+                    .in(RegionDO::getInitial, RegionStationQueryTypeEnum.F_J.getSpells());
+            case 3 -> Wrappers.lambdaQuery(RegionDO.class)
+                    .in(RegionDO::getInitial, RegionStationQueryTypeEnum.K_O.getSpells());
+            case 4 -> Wrappers.lambdaQuery(RegionDO.class)
+                    .in(RegionDO::getInitial, RegionStationQueryTypeEnum.P_T.getSpells());
+            case 5 -> Wrappers.lambdaQuery(RegionDO.class)
+                    .in(RegionDO::getInitial, RegionStationQueryTypeEnum.U_Z.getSpells());
+            default -> throw new ClientException("查询失败，请检查查询参数是否正确");
+        };
         List<RegionDO> regionDOList = regionMapper.selectList(queryWrapper);
         return BeanUtil.convert(regionDOList, RegionStationQueryRespDTO.class);
     }
