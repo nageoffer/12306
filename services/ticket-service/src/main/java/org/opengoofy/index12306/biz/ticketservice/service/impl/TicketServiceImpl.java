@@ -21,6 +21,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
@@ -84,14 +85,14 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TicketServiceImpl implements TicketService {
+public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> implements TicketService {
 
     private final TrainMapper trainMapper;
     private final TrainStationRelationMapper trainStationRelationMapper;
     private final TrainStationPriceMapper trainStationPriceMapper;
     private final DistributedCache distributedCache;
     private final AbstractStrategyChoose abstractStrategyChoose;
-    private final TicketMapper ticketMapper;
+    private final TicketService ticketService;
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
     private final PayRemoteService payRemoteService;
@@ -177,17 +178,17 @@ public class TicketServiceImpl implements TicketService {
         TrainStationRelationDO trainStationRelationDO = trainStationRelationMapper.selectOne(queryWrapper);
         List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults =
                 abstractStrategyChoose.chooseAndExecuteResp(VehicleTypeEnum.findNameByCode(trainDO.getTrainType()) + VehicleSeatTypeEnum.findNameByCode(requestParam.getPassengers().get(0).getSeatType()), requestParam);
-        // TODO 批量插入
-        trainPurchaseTicketResults.forEach(each -> {
-            TicketDO ticketDO = new TicketDO();
-            ticketDO.setUsername(UserContext.getUsername());
-            ticketDO.setTrainId(Long.parseLong(requestParam.getTrainId()));
-            ticketDO.setCarriageNumber(each.getCarriageNumber());
-            ticketDO.setSeatNumber(each.getSeatNumber());
-            ticketDO.setPassengerId(each.getPassengerId());
-            ticketDO.setTicketStatus(TicketStatusEnum.UNPAID.getCode());
-            ticketMapper.insert(ticketDO);
-        });
+        List<TicketDO> ticketDOList = trainPurchaseTicketResults.stream()
+                .map(each -> TicketDO.builder()
+                        .username(UserContext.getUsername())
+                        .trainId(Long.parseLong(requestParam.getTrainId()))
+                        .carriageNumber(each.getCarriageNumber())
+                        .seatNumber(each.getSeatNumber())
+                        .passengerId(each.getPassengerId())
+                        .ticketStatus(TicketStatusEnum.UNPAID.getCode())
+                        .build())
+                .toList();
+        ticketService.saveBatch(ticketDOList);
         Result<String> ticketOrderResult;
         List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
         try {
