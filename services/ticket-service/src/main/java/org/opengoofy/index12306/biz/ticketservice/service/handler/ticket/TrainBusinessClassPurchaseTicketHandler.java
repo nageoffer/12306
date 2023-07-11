@@ -74,13 +74,13 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                 for (int j = 0; j < selectSeats.size(); j++) {
                     TrainPurchaseTicketRespDTO result = new TrainPurchaseTicketRespDTO();
                     String seatNumber = selectSeats.get(j);
+                    PurchaseTicketPassengerDetailDTO currentTicketPassenger = passengerDetails.get(j);
                     result.setSeatNumber(seatNumber);
-                    // TODO 席位
-                    result.setSeatType(0);
+                    result.setSeatType(currentTicketPassenger.getSeatType());
                     // TODO 用户类型
                     result.setUserType(0);
                     result.setCarriageNumber(carriagesNumber);
-                    result.setPassengerId(passengerDetails.get(j).getPassengerId());
+                    result.setPassengerId(currentTicketPassenger.getPassengerId());
                     actualResult.add(result);
                 }
                 break;
