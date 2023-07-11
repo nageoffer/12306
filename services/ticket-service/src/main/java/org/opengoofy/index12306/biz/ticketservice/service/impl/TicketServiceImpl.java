@@ -52,12 +52,11 @@ import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderItemCrea
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil;
-import org.opengoofy.index12306.framework.starter.bases.constant.UserConstant;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
-import org.slf4j.MDC;
+import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,8 +180,7 @@ public class TicketServiceImpl implements TicketService {
         // TODO 批量插入
         trainPurchaseTicketResults.forEach(each -> {
             TicketDO ticketDO = new TicketDO();
-            // TODO 创建用户上下文
-            ticketDO.setUsername(MDC.get(UserConstant.USER_NAME_KEY));
+            ticketDO.setUsername(UserContext.getUsername());
             ticketDO.setTrainId(Long.parseLong(requestParam.getTrainId()));
             ticketDO.setCarriageNumber(each.getCarriageNumber());
             ticketDO.setSeatNumber(each.getSeatNumber());
@@ -228,8 +226,7 @@ public class TicketServiceImpl implements TicketService {
                     .departureTime(trainStationRelationDO.getDepartureTime())
                     .arrivalTime(trainStationRelationDO.getArrivalTime())
                     .ridingDate(trainStationRelationDO.getDepartureTime())
-                    // TODO 创建用户上下文
-                    .username(MDC.get(UserConstant.USER_NAME_KEY))
+                    .username(UserContext.getUsername())
                     .trainId(Long.parseLong(requestParam.getTrainId()))
                     .ticketOrderItems(orderItemCreateRemoteReqDTOList)
                     .build();

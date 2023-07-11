@@ -37,11 +37,10 @@ import org.opengoofy.index12306.biz.ticketservice.remote.dto.PassengerRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.StationCalculateUtil;
 import org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder;
-import org.opengoofy.index12306.framework.starter.bases.constant.UserConstant;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
-import org.slf4j.MDC;
+import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 
@@ -92,7 +91,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements Application
         List<PassengerRespDTO> passengerRemoteResultList;
         try {
             // 查询乘车人信息并赋值
-            passengerRemoteResult = userRemoteService.listPassengerQueryByIds(MDC.get(UserConstant.USER_NAME_KEY), passengerIds);
+            passengerRemoteResult = userRemoteService.listPassengerQueryByIds(UserContext.getUsername(), passengerIds);
             if (passengerRemoteResult.isSuccess() && CollUtil.isNotEmpty(passengerRemoteResultList = passengerRemoteResult.getData())) {
                 actualResult.forEach(each -> {
                     String passengerId = each.getPassengerId();
