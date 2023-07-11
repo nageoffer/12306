@@ -92,7 +92,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final TrainStationPriceMapper trainStationPriceMapper;
     private final DistributedCache distributedCache;
     private final AbstractStrategyChoose abstractStrategyChoose;
-    private final TicketService ticketService;
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
     private final PayRemoteService payRemoteService;
@@ -188,7 +187,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                         .ticketStatus(TicketStatusEnum.UNPAID.getCode())
                         .build())
                 .toList();
-        ticketService.saveBatch(ticketDOList);
+        this.saveBatch(ticketDOList);
         Result<String> ticketOrderResult;
         List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
         try {
