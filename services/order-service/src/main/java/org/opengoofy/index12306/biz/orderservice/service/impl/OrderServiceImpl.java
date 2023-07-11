@@ -49,6 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 订单服务接口层实现
@@ -122,9 +123,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void closeTickOrder(String orderSn) {
-        LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class).eq(OrderDO::getOrderSn, orderSn);
+        LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
+                .eq(OrderDO::getOrderSn, orderSn);
         OrderDO orderDO = orderMapper.selectOne(queryWrapper);
-        if (orderDO.getStatus() != OrderStatusEnum.PENDING_PAYMENT.getStatus()) {
+        if (Objects.isNull(orderDO) || orderDO.getStatus() != OrderStatusEnum.PENDING_PAYMENT.getStatus()) {
             return;
         }
         // 原则上订单关闭和订单取消这两个方法可以复用，为了区分未来考虑到的场景，这里对方法进行拆分但复用逻辑
@@ -133,7 +135,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void cancelTickOrder(String orderSn) {
-        LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class).eq(OrderDO::getOrderSn, orderSn);
+        LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
+                .eq(OrderDO::getOrderSn, orderSn);
         OrderDO orderDO = orderMapper.selectOne(queryWrapper);
         if (orderDO == null) {
             throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_CANAL_UNKNOWN_ERROR);
@@ -148,7 +151,8 @@ public class OrderServiceImpl implements OrderService {
             OrderDO updateOrderDO = new OrderDO();
             updateOrderDO.setStatus(OrderStatusEnum.CLOSED.getStatus());
             updateOrderDO.setOrderSn(orderSn);
-            LambdaUpdateWrapper<OrderDO> updateWrapper = Wrappers.lambdaUpdate(OrderDO.class).eq(OrderDO::getOrderSn, orderSn);
+            LambdaUpdateWrapper<OrderDO> updateWrapper = Wrappers.lambdaUpdate(OrderDO.class)
+                    .eq(OrderDO::getOrderSn, orderSn);
             int updateResult = orderMapper.update(updateOrderDO, updateWrapper);
             if (updateResult <= 0) {
                 throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_CANAL_ERROR);
@@ -156,7 +160,8 @@ public class OrderServiceImpl implements OrderService {
             OrderItemDO updateOrderItemDO = new OrderItemDO();
             updateOrderItemDO.setStatus(OrderStatusEnum.CLOSED.getStatus());
             updateOrderItemDO.setOrderSn(orderSn);
-            LambdaUpdateWrapper<OrderItemDO> updateItemWrapper = Wrappers.lambdaUpdate(OrderItemDO.class).eq(OrderItemDO::getOrderSn, orderSn);
+            LambdaUpdateWrapper<OrderItemDO> updateItemWrapper = Wrappers.lambdaUpdate(OrderItemDO.class)
+                    .eq(OrderItemDO::getOrderSn, orderSn);
             int updateItemResult = orderItemMapper.update(updateOrderItemDO, updateItemWrapper);
             if (updateItemResult <= 0) {
                 throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_CANAL_ERROR);
