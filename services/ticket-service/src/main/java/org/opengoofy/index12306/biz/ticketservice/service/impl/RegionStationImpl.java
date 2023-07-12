@@ -21,6 +21,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.RegionStationQueryTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.RegionDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.StationDO;
@@ -29,12 +30,16 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.StationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.RegionStationQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.RegionStationQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.RegionStationService;
+import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.enums.FlagEnum;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant.ADVANCE_TICKET_DAY;
 
 /**
  * 地区以及车站接口实现层
@@ -47,9 +52,10 @@ public class RegionStationImpl implements RegionStationService {
 
     private final RegionMapper regionMapper;
     private final StationMapper stationMapper;
+    private final DistributedCache distributedCache;
 
     @Override
-    public List<RegionStationQueryRespDTO> listRegionStationQuery(RegionStationQueryReqDTO requestParam) {
+    public List<RegionStationQueryRespDTO> listRegionStation(RegionStationQueryReqDTO requestParam) {
         // TODO 请求缓存
         if (StrUtil.isNotBlank(requestParam.getName())) {
             LambdaQueryWrapper<StationDO> queryWrapper = Wrappers.lambdaQuery(StationDO.class)
@@ -77,5 +83,16 @@ public class RegionStationImpl implements RegionStationService {
         };
         List<RegionDO> regionDOList = regionMapper.selectList(queryWrapper);
         return BeanUtil.convert(regionDOList, RegionStationQueryRespDTO.class);
+    }
+
+    @Override
+    public List<RegionStationQueryRespDTO> listAllStation() {
+        return distributedCache.get(
+                RedisKeyConstant.STATION_ALL,
+                List.class,
+                () -> BeanUtil.convert(stationMapper.selectList(Wrappers.emptyWrapper()), RegionStationQueryRespDTO.class),
+                ADVANCE_TICKET_DAY,
+                TimeUnit.DAYS
+        );
     }
 }

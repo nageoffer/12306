@@ -43,7 +43,15 @@ public class RegionStationController {
      * 查询车站&城市站点集合信息
      */
     @GetMapping("/api/ticket-service/region-station/query")
-    public Result<List<RegionStationQueryRespDTO>> listRegionStationQuery(RegionStationQueryReqDTO requestParam) {
-        return Results.success(regionStationService.listRegionStationQuery(requestParam));
+    public Result<List<RegionStationQueryRespDTO>> listRegionStation(RegionStationQueryReqDTO requestParam) {
+        return Results.success(regionStationService.listRegionStation(requestParam));
+    }
+
+    /**
+     * 查询车站站点集合信息
+     */
+    @GetMapping("/api/ticket-service/station/all")
+    public Result<List<RegionStationQueryRespDTO>> listAllStation() {
+        return Results.success(regionStationService.listAllStation());
     }
 }
