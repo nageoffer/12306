@@ -104,7 +104,7 @@ public class StringRedisTemplateProxy implements DistributedCache {
         if (!CacheUtil.isNullOrBlank(result)) {
             return result;
         }
-        return loadAndSet(key, cacheLoader, timeout, redisProperties.getValueTimeUnit(), false, null);
+        return loadAndSet(key, cacheLoader, timeout, timeUnit, false, null);
     }
 
     @Override
