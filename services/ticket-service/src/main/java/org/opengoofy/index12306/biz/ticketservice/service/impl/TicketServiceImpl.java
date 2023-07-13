@@ -28,10 +28,12 @@ import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
+import org.opengoofy.index12306.biz.ticketservice.dao.entity.StationDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TicketDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationPriceDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationRelationDO;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.StationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TicketMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
@@ -95,13 +97,20 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
     private final PayRemoteService payRemoteService;
+    private final StationMapper stationMapper;
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
+        StationDO fromStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
+                .eq(StationDO::getCode, requestParam.getFromStation())
+        );
+        StationDO toStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
+                .eq(StationDO::getCode, requestParam.getToStation())
+        );
         // TODO 责任链模式 验证城市名称是否存在、不存在加载缓存等等
         LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
-                .eq(TrainStationRelationDO::getStartRegion, requestParam.getFromStation())
-                .eq(TrainStationRelationDO::getEndRegion, requestParam.getToStation());
+                .eq(TrainStationRelationDO::getStartRegion, fromStationDO.getName())
+                .eq(TrainStationRelationDO::getEndRegion, toStationDO.getName());
         List<TrainStationRelationDO> trainStationRelationList = trainStationRelationMapper.selectList(queryWrapper);
         List<TicketListDTO> seatResults = new ArrayList<>();
         Set<Integer> trainBrandSet = new HashSet<>();
