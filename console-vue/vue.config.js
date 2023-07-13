@@ -8,7 +8,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:9000',
+        target: 'http://12306-rd.magestack.cn:9000',
         changeOrigin: true,
         ws: true
       }

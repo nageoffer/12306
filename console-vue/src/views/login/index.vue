@@ -135,8 +135,8 @@ const registerSubmit = () => {
 <template>
   <div class="login-wrapper">
     <div class="title-wrapper">
-      <h1 class="title">铁路12306</h1>
-      <h3 class="desc">其他文案</h3>
+      <!-- <h1 class="title">铁路12306</h1>
+      <h3 class="desc">其他文案</h3> -->
     </div>
     <div class="login-reg-panel">
       <div class="login-info-box">

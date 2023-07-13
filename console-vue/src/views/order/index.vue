@@ -17,22 +17,37 @@
     <Card title="订单信息">
       <Space :style="{ width: '100%' }" direction="vertical">
         <div>
-          <span class="important-text">{{ '2023-07-09' }}</span>
-          <span class="important-text">（{{ '周日' }}）</span>
-          <span class="important-text">{{ 'K271' }}</span>
+          <span class="important-text">{{
+            state.currentInfo?.ridingDate
+          }}</span>
+          <span class="important-text"
+            >（{{
+              getWeekNumber(
+                dayjs(state.currentInfo?.ridingDate ?? new Date()).day()
+              )
+            }}）</span
+          >
+          <span class="important-text">{{
+            state.currentInfo?.trainNumber
+          }}</span>
           <span class="small-text">次</span>
-          <span class="important-text">{{ '上海南' }}</span>
+          <span class="important-text">{{ state.currentInfo?.departure }}</span>
           <span class="small-text">站</span>
-          <span class="important-text">（{{ '17:49' }}开）——</span>
-          <span class="important-text">{{ '杭州南' }}</span>
+          <span class="important-text"
+            >（{{ state.currentInfo?.departureTime }}开）——</span
+          >
+          <span class="important-text">{{ state.currentInfo?.arrival }}</span>
           <span class="small-text">站</span>
-          <span class="important-text">（{{ '20:16' }}到）</span>
+          <span class="important-text"
+            >（{{ state.currentInfo?.arrivalTime }}到）</span
+          >
         </div>
         <Table
           :columns="columns"
           :pagination="false"
           :dataSource="state.currentInfo?.passengerDetails"
         >
+          <template #id="{ text, record, index }"> {{ index + 1 }}</template>
           <template #idType="{ text, record }">
             {{
               ID_CARD_TYPE.find((item) => item.value === text)?.label
@@ -44,61 +59,19 @@
             }}</template
           >
           <template #seatType="{ text, record }">
-            {{ text === 0 && '商务座' }}</template
+            {{
+              SEAT_CLASS_TYPE_LIST.find((item) => item.code === text)?.label
+            }}</template
           >
+          <template #amount="{ text, record }">
+            <span :style="{ color: 'rgb(252, 131, 2)' }"
+              >￥{{ text / 100 }}</span
+            >
+          </template>
         </Table>
-
-        <!-- <div class="cyx-hd">
-          <div class="cyx-hd-label">
-            <Checkbox></Checkbox>
-            <i class="icon-cyx"></i>
-          </div>
-          <div class="cyx-hd-text">
-            <strong>车上站内|保障意外伤害和急性病事故</strong>
-          </div>
-          <div class="cyx-hd-text">
-            已阅读并同意<a
-              id="ins_clause_time"
-              target="_blank"
-              href="https://kyfw.12306.cn/otn/gonggao/QuestionForInsurance.html?linktypeid=means1"
-              >“保险条款”</a
-            >
-
-            、<a
-              id="ins_notice_time"
-              target="_blank"
-              href="https://kyfw.12306.cn/otn/gonggao/QuestionForInsurance.html?linktypeid=means2"
-              >“投保须知”</a
-            >
-
-            和<a
-              id="ins_notice_tk"
-              target="_blank"
-              href="https://kyfw.12306.cn/otn/gonggao/QuestionForInsurance.html?linktypeid=means4"
-              >“免责条款”</a
-            >
-            <br />
-            可登陆铁路保险公司官网<a
-              target="_blank"
-              href="http://www.china-ric.com/"
-              >http://www.china-ric.com/</a
-            >
-            开具电子发票
-          </div>
-          <div style="display: none" class="cyx-hd-text">
-            当前保费成人￥3元/人，儿童￥1元/人，保障意外伤害和急性病身故。
-          </div>
-        </div> -->
         <div :style="{ width: '100%', textAlign: 'end', padding: '10px' }">
           总票价：<span :style="{ color: '#ff8001' }"
-            >{{
-              state.currentInfo?.passengerDetails?.reduce(
-                (pre, nex) => Number(pre?.amount) + Number(nex?.amount)
-              ) &&
-              state.currentInfo?.passengerDetails?.reduce(
-                (pre, nex) => Number(pre?.amount) + Number(nex?.amount)
-              ) / 100
-            }}元</span
+            >￥{{ totalAmount }}元</span
           >
         </div>
         <Divider></Divider>
@@ -132,46 +105,59 @@
     width="40%"
     :footer="null"
   >
-    <div>
-      >>应付金额：<span
-        :style="{ fontSize: '20px', color: ' #dc2408', fontWeight: 'bold' }"
-        >{{
-          state.currentInfo?.passengerDetails?.reduce(
-            (pre, nex) => Number(pre?.amount) + Number(nex?.amount)
-          )
-        }}
-      </span>
-      元
-    </div>
-    <Divider dashed></Divider>
-    <div :style="{ overflow: 'hidden' }">
-      <div v-for="item in BANK_LIST" class="bank3">
-        <div class="bank3_5" @click="() => handlePay(item.value)">
-          <img :src="item.img" :alt="item.name" />
+    <Spin :spinning="state.loading">
+      <div>
+        >>应付金额：<span
+          :style="{ fontSize: '20px', color: ' #dc2408', fontWeight: 'bold' }"
+          >{{ totalAmount }}
+        </span>
+        元
+      </div>
+      <Divider dashed></Divider>
+      <div :style="{ overflow: 'hidden' }">
+        <div v-for="item in BANK_LIST" class="bank3">
+          <div class="bank3_5" @click="() => handlePay(item.value)">
+            <img :src="item.img" :alt="item.name" />
+          </div>
         </div>
       </div>
-    </div>
+    </Spin>
   </Modal>
 </template>
 
 <script setup>
-import { Card, Space, Table, Divider, Button, Modal } from 'ant-design-vue'
+import {
+  Card,
+  Space,
+  Table,
+  Divider,
+  Button,
+  Modal,
+  message,
+  Spin
+} from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { fetchOrderBySn, fetchPay } from '@/service'
-import { useRoute, useRouter } from 'vue-router'
-import { onMounted, reactive } from 'vue'
-import { TICKET_TYPE_LIST, ID_CARD_TYPE, BANK_LIST } from '@/constants'
+import { useRoute } from 'vue-router'
+import { onMounted, reactive, computed, toRaw } from 'vue'
+import {
+  TICKET_TYPE_LIST,
+  ID_CARD_TYPE,
+  BANK_LIST,
+  SEAT_CLASS_TYPE_LIST
+} from '@/constants'
+import { getWeekNumber } from '@/utils'
 
 const { query } = useRoute()
-const router = useRouter()
 const state = reactive({
   count: 600000,
   currentInfo: null,
   open: false,
-  html: ''
+  html: '',
+  loading: false
 })
 const columns = [
-  { title: '序号', dataIndex: 'id' },
+  { title: '序号', dataIndex: 'id', slots: { customRender: 'id' } },
   { title: '姓名', dataIndex: 'realName' },
   { title: '证件类型', dataIndex: 'idType', slots: { customRender: 'idType' } },
   { title: '证件号码', dataIndex: 'idCard' },
@@ -187,7 +173,7 @@ const columns = [
   },
   { title: '车厢', dataIndex: 'carriageNumber' },
   { title: '席位号', dataIndex: 'seatNumber' },
-  { title: '票价(元)', dataIndex: 'amount' }
+  { title: '票价(元)', dataIndex: 'amount', slots: { customRender: 'amount' } }
 ]
 
 onMounted(() => {
@@ -205,25 +191,36 @@ const getOrder = () => {
     }
   })
 }
+const totalAmount = computed(() => {
+  const amount = state.currentInfo?.passengerDetails?.reduce((pre, nex) => {
+    return (
+      (pre?.amount ? Number(pre?.amount) : 0) +
+      (nex?.amount ? Number(nex?.amount) : 0)
+    )
+  }, 0)
+  return amount ? amount / 100 : 0
+})
 
 const handlePay = (channel) => {
+  console.log(toRaw(totalAmount))
+  if (channel !== 0) {
+    return message.error('该支付方式暂未对接，请稍候...')
+  }
   const body = {
     channel: 0,
     tradeType: 0,
     orderSn: query.sn,
-    totalAmount: state.currentInfo?.passengerDetails?.reduce(
-      (pre, nex) => Number(pre?.amount) + Number(nex?.amount)
-    ),
+    totalAmount: totalAmount.value,
     outOrderSn: query.orderSn,
     subject: `${state.currentInfo.departure}-${state.currentInfo.arrival}`
   }
   fetchPay(body).then((res) => {
     state.html = res.data?.body
-    console.log(res.data?.body)
+    state.loading = true
     setTimeout(() => {
-      document.forms[0].submit()
+      state.loading = false
+      window.open(`/aliPay?body=${encodeURIComponent(res.data?.body)}`)
     }, 500)
-    // router.push(`/aliPay?body=${res.data?.body}`)
   })
 }
 </script>

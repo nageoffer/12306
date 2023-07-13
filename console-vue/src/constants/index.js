@@ -63,6 +63,16 @@ const TRAIN_BRAND_LIST = [
 ]
 const BANK_LIST = [
   {
+    img: 'https://epay.12306.cn/pay/pages/web/images/bank_zfb.gif',
+    name: '支付宝',
+    value: 0
+  },
+  {
+    img: 'https://epay.12306.cn/pay/pages/web/images/bank_wx.gif',
+    name: '微信',
+    value: 1
+  },
+  {
     img: 'https://epay.12306.cn/pay/pages/web/images/bank_gsyh2.gif',
     name: '工商银行',
     value: 10
@@ -101,21 +111,6 @@ const BANK_LIST = [
     img: 'https://epay.12306.cn/pay/pages/web/images/bank_ztytk.gif',
     name: '中铁银通卡',
     value: 3
-  },
-  {
-    img: 'https://epay.12306.cn/pay/pages/web/images/bank_zfb.gif',
-    name: '工商银行',
-    value: 2
-  },
-  {
-    img: 'https://epay.12306.cn/pay/pages/web/images/bank_gsyh2.gif',
-    name: '支付宝',
-    value: 0
-  },
-  {
-    img: 'https://epay.12306.cn/pay/pages/web/images/bank_wx.gif',
-    name: '微信支付',
-    value: 11
   },
   {
     img: 'https://epay.12306.cn/pay/pages/web/images/bank_wk.gif',

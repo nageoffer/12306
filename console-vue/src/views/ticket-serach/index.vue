@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, toRaw, ref, h, watch } from 'vue'
+import { reactive, toRaw, ref, h, watch, onMounted } from 'vue'
 import {
   Card,
   Form,
@@ -21,19 +21,26 @@ import {
   message
 } from 'ant-design-vue'
 import { RetweetOutlined, SwapRightOutlined } from '@ant-design/icons-vue'
-import { getCitys } from '@ethafeng/utils-library'
 import dayjs from 'dayjs'
 import { getWeekNumber } from '@/utils'
-import { fetchTicketSearch, fetchRegionStation } from '@/service/index'
+import { fetchTicketSearch, fetchStationAll } from '@/service/index'
 import { useRouter } from 'vue-router'
 import { SEAT_CLASS_TYPE_LIST, TRAIN_BRAND_LIST } from '@/constants'
 const router = useRouter()
 
 const useForm = Form.useForm
 
+const carRangeTime = [
+  { value: 0, label: '00:00-24:00' },
+  { value: 1, label: '00:00-06:00' },
+  { value: 2, label: '06:00-12:00' },
+  { value: 3, label: '12:00-18:00' },
+  { value: 4, label: '18:00-24:00' }
+]
+
 const headSearch = reactive({
-  fromStation: '北京',
-  toStation: '杭州',
+  fromStation: 'BJP',
+  toStation: 'HZH',
   departureDate: dayjs(),
   arrival_date: '',
   car_type: [],
@@ -47,7 +54,8 @@ const headSearch = reactive({
 const state = reactive({
   seatClassTypeListSelect: null,
   trainBrandListSelect: null,
-  trainList: []
+  trainList: [],
+  stationList: []
 })
 
 const currCityStations = ref([])
@@ -57,142 +65,103 @@ const departureTagAll = ref(false)
 const arrivalTagAll = ref(false)
 const seatTagAll = ref(false)
 
-const { resetFields, validate } = useForm(headSearch)
-const days = new Array(15)
-  .fill(',')
-  .map((item, index) => dayjs().add(index, 'days'))
-
-const handSubmit = () => {
-  validate().then(() => {
-    const { fromStation, toStation, departure, arrival, departureDate } =
-      toRaw(headSearch)
-
-    fetchTicketSearch({
-      fromStation,
-      toStation,
-      departure: departure[0],
-      arrival: arrival[0],
-      departureDate: departureDate.format('YYYY-MM-DD')
-    }).then((res) => {
-      if (!res.success) return message.error(res.message)
-      if (res.data.trainList) {
-        state.trainList = res.data.trainList?.map((item) => ({
-          ...item,
-          key: item.trainId
-        }))
-      }
-      state.trainBrandListSelect = res.data.trainBrandList
-      state.seatClassTypeListSelect = res.data.seatClassTypeList
-    })
-  })
-}
-
-const getTitle = (item) => {
-  const key = item.format('MM-DD')
-  if (key === headSearch.departureDate.format('MM-DD')) {
-    return key + '　' + getWeekNumber(item.day())
-  } else {
-    return key
-  }
-}
-
 const columns = [
   {
     title: '车次',
     dataIndex: 'trainNumber',
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
-    width: '100px'
+    width: '120px'
   },
   {
     key: 'station',
     slots: { title: 'customStaionTitle', customRender: 'station' },
-    width: '80px'
+    width: '120px'
   },
   {
     dataIndex: 'time',
     key: 'time',
     slots: { title: 'customTimeTitle', customRender: 'time' },
-    width: '90px'
+    width: '120px'
   },
   {
     title: '历时',
     dataIndex: 'duration',
     key: 'duration',
-    width: '100px'
+    width: '120px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrain' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '一等座',
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeat' },
     key: 'first_seat',
-    width: '150px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '动卧',
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bed' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '高级软卧',
     dataIndex: 'seatClassList',
     key: 'delux_soft_bed',
     slots: { customRender: 'deluxSoftBed' },
-    width: '150px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
-    width: '150px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'scond_hard_bed',
     slots: { title: 'customScondHardSeadTitle', customRender: 'scondHardBed' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '软座',
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '硬座',
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '无座',
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '其他',
     dataIndex: 'seatClassList',
     key: 'other',
     slots: { customRender: 'other' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '备注',
@@ -205,61 +174,61 @@ const innerColumns = [
   {
     title: '车次',
     key: 'trainNumber',
-    width: '100px'
+    width: '120px'
   },
   {
     title: '车站',
     key: 'station',
-    width: '80px'
+    width: '120px'
   },
   {
     title: '时间',
     key: 'time',
-    width: '90px'
+    width: '120px'
   },
   {
     title: '历时',
     key: 'duration',
-    width: '100px'
+    width: '120px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrainPrice' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '一等座',
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeatPrice' },
     key: 'first_seat',
-    width: '150px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeatPrice' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '动卧',
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bedPrice' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '高级软卧',
     dataIndex: 'seatClassList',
     key: 'delux_soft_bed',
     slots: { customRender: 'deluxSoftBedPrice' },
-    width: '150px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
-    width: '150px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
@@ -268,109 +237,40 @@ const innerColumns = [
       title: 'customScondHardSeadTitle',
       customRender: 'scondHardBedPrice'
     },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '软座',
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '硬座',
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '无座',
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '其他',
     dataIndex: 'other',
     key: 'other',
     slots: { customRender: 'other' },
-    width: '150px'
+    width: '100px'
   },
   {
     title: '备注',
     dataIndex: 'remark',
     slots: { customRender: 'operation' }
-  }
-]
-
-const dataSource = [
-  {
-    key: '1',
-    name: '1461',
-    station: {
-      d: '上海',
-      a: '北京'
-    },
-    time: {
-      d: '11:55',
-      a: '06:47'
-    },
-    dur: '18:52,次日达到',
-    seat: 21,
-    first_seat: 100,
-    second_seat: 12,
-    soft_seat: 13,
-    first_bed_seat: 32,
-    d_seat: 123,
-    scond_hard_seat: 13,
-    first_soft_seat: 54,
-    hard_seat: 90,
-    no_seat: 2,
-    other: '其他',
-    children: [
-      {
-        key: '1',
-        name: '',
-        seat: 12,
-        first_seat: 32,
-        second_seat: 44,
-        soft_seat: 12,
-        first_bed_seat: 12,
-        d_seat: 15,
-        scond_hard_seat: 25,
-        first_soft_seat: 16,
-        hard_seat: 1,
-        no_seat: 21,
-        other: 32,
-        remark: ''
-      }
-    ]
-  },
-  {
-    key: '2',
-    name: '1461',
-    station: {
-      d: '上海',
-      a: '北京'
-    },
-    time: {
-      d: '11:55',
-      a: '06:47'
-    },
-    dur: '18:52,次日达到',
-    seat: 21,
-    first_seat: 100,
-    second_seat: 12,
-    soft_seat: 13,
-    first_bed_seat: 32,
-    d_seat: 123,
-    scond_hard_seat: 13,
-    first_soft_seat: 54,
-    hard_seat: 90,
-    no_seat: 2,
-    other: '其他'
   }
 ]
 
@@ -402,21 +302,97 @@ const cardInfoColumns = [
   }
 ]
 
-watch(
-  [() => headSearch.fromStation, () => headSearch.toStation],
-  (newValue, oldValue) => {
-    newValue[0] !== oldValue[0] &&
-      fetchRegionStation({ name: newValue[0] }).then((res) => {
-        currCityStations.value = res.data ?? []
-      })
-    newValue[1] !== oldValue[1] &&
-      fetchRegionStation({ name: newValue[1] }).then((res) => {
-        currArrivalStations.value = res.data ?? []
-      })
-  },
-  { immediate: true }
-)
-console.log(state.seatClassTypeListSelect)
+const { resetFields, validate } = useForm(headSearch)
+
+const days = new Array(15)
+  .fill(',')
+  .map((item, index) => dayjs().add(index, 'days'))
+
+const handSubmit = () => {
+  validate().then(() => {
+    const { fromStation, toStation, departure, arrival, departureDate } =
+      toRaw(headSearch)
+
+    fetchTicketSearch({
+      fromStation,
+      toStation,
+      departure: departure[0],
+      arrival: arrival[0],
+      departureDate: departureDate.format('YYYY-MM-DD')
+    }).then((res) => {
+      if (!res.success) return message.error(res.message)
+      if (res.data.trainList) {
+        state.trainList = res.data.trainList?.map((item) => ({
+          ...item,
+          key: item.trainId
+        }))
+      }
+      state.trainBrandListSelect = res.data.trainBrandList
+      state.seatClassTypeListSelect = res.data.seatClassTypeList
+      currCityStations.value = res.data.departureStationList
+      currArrivalStations.value = res.data.arrivalStationList
+    })
+  })
+}
+
+const getTitle = (item) => {
+  const key = item.format('MM-DD')
+  if (key === headSearch.departureDate.format('MM-DD')) {
+    return key + '　' + getWeekNumber(item.day())
+  } else {
+    return key
+  }
+}
+
+// watch(
+//   [() => headSearch.fromStation, () => headSearch.toStation],
+//   (newValue, oldValue) => {
+//     newValue[0] !== oldValue[0] &&
+//       fetchRegionStation({ name: newValue[0] }).then((res) => {
+//         currCityStations.value = res.data ?? []
+//       })
+//     newValue[1] !== oldValue[1] &&
+//       fetchRegionStation({ name: newValue[1] }).then((res) => {
+//         currArrivalStations.value = res.data ?? []
+//       })
+//   },
+//   { immediate: true }
+// )
+
+const getStationAll = () => {
+  fetchStationAll().then((res) => {
+    state.stationList = res.data
+  })
+}
+
+onMounted(() => {
+  fetchTicketSearch({
+    fromStation: headSearch.fromStation,
+    toStation: headSearch.toStation,
+    departureDate: dayjs(new Date()).format('YYYY-MM-DD')
+  }).then((res) => {
+    if (!res.success) return message.error(res.message)
+    if (res.data.trainList) {
+      state.trainList = res.data.trainList?.map((item) => ({
+        ...item,
+        key: item.trainId
+      }))
+    }
+    state.trainBrandListSelect = res.data.trainBrandList
+    state.seatClassTypeListSelect = res.data.seatClassTypeList
+    currCityStations.value = res.data.departureStationList
+    currArrivalStations.value = res.data.arrivalStationList
+  })
+  getStationAll()
+})
+
+const exchangeCity = () => {
+  const [a, b] = [toRaw(headSearch.fromStation), toRaw(headSearch.toStation)]
+  console.log(a, b)
+
+  headSearch.fromStation = b
+  headSearch.toStation = a
+}
 </script>
 <template>
   <div>
@@ -442,13 +418,10 @@ console.log(state.seatClassTypeListSelect)
                     :show-arrow="false"
                     :show-search="true"
                     :options="
-                      getCitys()
-                        .map((item) => item.children)
-                        .flat()
-                        .map((item) => ({
-                          label: item.label,
-                          value: item.value.slice(0, -1)
-                        }))
+                      state.stationList.map((item) => ({
+                        label: item.name,
+                        value: item.code
+                      }))
                     "
                   >
                   </Select>
@@ -469,6 +442,7 @@ console.log(state.seatClassTypeListSelect)
                   }"
                 >
                   <RetweetOutlined
+                    @click="exchangeCity"
                     :style="{
                       cursor: 'pointer',
                       fontSize: '20px',
@@ -484,13 +458,10 @@ console.log(state.seatClassTypeListSelect)
                     :show-arrow="false"
                     :show-search="true"
                     :options="
-                      getCitys()
-                        .map((item) => item.children)
-                        .flat()
-                        .map((item) => ({
-                          label: item.label,
-                          value: item.value.slice(0, -1)
-                        }))
+                      state.stationList.map((item) => ({
+                        label: item.name,
+                        value: item.code
+                      }))
                     "
                   >
                   </Select>
@@ -578,9 +549,7 @@ console.log(state.seatClassTypeListSelect)
                             >全部</CheckableTag
                           >
                           <Checkbox
-                            v-for="seatItem in state.trainBrandListSelect
-                              ? state.trainBrandListSelect
-                              : TRAIN_BRAND_LIST.map((item) => item.code)"
+                            v-for="seatItem in state.trainBrandListSelect"
                             :value="
                               TRAIN_BRAND_LIST.find(
                                 (item) => item.code === seatItem
@@ -618,9 +587,7 @@ console.log(state.seatClassTypeListSelect)
                               (value) => {
                                 departureTagAll = value
                                 if (value) {
-                                  headSearch.departure = currCityStations.map(
-                                    (item) => item.name
-                                  )
+                                  headSearch.departure = currCityStations
                                 } else {
                                   headSearch.departure = []
                                 }
@@ -630,8 +597,8 @@ console.log(state.seatClassTypeListSelect)
                           >
                           <Checkbox
                             v-for="item in currCityStations"
-                            :value="item.name"
-                            >{{ item.name }}</Checkbox
+                            :value="item"
+                            >{{ item }}</Checkbox
                           >
                         </CheckboxGroup>
                       </FormItem>
@@ -659,9 +626,7 @@ console.log(state.seatClassTypeListSelect)
                               (value) => {
                                 arrivalTagAll = value
                                 if (value) {
-                                  headSearch.arrival = currArrivalStations.map(
-                                    (item) => item.name
-                                  )
+                                  headSearch.arrival = currArrivalStations
                                 } else {
                                   headSearch.arrival = []
                                 }
@@ -671,8 +636,8 @@ console.log(state.seatClassTypeListSelect)
                           >
                           <Checkbox
                             v-for="item in currArrivalStations"
-                            :value="item.name"
-                            >{{ item.name }}</Checkbox
+                            :value="item"
+                            >{{ item }}</Checkbox
                           >
                         </CheckboxGroup>
                       </FormItem>
@@ -711,9 +676,7 @@ console.log(state.seatClassTypeListSelect)
                             >全部</CheckableTag
                           >
                           <Checkbox
-                            v-for="seatItem in state.seatClassTypeListSelect
-                              ? state.seatClassTypeListSelect
-                              : SEAT_CLASS_TYPE_LIST.map((item) => item.code)"
+                            v-for="seatItem in state.seatClassTypeListSelect"
                             :value="
                               SEAT_CLASS_TYPE_LIST.find(
                                 (item) => item.code === seatItem
@@ -737,7 +700,15 @@ console.log(state.seatClassTypeListSelect)
                       "
                     >
                       <FormItem label="发车时间">
-                        <DatePicker></DatePicker>
+                        <Select
+                          dropdownClassName="custom-select"
+                          :options="
+                            carRangeTime.map((item) => ({
+                              label: item.label,
+                              value: item.value
+                            }))
+                          "
+                        />
                       </FormItem>
                     </Col>
                   </Row>
@@ -750,11 +721,19 @@ console.log(state.seatClassTypeListSelect)
       <Row>
         <Col :span="12">
           <span class="city-name">
-            {{ headSearch.fromStation }}
+            {{
+              state.stationList.find(
+                (item) => item.code === headSearch.fromStation
+              )?.regionName
+            }}
           </span>
           <SwapRightOutlined />
           <span class="city-name">
-            {{ headSearch.toStation }}
+            {{
+              state.stationList.find(
+                (item) => item.code === headSearch.toStation
+              )?.regionName
+            }}
           </span>
 
           （<span class="time-title">{{
@@ -763,7 +742,9 @@ console.log(state.seatClassTypeListSelect)
           <span class="time-title">{{
             getWeekNumber(headSearch.departureDate.day())
           }}</span
-          >） 共计<span :style="{ fontWeight: 'bolder' }">{{ 49 }}</span
+          >） 共计<span :style="{ fontWeight: 'bolder' }">{{
+            state.trainList?.length
+          }}</span
           >个车次
         </Col>
       </Row>
@@ -850,7 +831,7 @@ console.log(state.seatClassTypeListSelect)
                 </div>
               </template>
               <template #other="{ text }">
-                <div>
+                <div :style="{ color: '#fc8302' }">
                   ￥{{ text?.find((item) => item?.type === 14)?.price ?? '--' }}
                 </div>
               </template>
@@ -1030,7 +1011,13 @@ console.log(state.seatClassTypeListSelect)
   padding: 0 5px;
   font-weight: bolder;
 }
+
 ::v-deep {
+  .custom-select {
+    .ant-select-item-option-active::before {
+      content: '√';
+    }
+  }
   .ant-tooltip-inner {
     background-color: #fff;
     padding: 0px;

@@ -28,38 +28,14 @@
         </div>
         <Divider dashed></Divider>
         <div class="seat-wrapper">
-          <div>
-            <span>商务座</span>（
-            <span class="price"
-              >￥{{ state.currTrain?.highSpeedTrain?.businessClassPrice }}</span
-            >）
+          <div v-for="item in state.currentSeat">
             <span>{{
-              state.currTrain?.highSpeedTrain?.businessClassQuantity >= 1
-                ? '有票'
-                : '1张票'
+              SEAT_CLASS_TYPE_LIST.find((seat) => seat.code === item.type)
+                ?.label
             }}</span>
-          </div>
-          <div>
-            <span>一等座</span>（
-            <span class="price"
-              >￥{{ state.currTrain?.highSpeedTrain?.firstClassPrice }}</span
+            （ <span class="price">￥{{ item?.price }}</span
             >）
-            <span>{{
-              state.currTrain?.highSpeedTrain?.firstClassQuantity >= 1
-                ? '有票'
-                : '1张票'
-            }}</span>
-          </div>
-          <div>
-            <span>二等座</span>（
-            <span class="price"
-              >￥{{ state.currTrain?.highSpeedTrain?.secondClassPrice }}</span
-            >）
-            <span>{{
-              state.currTrain?.highSpeedTrain?.secondClassQuantity >= 1
-                ? '有票'
-                : '1张票'
-            }}</span>
+            <span>{{ item.quantity >= 1 ? '有票' : '1张票' }}</span>
           </div>
         </div>
         <div class="tip">
@@ -89,7 +65,10 @@
         <Divider></Divider>
         <Table
           :columns="columns"
-          :data-source="state.dataSource"
+          :data-source="
+            state.dataSource.filter((item) => currPassenger?.includes(item.id))
+          "
+          :locale="{ emptyText: '请先选择乘车人' }"
           :pagination="false"
         >
           <template #ticketType="{ text, record }">
@@ -251,8 +230,12 @@
           :data-source="state.dataSource"
           :pagination="false"
         >
-          <template #seatType="{ text }">
-            {{ state.currentSeat.find((item) => item.value === text)?.label }}
+          <template #seatType="{ text, record }">
+            <span>
+              {{
+                SEAT_CLASS_TYPE_LIST.find((seat) => seat.code === text)?.label
+              }}
+            </span>
           </template>
           <template #discountType="{ text }">
             {{ TICKET_TYPE_LIST.find((item) => item.value === text)?.label }}
@@ -320,16 +303,6 @@
         </div>
         <Divider dashed></Divider>
         <div class="info-tip">
-          <!-- 本次列车，商务座余票<span>{{
-            state.currTrain?.highSpeedTrain?.businessClassQuantity
-          }}</span
-          >，一等座余票<span>{{
-            state.currTrain?.highSpeedTrain?.firstClassQuantity
-          }}</span
-          >， 二等座余票<span>{{
-            state.currTrain?.highSpeedTrain.secondClassQuantity
-          }}</span
-          >。 -->
           本次列车，<span v-for="item in state.currentSeat">
             {{
               SEAT_CLASS_TYPE_LIST.find((seat) => seat.code === item.type)
@@ -424,9 +397,14 @@ onMounted(() => {
   fetchPassengerList({ username }).then((res) => {
     if (res.success) {
       state.currPassengerList = res.data
-      state.dataSource = res.data
-      state.rawDataSource = res.data
-      currPassenger.value = res.data?.map((item) => item.id)
+      state.dataSource = res.data.map((item, index) => ({
+        ...item,
+        keyNumber: index + 1
+      }))
+      state.rawDataSource = res.data.map((item, index) => ({
+        ...item,
+        keyNumber: index + 1
+      }))
     }
   })
 })
@@ -458,7 +436,7 @@ watch([() => currPassenger.value], (newValue) => {
 const columns = [
   {
     title: '序号',
-    dataIndex: 'id'
+    dataIndex: 'keyNumber'
   },
   {
     title: '票种',
@@ -538,7 +516,7 @@ const handleSubmit = () => {
 const checkColumns = [
   {
     title: '序号',
-    dataIndex: 'id'
+    dataIndex: 'keyNumber'
   },
   {
     title: '席别',
@@ -583,7 +561,7 @@ const handleSubmitBuyTicket = () => {
   let params = { trainId: query?.trainId }
   const passengers = state.dataSource.map((item) => ({
     passengerId: item.id,
-    seatType: 0
+    seatType: item.seatType
   }))
   params = {
     ...params,

@@ -109,6 +109,14 @@ const fetchPay = async (body) => {
   })
   return data
 }
+
+const fetchStationAll = async () => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/ticket-service/station/all'
+  })
+  return data
+}
 export {
   fetchLogin,
   fetchRegister,
@@ -121,5 +129,6 @@ export {
   fetchLogout,
   fetchBuyTicket,
   fetchOrderBySn,
-  fetchPay
+  fetchPay,
+  fetchStationAll
 }

@@ -3,7 +3,7 @@
     <div class="header-wrapper">
       <div>
         <img
-          @click="router.push('/login')"
+          @click="router.push('/ticketSearch')"
           class="logo"
           src="../../assets/logo.png"
           alt="logo"
@@ -11,7 +11,7 @@
       </div>
       <div>
         <ul class="nav-list-wrapper">
-          <router-link to="/about">
+          <router-link to="/ticketSearch">
             <li>首页</li>
           </router-link>
           <router-link to="/about">
