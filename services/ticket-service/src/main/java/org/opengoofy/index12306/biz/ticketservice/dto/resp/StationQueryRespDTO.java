@@ -15,33 +15,35 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.service;
+package org.opengoofy.index12306.biz.ticketservice.dto.resp;
 
-import org.opengoofy.index12306.biz.ticketservice.dto.req.RegionStationQueryReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.RegionStationQueryRespDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.StationQueryRespDTO;
-
-import java.util.List;
+import lombok.Data;
 
 /**
- * 地区以及车站接口层
+ * 站点分页查询响应参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface RegionStationService {
+@Data
+public class StationQueryRespDTO {
 
     /**
-     * 查询车站&城市站点集合信息
-     *
-     * @param requestParam 车站&站点查询参数
-     * @return 车站&站点返回数据集合
+     * 名称
      */
-    List<RegionStationQueryRespDTO> listRegionStation(RegionStationQueryReqDTO requestParam);
+    private String name;
 
     /**
-     * 查询所有车站&城市站点集合信息
-     *
-     * @return 车站返回数据集合
+     * 地区编码
      */
-    List<StationQueryRespDTO> listAllStation();
+    private String code;
+
+    /**
+     * 拼音
+     */
+    private String spell;
+
+    /**
+     * 城市名称
+     */
+    private String regionName;
 }
