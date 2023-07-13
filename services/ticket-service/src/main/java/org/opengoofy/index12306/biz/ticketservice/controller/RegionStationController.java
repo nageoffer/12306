@@ -20,6 +20,7 @@ package org.opengoofy.index12306.biz.ticketservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.RegionStationQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.RegionStationQueryRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.StationQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.RegionStationService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
@@ -51,7 +52,7 @@ public class RegionStationController {
      * 查询车站站点集合信息
      */
     @GetMapping("/api/ticket-service/station/all")
-    public Result<List<RegionStationQueryRespDTO>> listAllStation() {
+    public Result<List<StationQueryRespDTO>> listAllStation() {
         return Results.success(regionStationService.listAllStation());
     }
 }

@@ -29,6 +29,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.RegionMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.StationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.RegionStationQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.RegionStationQueryRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.StationQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.RegionStationService;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.enums.FlagEnum;
@@ -86,11 +87,11 @@ public class RegionStationImpl implements RegionStationService {
     }
 
     @Override
-    public List<RegionStationQueryRespDTO> listAllStation() {
+    public List<StationQueryRespDTO> listAllStation() {
         return distributedCache.get(
                 RedisKeyConstant.STATION_ALL,
                 List.class,
-                () -> BeanUtil.convert(stationMapper.selectList(Wrappers.emptyWrapper()), RegionStationQueryRespDTO.class),
+                () -> BeanUtil.convert(stationMapper.selectList(Wrappers.emptyWrapper()), StationQueryRespDTO.class),
                 ADVANCE_TICKET_DAY,
                 TimeUnit.DAYS
         );
