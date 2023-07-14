@@ -1,9 +1,15 @@
-
 dataSources:
   ds_0:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://127.0.0.1:3306/12306?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/12306_user_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+
+  ds_1:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://127.0.0.1:3306/12306_user_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
     username: root
     password: root
 
@@ -11,13 +17,39 @@ rules:
   - !SHARDING
     tables:
       t_user:
-        actualDataNodes: ds_0.t_user_${0..15}
+        actualDataNodes: ds_${0..1}.t_user_${0..15}
+        databaseStrategy:
+          standard:
+            shardingColumn: username
+            shardingAlgorithmName: user_database_hash_mod
         tableStrategy:
           standard:
             shardingColumn: username
-            shardingAlgorithmName: user_hash_mod
+            shardingAlgorithmName: user_table_hash_mod
+      t_passenger:
+        actualDataNodes: ds_${0..1}.t_passenger_${0..15}
+        databaseStrategy:
+          standard:
+            shardingColumn: username
+            shardingAlgorithmName: passenger_database_hash_mod
+        tableStrategy:
+          standard:
+            shardingColumn: username
+            shardingAlgorithmName: passenger_table_hash_mod
     shardingAlgorithms:
-      user_hash_mod:
+      user_database_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 2
+      passenger_table_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      passenger_database_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 2
+      user_table_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 16
