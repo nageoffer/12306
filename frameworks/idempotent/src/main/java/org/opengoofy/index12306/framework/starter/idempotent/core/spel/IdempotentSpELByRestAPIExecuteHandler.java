@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
 import org.opengoofy.index12306.framework.starter.idempotent.core.AbstractIdempotentExecuteHandler;
 import org.opengoofy.index12306.framework.starter.idempotent.core.IdempotentAspect;
@@ -55,7 +56,7 @@ public final class IdempotentSpELByRestAPIExecuteHandler extends AbstractIdempot
         String lockKey = wrapper.getLockKey();
         RLock lock = redissonClient.getLock(lockKey);
         if (!lock.tryLock()) {
-            return;
+            throw new ClientException(wrapper.getIdempotent().message());
         }
         IdempotentContext.put(LOCK, lock);
     }
