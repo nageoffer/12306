@@ -101,16 +101,16 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
+        // TODO 责任链模式 验证城市名称是否存在、不存在加载缓存等等
         StationDO fromStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
                 .eq(StationDO::getCode, requestParam.getFromStation())
         );
         StationDO toStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
                 .eq(StationDO::getCode, requestParam.getToStation())
         );
-        // TODO 责任链模式 验证城市名称是否存在、不存在加载缓存等等
         LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
-                .eq(TrainStationRelationDO::getStartRegion, fromStationDO.getName())
-                .eq(TrainStationRelationDO::getEndRegion, toStationDO.getName());
+                .eq(TrainStationRelationDO::getStartRegion, fromStationDO.getRegionName())
+                .eq(TrainStationRelationDO::getEndRegion, toStationDO.getRegionName());
         List<TrainStationRelationDO> trainStationRelationList = trainStationRelationMapper.selectList(queryWrapper);
         List<TicketListDTO> seatResults = new ArrayList<>();
         Set<Integer> trainBrandSet = new HashSet<>();
