@@ -41,11 +41,19 @@ public class TicketOrderController {
     private final OrderService orderService;
 
     /**
-     * 车票订单查询
+     * 跟据订单号查询车票订单
      */
     @GetMapping("/api/order-service/order/ticket/query")
-    public Result<TicketOrderDetailRespDTO> queryTicketOrder(@RequestParam(value = "orderSn") String orderSn) {
-        return Results.success(orderService.queryTicketOrder(orderSn));
+    public Result<TicketOrderDetailRespDTO> queryTicketOrderByOrderSn(@RequestParam(value = "orderSn") String orderSn) {
+        return Results.success(orderService.queryTicketOrderByOrderSn(orderSn));
+    }
+
+    /**
+     * 跟据用户查询车票订单
+     */
+    @GetMapping("/api/order-service/order/ticket/query/userid")
+    public Result<TicketOrderDetailRespDTO> queryTicketOrderByUsername(@RequestParam(value = "userid") String userId) {
+        return Results.success(orderService.queryTicketOrderByUserId(userId));
     }
 
     /**

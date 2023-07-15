@@ -30,12 +30,20 @@ import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrder
 public interface OrderService {
 
     /**
-     * 查询火车票订单详情
+     * 跟据订单号查询车票订单
      *
      * @param orderSn 订单号
      * @return 订单详情
      */
-    TicketOrderDetailRespDTO queryTicketOrder(String orderSn);
+    TicketOrderDetailRespDTO queryTicketOrderByOrderSn(String orderSn);
+
+    /**
+     * 跟据用户名查询车票订单
+     *
+     * @param userId 用户唯一标识
+     * @return 订单详情
+     */
+    TicketOrderDetailRespDTO queryTicketOrderByUserId(String userId);
 
     /**
      * 创建火车票订单

@@ -38,10 +38,10 @@ import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDe
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
 import org.opengoofy.index12306.biz.orderservice.service.OrderItemService;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
+import org.opengoofy.index12306.biz.orderservice.service.orderid.OrderIdGeneratorManager;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
-import org.opengoofy.index12306.framework.starter.distributedid.toolkit.SnowflakeIdUtil;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -67,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
     private final RedissonClient redissonClient;
 
     @Override
-    public TicketOrderDetailRespDTO queryTicketOrder(String orderSn) {
+    public TicketOrderDetailRespDTO queryTicketOrderByOrderSn(String orderSn) {
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
                 .eq(OrderDO::getOrderSn, orderSn);
         OrderDO orderDO = orderMapper.selectOne(queryWrapper);
@@ -79,10 +79,24 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
+    @Override
+    public TicketOrderDetailRespDTO queryTicketOrderByUserId(String userId) {
+        LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
+                .eq(OrderDO::getUserId, userId);
+        OrderDO orderDO = orderMapper.selectOne(queryWrapper);
+        TicketOrderDetailRespDTO result = BeanUtil.convert(orderDO, TicketOrderDetailRespDTO.class);
+        LambdaQueryWrapper<OrderItemDO> orderItemQueryWrapper = Wrappers.lambdaQuery(OrderItemDO.class)
+                .eq(OrderItemDO::getUserId, userId);
+        List<OrderItemDO> orderItemDOList = orderItemMapper.selectList(orderItemQueryWrapper);
+        result.setPassengerDetails(BeanUtil.convert(orderItemDOList, TicketOrderPassengerDetailRespDTO.class));
+        return result;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String createTicketOrder(TicketOrderCreateReqDTO requestParam) {
-        String orderSn = SnowflakeIdUtil.nextIdStr();
+        // 通过基因法将用户 ID 融入到订单号
+        String orderSn = OrderIdGeneratorManager.generateId(requestParam.getUserId());
         OrderDO orderDO = OrderDO.builder().orderSn(orderSn)
                 .orderTime(requestParam.getOrderTime())
                 .departure(requestParam.getDeparture())
@@ -95,6 +109,7 @@ public class OrderServiceImpl implements OrderService {
                 .source(requestParam.getSource())
                 .status(OrderStatusEnum.PENDING_PAYMENT.getStatus())
                 .username(requestParam.getUsername())
+                .userId(String.valueOf(requestParam.getUserId()))
                 .build();
         orderMapper.insert(orderDO);
         List<TicketOrderItemCreateReqDTO> ticketOrderItems = requestParam.getTicketOrderItems();
@@ -108,11 +123,11 @@ public class OrderServiceImpl implements OrderService {
                     .orderSn(orderSn)
                     .phone(each.getPhone())
                     .seatType(each.getSeatType())
-                    .amount(each.getAmount())
-                    .carriageNumber(each.getCarriageNumber())
+                    .username(requestParam.getUsername()).amount(each.getAmount()).carriageNumber(each.getCarriageNumber())
                     .idCard(each.getIdCard())
                     .ticketType(each.getTicketType())
                     .idType(each.getIdType())
+                    .userId(String.valueOf(requestParam.getUserId()))
                     .status(0)
                     .build();
             orderItemDOList.add(orderItemDO);

@@ -72,6 +72,11 @@
             <artifactId>rocketmq-spring-boot-starter</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-jdbc-core</artifactId>
+        </dependency>
+
         <!-- NoClassDefFoundError: javax/xml/bind/JAXBException start -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
