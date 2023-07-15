@@ -59,8 +59,8 @@ public final class IdGeneratorManager {
     /**
      * 根据 {@param resource} 获取 ID 生成器
      */
-    public static IdGenerator getIdGenerator(@NonNull String resource) {
-        return MANAGER.get(resource);
+    public static ServiceIdGenerator getIdGenerator(@NonNull String resource) {
+        return Optional.ofNullable(MANAGER.get(resource)).map(each -> (ServiceIdGenerator) each).orElse(null);
     }
 
     /**
