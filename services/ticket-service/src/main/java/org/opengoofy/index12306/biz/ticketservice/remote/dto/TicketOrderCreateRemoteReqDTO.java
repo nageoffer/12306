@@ -37,6 +37,11 @@ import java.util.List;
 public class TicketOrderCreateRemoteReqDTO {
 
     /**
+     * 用户 ID
+     */
+    private String userId;
+
+    /**
      * 用户名
      */
     private String username;

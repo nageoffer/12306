@@ -235,6 +235,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                     .departureTime(trainStationRelationDO.getDepartureTime())
                     .arrivalTime(trainStationRelationDO.getArrivalTime())
                     .ridingDate(trainStationRelationDO.getDepartureTime())
+                    .userId(UserContext.getUserId())
                     .username(UserContext.getUsername())
                     .trainId(Long.parseLong(requestParam.getTrainId()))
                     .ticketOrderItems(orderItemCreateRemoteReqDTOList)
