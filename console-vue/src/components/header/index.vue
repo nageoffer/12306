@@ -3,10 +3,10 @@
     <div class="header-wrapper">
       <div>
         <img
-          @click="router.push('/ticketSearch')"
-          class="logo"
-          src="../../assets/logo.png"
-          alt="logo"
+            @click="router.push('/ticketSearch')"
+            class="logo"
+            src="../../assets/logo.png"
+            alt="logo"
         />
       </div>
       <div>
@@ -14,15 +14,15 @@
           <router-link to="/ticketSearch">
             <li>首页</li>
           </router-link>
-          <router-link to="/about">
+          <a href="https://magestack.cn/" target="_blank">
             <li>文档</li>
-          </router-link>
-          <router-link to="/about">
+          </a>
+          <a href="https://magestack.cn/pages/52d5c3/" target="_blank">
             <li>博客</li>
-          </router-link>
-          <router-link to="/about">
+          </a>
+          <a href="https://magestack.cn/pages/be7463/" target="_blank">
             <li>社区</li>
-          </router-link>
+          </a>
         </ul>
       </div>
     </div>
@@ -30,15 +30,16 @@
 </template>
 
 <script setup>
-import { Layout } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
-import { defineProps, toRefs } from 'vue'
-const { Header } = Layout
+import {Layout} from 'ant-design-vue'
+import {useRouter} from 'vue-router'
+import {defineProps, toRefs} from 'vue'
+
+const {Header} = Layout
 const props = defineProps({
   isLogin: Boolean
 })
 
-const { isLogin } = toRefs(props)
+const {isLogin} = toRefs(props)
 
 const router = useRouter()
 </script>
@@ -48,6 +49,7 @@ const router = useRouter()
   height: 40px;
   cursor: pointer;
 }
+
 .ant-layout-header {
   position: fixed;
   width: 100%;
@@ -58,6 +60,7 @@ const router = useRouter()
   background-color: #252b30;
   box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.08);
 }
+
 .isLogin.ant-layout-header {
   background-color: transparent;
 }
@@ -70,13 +73,16 @@ const router = useRouter()
   flex-wrap: nowrap;
   color: rgba(255, 255, 255, 0.8);
 }
+
 .nav-list-wrapper {
   display: flex;
   text-decoration: none;
   list-style: none;
   margin: 0;
+
   a {
     color: rgba(255, 255, 255, 0.8);
+
     li {
       padding: 0 30px;
     }
