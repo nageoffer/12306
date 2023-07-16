@@ -45,10 +45,18 @@ public interface PayService {
     void callbackPay(PayCallbackReqDTO requestParam);
 
     /**
-     * 支付单详情查询
+     * 跟据订单号查询支付单详情
      *
      * @param orderSn 订单号
      * @return 支付单详情
      */
-    PayInfoRespDTO getPayInfo(String orderSn);
+    PayInfoRespDTO getPayInfoByOrderSn(String orderSn);
+
+    /**
+     * 跟据支付流水号查询支付单详情
+     *
+     * @param paySn 支付单流水号
+     * @return 支付单详情
+     */
+    PayInfoRespDTO getPayInfoByPaySn(String paySn);
 }

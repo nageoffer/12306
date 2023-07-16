@@ -105,9 +105,17 @@ public class PayServiceImpl implements PayService {
     }
 
     @Override
-    public PayInfoRespDTO getPayInfo(String orderSn) {
+    public PayInfoRespDTO getPayInfoByOrderSn(String orderSn) {
         LambdaQueryWrapper<PayDO> queryWrapper = Wrappers.lambdaQuery(PayDO.class)
                 .eq(PayDO::getOrderSn, orderSn);
+        PayDO payDO = payMapper.selectOne(queryWrapper);
+        return BeanUtil.convert(payDO, PayInfoRespDTO.class);
+    }
+
+    @Override
+    public PayInfoRespDTO getPayInfoByPaySn(String paySn) {
+        LambdaQueryWrapper<PayDO> queryWrapper = Wrappers.lambdaQuery(PayDO.class)
+                .eq(PayDO::getPaySn, paySn);
         PayDO payDO = payMapper.selectOne(queryWrapper);
         return BeanUtil.convert(payDO, PayInfoRespDTO.class);
     }
