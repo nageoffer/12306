@@ -22,6 +22,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.userservice.common.enums.UserChainMarkEnum;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
@@ -31,8 +32,8 @@ import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
-import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
+import org.opengoofy.index12306.framework.starter.designpattern.chain.AbstractChainContext;
 import org.opengoofy.index12306.frameworks.starter.user.core.UserInfoDTO;
 import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ public class UserLoginServiceImpl implements UserLoginService {
 
     private final UserMapper userMapper;
     private final DistributedCache distributedCache;
+    private final AbstractChainContext abstractChainContext;
 
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
@@ -93,10 +95,7 @@ public class UserLoginServiceImpl implements UserLoginService {
 
     @Override
     public UserRegisterRespDTO register(UserRegisterReqDTO requestParam) {
-        // TODO 责任链模式校验用户名，身份证、手机号格式等
-        if (!hasUsername(requestParam.getUsername())) {
-            throw new ClientException("用户名已存在");
-        }
+        abstractChainContext.handler(UserChainMarkEnum.USER_REGISTER_FILTER.name(), requestParam);
         int inserted = userMapper.insert(BeanUtil.convert(requestParam, UserDO.class));
         if (inserted < 1) {
             throw new ServiceException("用户注册失败");
