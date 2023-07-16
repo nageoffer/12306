@@ -16,11 +16,35 @@ rules:
           standard:
             shardingColumn: username
             shardingAlgorithmName: user_hash_mod
+      t_order:
+        actualDataNodes: ds_0.t_order_${0..15}
+        tableStrategy:
+          complex:
+            shardingColumns: user_id,order_sn
+            shardingAlgorithmName: order_table_complex_mod
+      t_order_item:
+        actualDataNodes: ds_0.t_order_item_${0..15}
+        tableStrategy:
+          complex:
+            shardingColumns: user_id,order_sn
+            shardingAlgorithmName: order_item_table_complex_mod
     shardingAlgorithms:
       user_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 16
+      order_table_complex_mod:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
+          sharding-count: 16
+          strategy: complex
+      order_item_table_complex_mod:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
+          sharding-count: 16
+          strategy: complex
 
 props:
-  sql-show: true
+  sql-show: false
