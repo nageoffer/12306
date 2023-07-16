@@ -21,6 +21,7 @@ import cn.hutool.core.text.StrBuilder;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderMapper;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderItemCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderPageQueryReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
@@ -42,6 +44,8 @@ import org.opengoofy.index12306.biz.orderservice.service.orderid.OrderIdGenerato
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
+import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
+import org.opengoofy.index12306.framework.starter.database.toolkit.PageUtil;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
@@ -80,16 +84,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public TicketOrderDetailRespDTO queryTicketOrderByUserId(String userId) {
+    public PageResponse<TicketOrderDetailRespDTO> pageTicketOrder(TicketOrderPageQueryReqDTO requestParam) {
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
-                .eq(OrderDO::getUserId, userId);
-        OrderDO orderDO = orderMapper.selectOne(queryWrapper);
-        TicketOrderDetailRespDTO result = BeanUtil.convert(orderDO, TicketOrderDetailRespDTO.class);
-        LambdaQueryWrapper<OrderItemDO> orderItemQueryWrapper = Wrappers.lambdaQuery(OrderItemDO.class)
-                .eq(OrderItemDO::getUserId, userId);
-        List<OrderItemDO> orderItemDOList = orderItemMapper.selectList(orderItemQueryWrapper);
-        result.setPassengerDetails(BeanUtil.convert(orderItemDOList, TicketOrderPassengerDetailRespDTO.class));
-        return result;
+                .eq(OrderDO::getUserId, requestParam.getUserId())
+                .orderByDesc(OrderDO::getOrderTime);
+        IPage<OrderDO> orderPage = orderMapper.selectPage(PageUtil.convert(requestParam), queryWrapper);
+        return PageUtil.convert(orderPage, each -> {
+            TicketOrderDetailRespDTO result = BeanUtil.convert(each, TicketOrderDetailRespDTO.class);
+            LambdaQueryWrapper<OrderItemDO> orderItemQueryWrapper = Wrappers.lambdaQuery(OrderItemDO.class)
+                    .eq(OrderItemDO::getUserId, requestParam.getUserId());
+            List<OrderItemDO> orderItemDOList = orderItemMapper.selectList(orderItemQueryWrapper);
+            result.setPassengerDetails(BeanUtil.convert(orderItemDOList, TicketOrderPassengerDetailRespDTO.class));
+            return result;
+        });
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -19,8 +19,10 @@ package org.opengoofy.index12306.biz.orderservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderPageQueryReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
+import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,11 +51,11 @@ public class TicketOrderController {
     }
 
     /**
-     * 跟据用户查询车票订单
+     * 分页查询车票订单
      */
-    @GetMapping("/api/order-service/order/ticket/query/userid")
-    public Result<TicketOrderDetailRespDTO> queryTicketOrderByUsername(@RequestParam(value = "userid") String userId) {
-        return Results.success(orderService.queryTicketOrderByUserId(userId));
+    @GetMapping("/api/order-service/order/ticket/page")
+    public Result<PageResponse<TicketOrderDetailRespDTO>> pageTicketOrder(TicketOrderPageQueryReqDTO requestParam) {
+        return Results.success(orderService.pageTicketOrder(requestParam));
     }
 
     /**

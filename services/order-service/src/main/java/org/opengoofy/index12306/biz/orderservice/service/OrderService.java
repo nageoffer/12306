@@ -19,8 +19,10 @@ package org.opengoofy.index12306.biz.orderservice.service;
 
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderPageQueryReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
+import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
 
 /**
  * 订单接口层
@@ -38,12 +40,12 @@ public interface OrderService {
     TicketOrderDetailRespDTO queryTicketOrderByOrderSn(String orderSn);
 
     /**
-     * 跟据用户名查询车票订单
+     * 跟据用户名分页查询车票订单
      *
-     * @param userId 用户唯一标识
-     * @return 订单详情
+     * @param requestParam 跟据用户 ID 分页查询对象
+     * @return 订单分页详情
      */
-    TicketOrderDetailRespDTO queryTicketOrderByUserId(String userId);
+    PageResponse<TicketOrderDetailRespDTO> pageTicketOrder(TicketOrderPageQueryReqDTO requestParam);
 
     /**
      * 创建火车票订单
