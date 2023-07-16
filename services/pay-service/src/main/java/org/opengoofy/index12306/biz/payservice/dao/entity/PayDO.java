@@ -38,6 +38,11 @@ public class PayDO extends BaseDO {
     private Long id;
 
     /**
+     * 支付流水号
+     */
+    private String paySn;
+
+    /**
      * 订单号
      */
     private String orderSn;

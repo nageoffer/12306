@@ -34,6 +34,7 @@ import org.opengoofy.index12306.biz.payservice.handler.AliPayNativeHandler;
 import org.opengoofy.index12306.biz.payservice.mq.event.PayResultCallbackOrderEvent;
 import org.opengoofy.index12306.biz.payservice.mq.produce.PayResultCallbackOrderSendProduce;
 import org.opengoofy.index12306.biz.payservice.service.PayService;
+import org.opengoofy.index12306.biz.payservice.service.payid.PayIdGeneratorManager;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
@@ -66,6 +67,8 @@ public class PayServiceImpl implements PayService {
         // 策略模式：通过策略模式封装支付渠道和支付场景，用户支付时动态选择对应的支付组件
         PayResponse result = abstractStrategyChoose.chooseAndExecuteResp(requestParam.buildMark(), requestParam);
         PayDO insertPay = BeanUtil.convert(requestParam, PayDO.class);
+        String paySn = PayIdGeneratorManager.generateId(requestParam.getOrderSn());
+        insertPay.setPaySn(paySn);
         insertPay.setStatus(TradeStatusEnum.WAIT_BUYER_PAY.tradeCode());
         insertPay.setTotalAmount(requestParam.getTotalAmount().multiply(new BigDecimal("100")).setScale(0, BigDecimal.ROUND_HALF_UP).intValue());
         int insert = payMapper.insert(insertPay);
