@@ -28,6 +28,12 @@ rules:
           complex:
             shardingColumns: user_id,order_sn
             shardingAlgorithmName: order_item_table_complex_mod
+      t_pay:
+        actualDataNodes: ds_0.t_pay_${0..15}
+        tableStrategy:
+          complex:
+            shardingColumns: order_sn,pay_sn
+            shardingAlgorithmName: pay_table_complex_mod
     shardingAlgorithms:
       user_hash_mod:
         type: HASH_MOD
@@ -43,6 +49,12 @@ rules:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
+          sharding-count: 16
+          strategy: complex
+      pay_table_complex_mod:
+        type: CLASS_BASED
+        props:
+          algorithmClassName: org.opengoofy.index12306.biz.payservice.dao.algorithm.PayTableComplexAlgorithm
           sharding-count: 16
           strategy: complex
 
