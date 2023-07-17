@@ -20,6 +20,7 @@ package org.opengoofy.index12306.biz.userservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerRemoveReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerActualRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.PassengerService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
@@ -54,8 +55,8 @@ public class PassengerController {
     /**
      * 根据乘车人 ID 集合查询乘车人列表
      */
-    @GetMapping("/api/user-service/passenger/query/ids")
-    public Result<List<PassengerRespDTO>> listPassengerQueryByIds(@RequestParam("username") String username, @RequestParam("ids") List<Long> ids) {
+    @GetMapping("/api/user-service/passenger/actual/query/ids")
+    public Result<List<PassengerActualRespDTO>> listPassengerQueryByIds(@RequestParam("username") String username, @RequestParam("ids") List<Long> ids) {
         return Results.success(passengerService.listPassengerQueryByIds(username, ids));
     }
 

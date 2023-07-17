@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.userservice.service;
 
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerRemoveReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerActualRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public interface PassengerService {
      * @param ids      乘车人 ID 集合
      * @return 乘车人返回列表
      */
-    List<PassengerRespDTO> listPassengerQueryByIds(String username, List<Long> ids);
+    List<PassengerActualRespDTO> listPassengerQueryByIds(String username, List<Long> ids);
 
     /**
      * 新增乘车人

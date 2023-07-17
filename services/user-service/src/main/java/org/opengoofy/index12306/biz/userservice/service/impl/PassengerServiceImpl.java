@@ -25,6 +25,7 @@ import org.opengoofy.index12306.biz.userservice.dao.entity.PassengerDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.PassengerMapper;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerRemoveReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.PassengerReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerActualRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.PassengerRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.PassengerService;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
@@ -53,12 +54,12 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Override
-    public List<PassengerRespDTO> listPassengerQueryByIds(String username, List<Long> ids) {
+    public List<PassengerActualRespDTO> listPassengerQueryByIds(String username, List<Long> ids) {
         LambdaQueryWrapper<PassengerDO> queryWrapper = Wrappers.lambdaQuery(PassengerDO.class)
                 .eq(PassengerDO::getUsername, username)
                 .in(PassengerDO::getId, ids);
         List<PassengerDO> passengerDOList = passengerMapper.selectList(queryWrapper);
-        return BeanUtil.convert(passengerDOList, PassengerRespDTO.class);
+        return BeanUtil.convert(passengerDOList, PassengerActualRespDTO.class);
     }
 
     @Override
