@@ -7,6 +7,7 @@ dataSources:
     username: root
     password: PHRmUcd6ZpM0506N1wldC9EKsix77VA8HwMHloLJPZtxSkMnRfEKSn8SYpvcaI5
 
+
 rules:
   - !SHARDING
     tables:
@@ -16,6 +17,12 @@ rules:
           standard:
             shardingColumn: username
             shardingAlgorithmName: user_hash_mod
+      t_passenger:
+        actualDataNodes: ds_0.t_passenger_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: username
+            shardingAlgorithmName: passenger_table_hash_mod
       t_order:
         actualDataNodes: ds_0.t_order_${0..15}
         tableStrategy:
@@ -36,6 +43,10 @@ rules:
             shardingAlgorithmName: pay_table_complex_mod
     shardingAlgorithms:
       user_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      passenger_table_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 16
@@ -73,6 +84,22 @@ rules:
           address:
             cipherColumn: address
             encryptorName: common_encryptor
+      t_passenger:
+        columns:
+          id_card:
+            cipherColumn: id_card
+            encryptorName: common_encryptor
+          phone:
+            cipherColumn: phone
+            encryptorName: common_encryptor
+      t_order_item:
+        columns:
+          id_card:
+            cipherColumn: id_card
+            encryptorName: common_encryptor
+          phone:
+            cipherColumn: phone
+            encryptorName: common_encryptor
         queryWithCipherColumn: true
     encryptors:
       common_encryptor:
@@ -80,4 +107,4 @@ rules:
         props:
           aes-key-value: d6oadClrrb9A3GWo
 props:
-  sql-show: false
+  sql-show: true

@@ -1,4 +1,3 @@
-
 dataSources:
   ds_0:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
@@ -16,6 +15,12 @@ rules:
           standard:
             shardingColumn: username
             shardingAlgorithmName: user_hash_mod
+      t_passenger:
+        actualDataNodes: ds_0.t_passenger_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: username
+            shardingAlgorithmName: passenger_table_hash_mod
       t_order:
         actualDataNodes: ds_0.t_order_${0..15}
         tableStrategy:
@@ -36,6 +41,10 @@ rules:
             shardingAlgorithmName: pay_table_complex_mod
     shardingAlgorithms:
       user_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      passenger_table_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 16
