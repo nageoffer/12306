@@ -24,9 +24,7 @@ import org.opengoofy.index12306.framework.starter.distributedid.handler.IdGenera
 /**
  * 分布式雪花 ID 生成器
  *
- * @author chen.ma
- * @github <a href="https://github.com/opengoofy" />
- * @公众号 马丁玩编程，关注回复：资料，领取后端技术专家成长手册
+ * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 public final class SnowflakeIdUtil {
 
