@@ -22,7 +22,6 @@ import cn.hutool.core.date.SystemClock;
 import com.alibaba.fastjson2.JSON;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -61,7 +60,7 @@ public class ILogPrintAspect {
             Method targetMethod = joinPoint.getTarget().getClass().getDeclaredMethod(methodSignature.getName(), methodSignature.getMethod().getParameterTypes());
             ILog logAnnotation = Optional.ofNullable(targetMethod.getAnnotation(ILog.class)).orElse(joinPoint.getTarget().getClass().getAnnotation(ILog.class));
             if (logAnnotation != null) {
-                ILogPrint logPrint = new ILogPrint();
+                ILogPrintDTO logPrint = new ILogPrintDTO();
                 logPrint.setBeginTime(beginTime);
                 if (logAnnotation.input()) {
                     logPrint.setInputParams(buildInput(joinPoint));
@@ -99,24 +98,5 @@ public class ILogPrintAspect {
             }
         }
         return printArgs;
-    }
-
-    @Data
-    private static class ILogPrint {
-
-        /**
-         * 开始时间
-         */
-        private String beginTime;
-
-        /**
-         * 输入入参
-         */
-        private Object[] inputParams;
-
-        /**
-         * 输出参数
-         */
-        private Object outputParams;
     }
 }
