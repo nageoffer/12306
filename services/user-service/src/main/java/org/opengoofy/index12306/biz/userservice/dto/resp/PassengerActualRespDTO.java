@@ -18,22 +18,19 @@
 package org.opengoofy.index12306.biz.userservice.dto.resp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.opengoofy.index12306.biz.userservice.serialize.IdCardDesensitizationSerializer;
-import org.opengoofy.index12306.biz.userservice.serialize.PhoneDesensitizationSerializer;
 
 import java.util.Date;
 
 /**
- * 乘车人返回参数
+ * 乘车人真实返回参数，不包含脱敏信息
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
 @Accessors(chain = true)
-public class PassengerRespDTO {
+public class PassengerActualRespDTO {
 
     /**
      * 乘车人id
@@ -58,13 +55,7 @@ public class PassengerRespDTO {
     /**
      * 证件号码
      */
-    @JsonSerialize(using = IdCardDesensitizationSerializer.class)
     private String idCard;
-
-    /**
-     * 真实证件号码
-     */
-    private String actualIdCard;
 
     /**
      * 优惠类型
@@ -74,13 +65,7 @@ public class PassengerRespDTO {
     /**
      * 手机号
      */
-    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
     private String phone;
-
-    /**
-     * 真实手机号
-     */
-    private String actualPhone;
 
     /**
      * 添加日期
