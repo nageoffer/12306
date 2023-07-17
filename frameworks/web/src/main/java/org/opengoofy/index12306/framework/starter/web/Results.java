@@ -32,8 +32,6 @@ public final class Results {
 
     /**
      * 构造成功响应
-     *
-     * @return
      */
     public static Result<Void> success() {
         return new Result<Void>()
@@ -42,10 +40,6 @@ public final class Results {
 
     /**
      * 构造带返回数据的成功响应
-     *
-     * @param data
-     * @param <T>
-     * @return
      */
     public static <T> Result<T> success(T data) {
         return new Result<T>()
@@ -55,8 +49,6 @@ public final class Results {
 
     /**
      * 构建服务端失败响应
-     *
-     * @return
      */
     protected static Result<Void> failure() {
         return new Result<Void>()
@@ -66,9 +58,6 @@ public final class Results {
 
     /**
      * 通过 {@link AbstractException} 构建失败响应
-     *
-     * @param abstractException
-     * @return
      */
     protected static Result<Void> failure(AbstractException abstractException) {
         String errorCode = Optional.ofNullable(abstractException.getErrorCode())
@@ -82,10 +71,6 @@ public final class Results {
 
     /**
      * 通过 errorCode、errorMessage 构建失败响应
-     *
-     * @param errorCode
-     * @param errorMessage
-     * @return
      */
     protected static Result<Void> failure(String errorCode, String errorMessage) {
         return new Result<Void>()
