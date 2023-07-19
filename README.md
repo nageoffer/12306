@@ -1,4 +1,70 @@
 
+## 这个项目怎么样？
+
+[🧐 为什么 12306 铁路购票项目更适合学生？](https://magestack.cn/pages/a2f161/)
+
+12306 铁路购票服务是与大家生活和出行相关的关键系统，包括会员、购票、订单、支付和网关等服务。
+
+这个项目旨在让学习者可以快速掌握分布式系统设计的技巧，尤其适合对高并发、分布式感兴趣的同学学习。如果想深入理解和应用分布式系统的设计原则，这个项目将会是一个很好的学习资源。
+
+项目中包含了缓存、消息队列、分库分表、设计模式等代码，通过这些代码可以全面了解分布式系统的核心知识点。
+
+在系统设计中，采用 JDK17 + SpringBoot3&SpringCloud 微服务架构，构建高并发、大数据量下仍然能提供高效可靠的 12306 购票服务。
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/1676637853202-c2af9e93-fe03-4c01-9fed-20ca07263476.png)
+
+为了方便大家学习，该系统提供了两种版本：
+
+- SpringBoot 聚合服务版本：适合测试和部署，可以直接启动 `aggregation-service` 聚合服务和网关服务。
+
+- SpringCloud 微服务版本：适合学习微服务设计，可以分别启动支付、订单、用户、购票和网关服务。
+
+根据自己的学习和使用需求，选择合适的版本启动即可。微服务版本侧重学习设计，聚合服务版本侧重测试和部署。请根据场景需要，选择正确的版本进行学习和使用。
+
+![](https://github.com/nageoffer/12306/assets/77398366/80be389c-4439-4c2d-9ec2-8f5613a7490a)
+
+## 拿个offer 组织项目
+
+组织简介：拿个offer - 开源&项目实战，🚀 助力你在校招或社招上拿个offer。
+
+目前组织下已支持业务、中间件等多种类型项目，项目列表如下：
+
+| Project                                         | Gitee                                                        | GitHub                                                       | Intro                      |
+|-------------------------------------------------| ------------------------------------------------------------ | ------------------------------------------------------------ |----------------------------|
+| [刚果商城](https://gitee.com/nageoffer/congomall)   | [![star](https://gitee.com/nageoffer/congomall/badge/star.svg?theme=white)](https://gitee.com/nageoffer/congomall/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/congomall?color=green&style=social)](https://github.com/nageoffer/congomall) | 企业级 TOC 商城，基于 DDD 领域驱动模型开发 |
+| [Hippo4j](https://github.com/opengoofy/hippo4j) | [![star](https://gitee.com/opengoofy/hippo4j/badge/star.svg?theme=white)](https://gitee.com/opengoofy/hippo4j/stargazers) | [![](https://img.shields.io/github/stars/opengoofy/hippo4j?color=green&style=social)](https://github.com/opengoofy/hippo4j) | 异步线程池框架，支持线程池动态变更&监控&报警    |
+| [12306](https://gitee.com/nageoffer/12306)      | [![star](https://gitee.com/nageoffer/12306/badge/star.svg?theme=white)](https://gitee.com/nageoffer/12306/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/12306?color=green&style=social)](https://github.com/nageoffer/12306) | 完成高仿铁路 12306系统，帮助学生主打就业的项目 |
+
+## 加群沟通
+
+开源不易，右上角点个 Star 鼓励一下吧！
+
+如果大家想要实时关注 12306 更新的文章以及分享的干货的话，可以关注我的公众号：`马丁玩编程`。
+
+使用过程中有任何问题，或者对项目有什么建议，添加好友备注：12306，领取项目学习资料，和 `2000+` 志同道合的朋友交流讨论。
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/1_990064918_171_84_3_716500817_c4659af930df3a2532d02b8fcc0f0cbe.png)
+
+## 如何使用
+
+12306 前端系统实现了与官网极为接近的业务逻辑和 UI 展示。
+
+在学习过程中，通过类似官网的前端系统直接调试后端服务，可以避免纯通过接口测试的繁琐。这种真实场景的模拟，使得学习过程更加流畅高效。
+
+目前前端系统还在开发中，部分业务及细节处还在调整，完成后统一给出控制台操作手册，请耐心等待。
+
+### 1. 车票查询功能
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716114538112.png)
+
+### 2. 提交订单页，选择乘车人下单
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716114814135.png)
+
+### 3. 高铁在线选座页面
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716115005469.png)
+
 ## 12306 购票误区
 
 说些大家对于 12306 购票时没有考虑到的一些业务点，或者存在误区的地方。
@@ -21,42 +87,6 @@
 - 实际上：每个站数之间的数量都有规则。虽然放票时间都是一致的，但是优先大站之间的票量，避免因为大量用户购买了中间站的车票导致始发站和终点站的购票困难。该问题通过动态放票解决，比如刚开始放票时对小站之间仅开放少量票，大站之间放出来多数票。如果后续接近发车时间，再开放小站间的车票。
 
 当然，业务以及技术上的难点和亮点并不止于这些，更多的信息可以通过代码以及 12306 的使用上进行发掘。
-
-## 这个项目怎么样？
-
-[🧐 为什么 12306 铁路购票项目更适合学生？](https://magestack.cn/pages/a2f161/)
-
-在 12306 铁路购票系统中，包括会员、购票、订单、支付以及网关服务。
-
-另外，为了方便大家部署，给大家抽象了一个聚合层服务，实际部署服务器或运行时，仅需启动网关和聚合层服务即可。
-
-![12306业务导图](https://github.com/nageoffer/12306/assets/77398366/678dce21-5a10-4126-8e3b-268a981a142c)
-
-## 加群沟通
-
-开源不易，右上角点个 Star 鼓励一下吧！
-
-如果大家想要实时关注 12306 更新的文章以及分享的干货的话，可以关注我的公众号：`马丁玩编程`。
-
-使用过程中有任何问题，或者对项目有什么建议，添加好友备注：12306，和 `2000+` 志同道合的朋友交流讨论。
-
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/1_990064918_171_84_3_716500817_c4659af930df3a2532d02b8fcc0f0cbe.png)
-
-## 如何使用
-
-前端目前正在开发中，还有部分业务及细节处还在调整，完成后统一给出控制台操作手册，请耐心等待。
-
-1）车票查询功能。
-
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716114538112.png)
-
-2）提交订单页，选择乘车人下单。
-
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716114814135.png)
-
-3）高铁在线选座页面。
-
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716115005469.png)
 
 ## 常见问题答疑
 
