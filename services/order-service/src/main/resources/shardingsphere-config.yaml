@@ -36,6 +36,16 @@ rules:
           complex:
             shardingColumns: user_id,order_sn
             shardingAlgorithmName: order_item_table_complex_mod
+      t_order_passenger_relation:
+        actualDataNodes: ds_${0..1}.t_order_passenger_relation_${0..15}
+        databaseStrategy:
+          standard:
+            shardingColumns: id_card
+            shardingAlgorithmName: order_passenger_relation_database_mod
+        tableStrategy:
+          standard:
+            shardingColumn: id_card
+            shardingAlgorithmName: order_passenger_relation_table_mod
     shardingAlgorithms:
       order_database_complex_mod:
         type: CLASS_BASED
@@ -60,7 +70,14 @@ rules:
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
           sharding-count: 16
-          strategy: complex
+      order_passenger_relation_database_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 2
+      order_passenger_relation_table_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
   - !ENCRYPT
     tables:
       t_order_item:

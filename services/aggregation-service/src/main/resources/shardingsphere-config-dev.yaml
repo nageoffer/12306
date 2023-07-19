@@ -39,6 +39,12 @@ rules:
           complex:
             shardingColumns: order_sn,pay_sn
             shardingAlgorithmName: pay_table_complex_mod
+      t_order_passenger_relation:
+        actualDataNodes: ds_0.t_order_passenger_relation_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: id_card
+            shardingAlgorithmName: order_passenger_relation_table_mod
     shardingAlgorithms:
       user_hash_mod:
         type: HASH_MOD
@@ -66,6 +72,10 @@ rules:
           algorithmClassName: org.opengoofy.index12306.biz.payservice.dao.algorithm.PayTableComplexAlgorithm
           sharding-count: 16
           strategy: complex
+      order_passenger_relation_table_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
   - !ENCRYPT
     tables:
       t_user:
