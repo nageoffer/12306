@@ -16,7 +16,7 @@
         <mybatis-spring-boot-starter.version>3.0.2</mybatis-spring-boot-starter.version>
         <shardingsphere.version>5.3.2</shardingsphere.version>
         <jjwt.version>0.9.1</jjwt.version>
-        <fastjson2.version>2.0.33</fastjson2.version>
+        <fastjson2.version>2.0.36</fastjson2.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <dozer-core.version>6.5.2</dozer-core.version>
         <hutool-all.version>5.8.2</hutool-all.version>
