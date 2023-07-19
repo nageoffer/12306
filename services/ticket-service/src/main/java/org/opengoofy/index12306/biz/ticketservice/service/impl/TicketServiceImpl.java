@@ -241,6 +241,10 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                     .ticketOrderItems(orderItemCreateRemoteReqDTOList)
                     .build();
             ticketOrderResult = ticketOrderRemoteService.createTicketOrder(orderCreateRemoteReqDTO);
+            if (!ticketOrderResult.isSuccess() || StrUtil.isBlank(ticketOrderResult.getData())) {
+                log.error("订单服务调用失败，返回结果：{}", ticketOrderResult.getMessage());
+                throw new ServiceException("订单服务调用失败");
+            }
             // 发送 RocketMQ 延时消息，指定时间后取消订单
             delayCloseOrderSendProduce.sendMessage(new DelayCloseOrderEvent(ticketOrderResult.getData()));
         } catch (Throwable ex) {
