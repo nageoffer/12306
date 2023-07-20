@@ -31,9 +31,11 @@ public interface SeatService {
      *
      * @param trainId        列车 ID
      * @param carriageNumber 车厢号
+     * @param departure      出发站
+     * @param arrival        到达站
      * @return 可用座位集合
      */
-    List<String> listAvailableSeat(String trainId, String carriageNumber);
+    List<String> listAvailableSeat(String trainId, String carriageNumber, String departure, String arrival);
 
     /**
      * 获取列车车厢余票集合

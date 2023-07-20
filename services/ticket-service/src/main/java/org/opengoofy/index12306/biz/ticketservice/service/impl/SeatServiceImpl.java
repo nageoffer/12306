@@ -49,10 +49,12 @@ public class SeatServiceImpl implements SeatService {
     private final DistributedCache distributedCache;
 
     @Override
-    public List<String> listAvailableSeat(String trainId, String carriageNumber) {
+    public List<String> listAvailableSeat(String trainId, String carriageNumber, String departure, String arrival) {
         LambdaQueryWrapper<SeatDO> queryWrapper = Wrappers.lambdaQuery(SeatDO.class)
                 .eq(SeatDO::getTrainId, trainId)
                 .eq(SeatDO::getCarriageNumber, carriageNumber)
+                .eq(SeatDO::getStartStation, departure)
+                .eq(SeatDO::getEndStation, arrival)
                 .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode());
         List<SeatDO> seatDOList = seatMapper.selectList(queryWrapper);
         return seatDOList.stream().map(SeatDO::getSeatNumber).collect(Collectors.toList());
@@ -65,10 +67,15 @@ public class SeatServiceImpl implements SeatService {
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
             List<Object> trainStationCarriageRemainingTicket =
                     stringRedisTemplate.opsForHash().multiGet(TRAIN_STATION_CARRIAGE_REMAINING_TICKET + keySuffix, Arrays.asList(trainCarriageList.toArray()));
-            if (trainStationCarriageRemainingTicket != null && CollUtil.isNotEmpty(trainStationCarriageRemainingTicket)) {
+            if (CollUtil.isNotEmpty(trainStationCarriageRemainingTicket)) {
                 return trainStationCarriageRemainingTicket.stream().map(each -> Integer.parseInt(each.toString())).collect(Collectors.toList());
             }
         }
-        return seatMapper.listSeatRemainingTicket(SeatDO.builder().trainId(Long.parseLong(trainId)).startStation(departure).endStation(arrival).build(), trainCarriageList);
+        SeatDO seatDO = SeatDO.builder()
+                .trainId(Long.parseLong(trainId))
+                .startStation(departure)
+                .endStation(arrival)
+                .build();
+        return seatMapper.listSeatRemainingTicket(seatDO, trainCarriageList);
     }
 }
