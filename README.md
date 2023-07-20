@@ -21,7 +21,7 @@
 
 根据自己的学习和使用需求，选择合适的版本启动即可。微服务版本侧重学习设计，聚合服务版本侧重测试和部署。请根据场景需要，选择正确的版本进行学习和使用。
 
-![](https://github.com/nageoffer/12306/assets/77398366/80be389c-4439-4c2d-9ec2-8f5613a7490a)
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306_biz_20230720-1.png)
 
 ## 拿个offer 组织项目
 
