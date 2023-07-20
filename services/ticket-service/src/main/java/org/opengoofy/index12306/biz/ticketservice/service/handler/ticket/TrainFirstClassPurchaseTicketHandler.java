@@ -19,8 +19,8 @@ package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket;
 
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
-import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base.AbstractTrainPurchaseTicketTemplate;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +40,7 @@ public class TrainFirstClassPurchaseTicketHandler extends AbstractTrainPurchaseT
     }
 
     @Override
-    protected List<TrainPurchaseTicketRespDTO> selectSeats(PurchaseTicketReqDTO requestParam) {
+    protected List<TrainPurchaseTicketRespDTO> selectSeats(SelectSeatDTO requestParam) {
         return null;
     }
 }

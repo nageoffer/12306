@@ -18,49 +18,27 @@
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base;
 
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.opengoofy.index12306.biz.ticketservice.common.enums.SeatStatusEnum;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationDO;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationPriceDO;
-import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
-import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationMapper;
-import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.remote.UserRemoteService;
-import org.opengoofy.index12306.biz.ticketservice.remote.dto.PassengerRespDTO;
+import cn.hutool.core.util.StrUtil;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
-import org.opengoofy.index12306.biz.ticketservice.toolkit.StationCalculateUtil;
 import org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder;
-import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
-import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
-import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
 
 /**
  * 抽象高铁购票模板基础服务
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Slf4j
-@RequiredArgsConstructor
-public abstract class AbstractTrainPurchaseTicketTemplate implements ApplicationRunner, IPurchaseTicket, AbstractExecuteStrategy<PurchaseTicketReqDTO, List<TrainPurchaseTicketRespDTO>> {
+public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTicket, CommandLineRunner, AbstractExecuteStrategy<SelectSeatDTO, List<TrainPurchaseTicketRespDTO>> {
 
-    private SeatMapper seatMapper;
-    private TrainStationMapper trainStationMapper;
-    private UserRemoteService userRemoteService;
-    private TrainStationPriceMapper trainStationPriceMapper;
+    private DistributedCache distributedCache;
 
     /**
      * 选择座位
@@ -68,75 +46,25 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements Application
      * @param requestParam 购票请求入参
      * @return 乘车人座位
      */
-    protected abstract List<TrainPurchaseTicketRespDTO> selectSeats(PurchaseTicketReqDTO requestParam);
+    protected abstract List<TrainPurchaseTicketRespDTO> selectSeats(SelectSeatDTO requestParam);
 
     @Override
-    public List<TrainPurchaseTicketRespDTO> executeResp(PurchaseTicketReqDTO requestParam) {
-        // TODO 后续逻辑全部转换为 LUA 缓存原子操作
+    public List<TrainPurchaseTicketRespDTO> executeResp(SelectSeatDTO requestParam) {
         List<TrainPurchaseTicketRespDTO> actualResult = selectSeats(requestParam);
-        if (CollUtil.isEmpty(actualResult)) {
-            throw new ServiceException("站点余票不足，请尝试更换座位类型或选择其它站点");
+        // 扣减车厢余票缓存，扣减站点余票缓存
+        if (CollUtil.isNotEmpty(actualResult)) {
+            String trainId = requestParam.getRequestParam().getTrainId();
+            String departure = requestParam.getRequestParam().getDeparture();
+            String arrival = requestParam.getRequestParam().getArrival();
+            String keySuffix = StrUtil.join("_", trainId, departure, arrival);
+            StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
+            stringRedisTemplate.opsForHash().increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(requestParam.getSeatType()), -actualResult.size());
         }
-        // 查询车次出发站-终点站座位价格
-        LambdaQueryWrapper<TrainStationPriceDO> lambdaQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
-                .eq(TrainStationPriceDO::getTrainId, requestParam.getTrainId())
-                .eq(TrainStationPriceDO::getDeparture, requestParam.getDeparture())
-                .eq(TrainStationPriceDO::getArrival, requestParam.getArrival())
-                .eq(TrainStationPriceDO::getSeatType, requestParam.getPassengers().get(0).getSeatType());
-        TrainStationPriceDO trainStationPriceDO = trainStationPriceMapper.selectOne(lambdaQueryWrapper);
-        List<String> passengerIds = actualResult.stream()
-                .map(TrainPurchaseTicketRespDTO::getPassengerId)
-                .collect(Collectors.toList());
-        Result<List<PassengerRespDTO>> passengerRemoteResult;
-        List<PassengerRespDTO> passengerRemoteResultList;
-        try {
-            // 查询乘车人信息并赋值
-            passengerRemoteResult = userRemoteService.listPassengerQueryByIds(UserContext.getUsername(), passengerIds);
-            if (passengerRemoteResult.isSuccess() && CollUtil.isNotEmpty(passengerRemoteResultList = passengerRemoteResult.getData())) {
-                actualResult.forEach(each -> {
-                    String passengerId = each.getPassengerId();
-                    passengerRemoteResultList.stream()
-                            .filter(item -> Objects.equals(item.getId(), passengerId))
-                            .findFirst()
-                            .ifPresent(passenger -> {
-                                each.setIdCard(passenger.getIdCard());
-                                each.setPhone(passenger.getPhone());
-                                each.setUserType(passenger.getDiscountType());
-                                each.setIdType(passenger.getIdType());
-                                each.setRealName(passenger.getRealName());
-                            });
-                    each.setAmount(trainStationPriceDO.getPrice());
-                });
-            }
-        } catch (Throwable ex) {
-            log.error("用户服务远程调用查询乘车人相信信息错误", ex);
-            throw ex;
-        }
-        // 获取扣减开始站点和目的站点及中间站点信息
-        LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
-                .eq(TrainStationDO::getTrainId, requestParam.getTrainId());
-        List<TrainStationDO> trainStationDOList = trainStationMapper.selectList(queryWrapper);
-        List<String> trainStationAllList = trainStationDOList.stream().map(TrainStationDO::getDeparture).collect(Collectors.toList());
-        List<RouteDTO> routeList = StationCalculateUtil.throughStation(trainStationAllList, requestParam.getDeparture(), requestParam.getArrival());
-        // 锁定座位车票库存
-        actualResult.forEach(each -> routeList.forEach(item -> {
-            LambdaUpdateWrapper<SeatDO> updateWrapper = Wrappers.lambdaUpdate(SeatDO.class)
-                    .eq(SeatDO::getTrainId, requestParam.getTrainId())
-                    .eq(SeatDO::getCarriageNumber, each.getCarriageNumber())
-                    .eq(SeatDO::getStartStation, item.getStartStation())
-                    .eq(SeatDO::getEndStation, item.getEndStation())
-                    .eq(SeatDO::getSeatNumber, each.getSeatNumber());
-            SeatDO updateSeatDO = SeatDO.builder().seatStatus(SeatStatusEnum.LOCKED.getCode()).build();
-            seatMapper.update(updateSeatDO, updateWrapper);
-        }));
         return actualResult;
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        seatMapper = ApplicationContextHolder.getBean(SeatMapper.class);
-        trainStationMapper = ApplicationContextHolder.getBean(TrainStationMapper.class);
-        userRemoteService = ApplicationContextHolder.getBean(UserRemoteService.class);
-        trainStationPriceMapper = ApplicationContextHolder.getBean(TrainStationPriceMapper.class);
+    public void run(String... args) throws Exception {
+        distributedCache = ApplicationContextHolder.getBean(DistributedCache.class);
     }
 }
