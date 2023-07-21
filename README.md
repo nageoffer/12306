@@ -27,13 +27,14 @@
 
 组织简介：拿个offer - 开源&项目实战，🚀 助力你在校招或社招上拿个offer。
 
-目前组织下已支持业务、中间件等多种类型项目，项目列表如下：
+目前组织下已有业务、基础架构以及中间件等多种类型项目，代码完全开源！项目列表如下：
 
-| Project                                         | Gitee                                                        | GitHub                                                       | Intro                      |
-|-------------------------------------------------| ------------------------------------------------------------ | ------------------------------------------------------------ |----------------------------|
-| [刚果商城](https://gitee.com/nageoffer/congomall)   | [![star](https://gitee.com/nageoffer/congomall/badge/star.svg?theme=white)](https://gitee.com/nageoffer/congomall/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/congomall?color=green&style=social)](https://github.com/nageoffer/congomall) | 企业级 TOC 商城，基于 DDD 领域驱动模型开发 |
-| [Hippo4j](https://github.com/opengoofy/hippo4j) | [![star](https://gitee.com/opengoofy/hippo4j/badge/star.svg?theme=white)](https://gitee.com/opengoofy/hippo4j/stargazers) | [![](https://img.shields.io/github/stars/opengoofy/hippo4j?color=green&style=social)](https://github.com/opengoofy/hippo4j) | 异步线程池框架，支持线程池动态变更&监控&报警    |
-| [12306](https://gitee.com/nageoffer/12306)      | [![star](https://gitee.com/nageoffer/12306/badge/star.svg?theme=white)](https://gitee.com/nageoffer/12306/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/12306?color=green&style=social)](https://github.com/nageoffer/12306) | 完成高仿铁路 12306系统，帮助学生主打就业的项目 |
+| Project                                            | Gitee                                                        | GitHub                                                       | Intro                                            |
+| -------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------ |
+| [Hippo4j](https://github.com/opengoofy/hippo4j)    | [![star](https://gitee.com/opengoofy/hippo4j/badge/star.svg?theme=white)](https://gitee.com/opengoofy/hippo4j/stargazers) | [![](https://img.shields.io/github/stars/opengoofy/hippo4j?color=green&style=social)](https://github.com/opengoofy/hippo4j) | 异步线程池框架，支持线程池动态变更&监控&报警     |
+| [12306](https://gitee.com/nageoffer/12306)         | [![star](https://gitee.com/nageoffer/12306/badge/star.svg?theme=white)](https://gitee.com/nageoffer/12306/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/12306?color=green&style=social)](https://github.com/nageoffer/12306) | 完成高仿铁路 12306系统，帮助学生主打就业的项目   |
+| [CongoMall](https://gitee.com/nageoffer/congomall) | [![star](https://gitee.com/nageoffer/congomall/badge/star.svg?theme=white)](https://gitee.com/nageoffer/congomall/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/congomall?color=green&style=social)](https://github.com/nageoffer/congomall) | 企业级 TOC 商城，基于 DDD 领域驱动模型开发       |
+| [Seraph](https://gitee.com/nageoffer/seraph)       | [![star](https://gitee.com/nageoffer/seraph/badge/star.svg?theme=white)](https://gitee.com/nageoffer/seraph/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/seraph?color=green&style=social)](https://github.com/nageoffer/seraph) | 幂等基础组件，支持接口幂等和消息队列重复消费问题 |
 
 ## 加群沟通
 
@@ -49,7 +50,7 @@
 
 我理解大家对选择一个合适的项目以投入时间和精力的担忧。选对项目既可以锻炼技能，又可以产出价值是非常重要的。
 
-以用户服务系统为例，低并发和数据量的系统相对简单，但高并发和数据量的系统则需要考虑很多额外因素。
+以用户服务系统为例，低并发和低数据量的系统相对简单，但高并发和海量数据的系统则需要考虑很多额外因素。
 
 1. 当用户在 12306 网站注册新账号或添加乘车人时，系统需验证用户提交信息的真实性和准确性。如何有效预防用户提交虚假信息，保障系统购票的安全？
 2. 12306 的大规模用户和乘车人数据如何选择分库分表？选择哪个字段作为分片键？如何在老业务上平滑上线分库分表？出现问题如何快速回滚？
