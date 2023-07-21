@@ -114,7 +114,7 @@ public class SeatSelection {
                 {0, 0, 0, 0}
         };
         int[][] select = adjacent(2, seatLayout);
-        System.out.println("成功预订商务座相邻座位，座位位置为：");
+        System.out.println("成功预订相邻座位，座位位置为：");
         assert select != null;
         for (int[] ints : select) {
             System.out.printf("第 %d 排，第 %d 列%n", ints[0], ints[1]);
@@ -126,8 +126,8 @@ public class SeatSelection {
                 {1, 1, 1, 0},
                 {0, 0, 0, 0}
         };
-        int[][] selectTwo = nonAdjacent(5, seatLayoutTwo);
-        System.out.println("成功预订商务座不相邻座位，座位位置为：");
+        int[][] selectTwo = nonAdjacent(3, seatLayoutTwo);
+        System.out.println("成功预订不相邻座位，座位位置为：");
         for (int[] ints : selectTwo) {
             System.out.printf("第 %d 排，第 %d 列%n", ints[0], ints[1]);
         }
