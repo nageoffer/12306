@@ -18,17 +18,21 @@
 package org.opengoofy.index12306.biz.ticketservice.job;
 
 import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainDO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.TrainStationQueryRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationDO;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationMapper;
 import org.opengoofy.index12306.biz.ticketservice.job.base.AbstractTrainStationJobHandlerTemplate;
-import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_STOPOVER_DETAIL;
 
@@ -41,7 +45,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 @RequiredArgsConstructor
 public class TrainStationJobHandler extends AbstractTrainStationJobHandlerTemplate {
 
-    private final TrainStationService trainStationService;
+    private final TrainStationMapper trainStationMapper;
     private final DistributedCache distributedCache;
 
     @XxlJob(value = "trainStationJobHandler")
@@ -54,8 +58,15 @@ public class TrainStationJobHandler extends AbstractTrainStationJobHandlerTempla
     @Override
     protected void actualExecute(List<TrainDO> trainDOPageRecords) {
         for (TrainDO each : trainDOPageRecords) {
-            List<TrainStationQueryRespDTO> listedTrainStationQuery = trainStationService.listTrainStationQuery(each.getId().toString());
-            distributedCache.put(TRAIN_STATION_STOPOVER_DETAIL + each.getId(), JSON.toJSONString(listedTrainStationQuery));
+            LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
+                    .eq(TrainStationDO::getTrainId, each.getId());
+            List<TrainStationDO> trainStationDOList = trainStationMapper.selectList(queryWrapper);
+            distributedCache.put(
+                    TRAIN_STATION_STOPOVER_DETAIL + each.getId(),
+                    JSON.toJSONString(trainStationDOList),
+                    Index12306Constant.ADVANCE_TICKET_DAY,
+                    TimeUnit.DAYS
+            );
         }
     }
 }

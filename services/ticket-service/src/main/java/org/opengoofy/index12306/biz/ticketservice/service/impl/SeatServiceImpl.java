@@ -49,10 +49,11 @@ public class SeatServiceImpl implements SeatService {
     private final DistributedCache distributedCache;
 
     @Override
-    public List<String> listAvailableSeat(String trainId, String carriageNumber, String departure, String arrival) {
+    public List<String> listAvailableSeat(String trainId, String carriageNumber, Integer seatType, String departure, String arrival) {
         LambdaQueryWrapper<SeatDO> queryWrapper = Wrappers.lambdaQuery(SeatDO.class)
                 .eq(SeatDO::getTrainId, trainId)
                 .eq(SeatDO::getCarriageNumber, carriageNumber)
+                .eq(SeatDO:: getSeatType, seatType)
                 .eq(SeatDO::getStartStation, departure)
                 .eq(SeatDO::getEndStation, arrival)
                 .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode());
