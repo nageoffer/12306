@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketChainMarkEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.StationDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TicketDO;
@@ -57,6 +58,7 @@ import org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.opengoofy.index12306.framework.starter.designpattern.chain.AbstractChainContext;
 import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -96,6 +98,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final PayRemoteService payRemoteService;
     private final StationMapper stationMapper;
     private final TrainSeatTypeSelector trainSeatTypeSelector;
+    private final AbstractChainContext<PurchaseTicketReqDTO> abstractChainContext;
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
@@ -170,8 +173,10 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public TicketPurchaseRespDTO purchaseTickets(PurchaseTicketReqDTO requestParam) {
+        // 责任链模式，验证 0：参数必填 1：参数正确性 2：列车车次余量是否充足 3：乘客是否已买当前车次等
+        abstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
         String trainId = requestParam.getTrainId();
-        TrainDO trainDO = distributedCache.get(
+        TrainDO trainDO = distributedCache.safeGet(
                 TRAIN_INFO + trainId,
                 TrainDO.class,
                 () -> trainMapper.selectById(trainId),
