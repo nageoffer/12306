@@ -42,4 +42,13 @@ public interface UserService {
      * @return 用户详细信息
      */
     UserQueryRespDTO queryUserByUsername(@NotEmpty String username);
+
+    /**
+     * 根据证件类型和证件号查询注销次数
+     *
+     * @param idType 证件类型
+     * @param idCard 证件号
+     * @return 注销次数
+     */
+    Integer queryUserDeletionNum(Integer idType, String idCard);
 }
