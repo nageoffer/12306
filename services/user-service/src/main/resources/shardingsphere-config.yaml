@@ -36,12 +36,48 @@ rules:
           standard:
             shardingColumn: username
             shardingAlgorithmName: passenger_table_hash_mod
+      t_user_mail:
+        actualDataNodes: ds_${0..1}.t_user_mail_${0..15}
+        databaseStrategy:
+          standard:
+            shardingColumn: mail
+            shardingAlgorithmName: t_user_mail_database_hash_mod
+        tableStrategy:
+          standard:
+            shardingColumn: mail
+            shardingAlgorithmName: t_user_mail_table_hash_mod
+      t_user_phone:
+        actualDataNodes: ds_${0..1}.t_user_phone_${0..15}
+        databaseStrategy:
+          standard:
+            shardingColumn: phone
+            shardingAlgorithmName: t_user_phone_database_hash_mod
+        tableStrategy:
+          standard:
+            shardingColumn: phone
+            shardingAlgorithmName: t_user_phone_table_hash_mod
     shardingAlgorithms:
       user_database_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 2
+      t_user_mail_database_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 2
+      t_user_phone_database_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 2
       passenger_table_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      t_user_mail_table_hash_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      t_user_phone_table_hash_mod:
         type: HASH_MOD
         props:
           sharding-count: 16

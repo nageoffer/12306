@@ -45,6 +45,18 @@ rules:
           standard:
             shardingColumn: id_card
             shardingAlgorithmName: order_passenger_relation_table_mod
+      t_user_mail:
+        actualDataNodes: ds_0.t_user_mail_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: mail
+            shardingAlgorithmName: t_user_mail_table_mod
+      t_user_phone:
+        actualDataNodes: ds_0.t_user_phone_${0..15}
+        tableStrategy:
+          standard:
+            shardingColumn: mail
+            shardingAlgorithmName: t_user_phone_table_mod
     shardingAlgorithms:
       user_hash_mod:
         type: HASH_MOD
@@ -73,6 +85,14 @@ rules:
           sharding-count: 16
           strategy: complex
       order_passenger_relation_table_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      t_user_mail_table_mod:
+        type: HASH_MOD
+        props:
+          sharding-count: 16
+      t_user_phone_table_mod:
         type: HASH_MOD
         props:
           sharding-count: 16

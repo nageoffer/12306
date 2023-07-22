@@ -25,9 +25,13 @@ import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.common.enums.UserChainMarkEnum;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDeletionDO;
+import org.opengoofy.index12306.biz.userservice.dao.entity.UserMailDO;
+import org.opengoofy.index12306.biz.userservice.dao.entity.UserPhoneDO;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserReuseDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserDeletionMapper;
+import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMailMapper;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
+import org.opengoofy.index12306.biz.userservice.dao.mapper.UserPhoneMapper;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserReuseMapper;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
@@ -53,6 +57,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_DELETION;
@@ -73,6 +78,8 @@ public class UserLoginServiceImpl implements UserLoginService {
     private final UserMapper userMapper;
     private final UserReuseMapper userReuseMapper;
     private final UserDeletionMapper userDeletionMapper;
+    private final UserPhoneMapper userPhoneMapper;
+    private final UserMailMapper userMailMapper;
     private final RedissonClient redissonClient;
     private final DistributedCache distributedCache;
     private final AbstractChainContext<UserRegisterReqDTO> abstractChainContext;
@@ -80,8 +87,32 @@ public class UserLoginServiceImpl implements UserLoginService {
 
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
+        String usernameOrMailOrPhone = requestParam.getUsernameOrMailOrPhone();
+        boolean mailFlag = false;
+        // 时间复杂度最佳 O(1)。indexOf or contains 时间复杂度为 O(n)
+        for (char c : usernameOrMailOrPhone.toCharArray()) {
+            if (c == '@') {
+                mailFlag = true;
+                break;
+            }
+        }
+        String username;
+        if (mailFlag) {
+            LambdaQueryWrapper<UserMailDO> queryWrapper = Wrappers.lambdaQuery(UserMailDO.class)
+                    .eq(UserMailDO::getMail, usernameOrMailOrPhone);
+            username = Optional.ofNullable(userMailMapper.selectOne(queryWrapper))
+                    .map(UserMailDO::getUsername)
+                    .orElseThrow(() -> new ClientException("用户名/手机号/邮箱不存在"));
+        } else {
+            LambdaQueryWrapper<UserPhoneDO> queryWrapper = Wrappers.lambdaQuery(UserPhoneDO.class)
+                    .eq(UserPhoneDO::getPhone, usernameOrMailOrPhone);
+            username = Optional.ofNullable(userPhoneMapper.selectOne(queryWrapper))
+                    .map(UserPhoneDO::getUsername)
+                    .orElse(null);
+        }
+        username = Optional.ofNullable(username).orElse(requestParam.getUsernameOrMailOrPhone());
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
-                .eq(UserDO::getUsername, requestParam.getUsernameOrMailOrPhone())
+                .eq(UserDO::getUsername, username)
                 .eq(UserDO::getPassword, requestParam.getPassword());
         UserDO userDO = userMapper.selectOne(queryWrapper);
         if (userDO != null) {
@@ -95,7 +126,7 @@ public class UserLoginServiceImpl implements UserLoginService {
             distributedCache.put(accessToken, JSON.toJSONString(actual), 30, TimeUnit.MINUTES);
             return actual;
         }
-        throw new ServiceException("用户名不存在或密码错误");
+        throw new ServiceException("账号不存在或密码错误");
     }
 
     @Override
@@ -120,12 +151,25 @@ public class UserLoginServiceImpl implements UserLoginService {
         return true;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public UserRegisterRespDTO register(UserRegisterReqDTO requestParam) {
         abstractChainContext.handler(UserChainMarkEnum.USER_REGISTER_FILTER.name(), requestParam);
         int inserted = userMapper.insert(BeanUtil.convert(requestParam, UserDO.class));
         if (inserted < 1) {
             throw new ServiceException(USER_REGISTER_FAIL);
+        }
+        UserPhoneDO userPhoneDO = UserPhoneDO.builder()
+                .phone(requestParam.getPhone())
+                .username(requestParam.getUsername())
+                .build();
+        userPhoneMapper.insert(userPhoneDO);
+        if (StrUtil.isNotBlank(requestParam.getMail())) {
+            UserMailDO userMailDO = UserMailDO.builder()
+                    .mail(requestParam.getMail())
+                    .username(requestParam.getUsername())
+                    .build();
+            userMailMapper.insert(userMailDO);
         }
         String username = requestParam.getUsername();
         userRegisterCachePenetrationBloomFilter.add(username);
@@ -158,6 +202,18 @@ public class UserLoginServiceImpl implements UserLoginService {
             userDO.setUsername(username);
             // MyBatis Plus 不支持修改语句变更 del_flag 字段
             userMapper.deletionUser(userDO);
+            UserPhoneDO userPhoneDO = UserPhoneDO.builder()
+                    .phone(userQueryRespDTO.getPhone())
+                    .deletionTime(System.currentTimeMillis())
+                    .build();
+            userPhoneMapper.deletionUser(userPhoneDO);
+            if (StrUtil.isNotBlank(userQueryRespDTO.getMail())) {
+                UserMailDO userMailDO = UserMailDO.builder()
+                        .mail(userQueryRespDTO.getMail())
+                        .deletionTime(System.currentTimeMillis())
+                        .build();
+                userMailMapper.deletionUser(userMailDO);
+            }
             distributedCache.delete(UserContext.getToken());
             userReuseMapper.insert(new UserReuseDO(username));
             StringRedisTemplate instance = (StringRedisTemplate) distributedCache.getInstance();
