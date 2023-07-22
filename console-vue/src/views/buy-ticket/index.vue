@@ -136,7 +136,7 @@
       </div>
       <div :style="{ width: '100%', textAlign: 'center' }">
         <Space size="large">
-          <Button>上一步</Button>
+          <Button @click="() => router.push('/ticketSearch')">上一步</Button>
           <Button
             class="submit-btn"
             @click="
@@ -576,6 +576,8 @@ const handleSubmitBuyTicket = () => {
       setTimeout(() => {
         router.push(`/order?sn=${res.data.orderSn}`)
       }, 500)
+    } else {
+      message.error(res.message)
     }
   })
 }

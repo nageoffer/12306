@@ -23,7 +23,11 @@ import {
 import { RetweetOutlined, SwapRightOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import { getWeekNumber } from '@/utils'
-import { fetchTicketSearch, fetchStationAll } from '@/service/index'
+import {
+  fetchTicketSearch,
+  fetchStationAll,
+  fetchTrainStation
+} from '@/service/index'
 import { useRouter } from 'vue-router'
 import { SEAT_CLASS_TYPE_LIST, TRAIN_BRAND_LIST } from '@/constants'
 const router = useRouter()
@@ -55,7 +59,9 @@ const state = reactive({
   seatClassTypeListSelect: null,
   trainBrandListSelect: null,
   trainList: [],
-  stationList: []
+  stationList: [],
+  trainStationList: [],
+  loading: false
 })
 
 const currCityStations = ref([])
@@ -71,12 +77,14 @@ const columns = [
     dataIndex: 'trainNumber',
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
-    width: '120px'
+    width: '120px',
+    maxWidth: '120px'
   },
   {
     key: 'station',
     slots: { title: 'customStaionTitle', customRender: 'station' },
-    width: '120px'
+    width: '120px',
+    maxWidth: '120px'
   },
   {
     dataIndex: 'time',
@@ -174,12 +182,14 @@ const innerColumns = [
   {
     title: '车次',
     key: 'trainNumber',
-    width: '120px'
+    width: '120px',
+    maxWidth: '120px'
   },
   {
     title: '车站',
     key: 'station',
-    width: '120px'
+    width: '120px',
+    maxWidth: '120px'
   },
   {
     title: '时间',
@@ -277,13 +287,13 @@ const innerColumns = [
 const cardInfoColumns = [
   {
     title: '站序',
-    dataIndex: 'stationNumber',
-    key: 'stationNumber'
+    dataIndex: 'sequence',
+    key: 'sequence'
   },
   {
     title: '站名',
-    dataIndex: 'stationName',
-    key: 'stationName'
+    dataIndex: 'departure',
+    key: 'departure'
   },
   {
     title: '到站时间',
@@ -292,13 +302,13 @@ const cardInfoColumns = [
   },
   {
     title: '出发时间',
-    dataIndex: 'goTime',
-    key: 'goTime'
+    dataIndex: 'departureTime',
+    key: 'departureTime'
   },
   {
     title: '停留时间',
-    dataIndex: 'stayTime',
-    key: 'stayTime'
+    dataIndex: 'stopoverTime',
+    key: 'stopoverTime'
   }
 ]
 
@@ -344,21 +354,6 @@ const getTitle = (item) => {
   }
 }
 
-// watch(
-//   [() => headSearch.fromStation, () => headSearch.toStation],
-//   (newValue, oldValue) => {
-//     newValue[0] !== oldValue[0] &&
-//       fetchRegionStation({ name: newValue[0] }).then((res) => {
-//         currCityStations.value = res.data ?? []
-//       })
-//     newValue[1] !== oldValue[1] &&
-//       fetchRegionStation({ name: newValue[1] }).then((res) => {
-//         currArrivalStations.value = res.data ?? []
-//       })
-//   },
-//   { immediate: true }
-// )
-
 const getStationAll = () => {
   fetchStationAll().then((res) => {
     state.stationList = res.data
@@ -392,6 +387,13 @@ const exchangeCity = () => {
 
   headSearch.fromStation = b
   headSearch.toStation = a
+}
+
+const handleTrainClick = (trainId) => {
+  fetchTrainStation({ trainId }).then((res) => {
+    state.trainStationList = res.data
+    state.loading = false
+  })
 }
 </script>
 <template>
@@ -837,15 +839,28 @@ const exchangeCity = () => {
               </template>
             </Table>
           </template>
-          <template #trainNumber="{ text }">
-            <h1 class="card-name">
+          <template #trainNumber="{ text, record }">
+            <h1
+              class="card-name"
+              @click="
+                () => {
+                  state.loading = true
+                  handleTrainClick(record.trainId)
+                }
+              "
+            >
               <Tooltip
                 :get-popup-container="(node) => node.parentNode"
                 placement="rightTop"
                 trigger="click"
                 >{{ text }}
                 <template #title>
-                  <Table :columns="cardInfoColumns"></Table> </template
+                  <Table
+                    :columns="cardInfoColumns"
+                    :data-source="state.trainStationList"
+                    :pagination="false"
+                    :loading="state.loading"
+                  ></Table> </template
               ></Tooltip>
             </h1>
           </template>

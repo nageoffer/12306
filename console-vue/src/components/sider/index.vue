@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { defineProps, reactive, ref } from 'vue'
+import { defineProps, reactive } from 'vue'
 import IconFont from '@/components/icon-font'
 import { Layout, Menu, Divider, message, Tooltip } from 'ant-design-vue'
 import { fetchLogout } from '@/service'
@@ -92,6 +92,8 @@ const logout = () => {
     if (res.success) {
       message.success('退出成功')
       location.href = 'login'
+      Cookie.remove('token')
+      Cookie.remove('username')
     }
   })
 }

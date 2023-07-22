@@ -6,8 +6,7 @@ const fetchLogin = async (body) => {
     url: '/api/user-service/v1/login',
     data: body
   })
-  console.log(data)
-  http.defaults.headers.common['Authorization'] = data.data.accessToken
+  http.defaults.headers.common['Authorization'] = data.data?.accessToken
   return data
 }
 
@@ -117,6 +116,24 @@ const fetchStationAll = async () => {
   })
   return data
 }
+
+const fechUserInfo = async (params) => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/user-service/query',
+    params
+  })
+  return data
+}
+
+const fetchTrainStation = async (params) => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/ticket-service/train-station/query',
+    params
+  })
+  return data
+}
 export {
   fetchLogin,
   fetchRegister,
@@ -130,5 +147,7 @@ export {
   fetchBuyTicket,
   fetchOrderBySn,
   fetchPay,
-  fetchStationAll
+  fetchStationAll,
+  fechUserInfo,
+  fetchTrainStation
 }
