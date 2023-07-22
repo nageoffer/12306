@@ -3,10 +3,10 @@
     <div class="header-wrapper">
       <div>
         <img
-            @click="router.push('/ticketSearch')"
-            class="logo"
-            src="../../assets/logo.png"
-            alt="logo"
+          @click="router.push('/ticketSearch')"
+          class="logo"
+          src="../../assets/logo.png"
+          alt="logo"
         />
       </div>
       <div>
@@ -30,16 +30,16 @@
 </template>
 
 <script setup>
-import {Layout} from 'ant-design-vue'
-import {useRouter} from 'vue-router'
-import {defineProps, toRefs} from 'vue'
+import { Layout } from 'ant-design-vue'
+import { useRouter } from 'vue-router'
+import { defineProps, toRefs } from 'vue'
 
-const {Header} = Layout
+const { Header } = Layout
 const props = defineProps({
   isLogin: Boolean
 })
 
-const {isLogin} = toRefs(props)
+const { isLogin } = toRefs(props)
 
 const router = useRouter()
 </script>

@@ -104,8 +104,8 @@ const handleFinish = () => {
     .then(() => {
       fetchLogin({ ...formState }).then((res) => {
         if (res.success) {
-          Cookies.set('token', res.data.accessToken)
-          Cookies.set('username', res.data.username)
+          Cookies.set('token', res.data?.accessToken)
+          Cookies.set('username', res.data?.username)
           router.push('/ticketSearch')
         } else {
           message.error(res.message)
@@ -122,7 +122,7 @@ const registerSubmit = () => {
         if (res.success) {
           message.success('注册成功')
           currentAction.value = 'login'
-          formState.usernameOrMailOrPhone = res.data.username
+          formState.usernameOrMailOrPhone = res.data?.username
           formState.password = ''
         } else {
           message.error(res.message)
