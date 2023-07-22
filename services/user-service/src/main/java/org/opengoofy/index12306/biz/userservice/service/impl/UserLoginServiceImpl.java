@@ -20,14 +20,15 @@ package org.opengoofy.index12306.biz.userservice.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.common.enums.UserChainMarkEnum;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDeletionDO;
+import org.opengoofy.index12306.biz.userservice.dao.entity.UserReuseDO;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserDeletionMapper;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
+import org.opengoofy.index12306.biz.userservice.dao.mapper.UserReuseMapper;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
@@ -44,8 +45,10 @@ import org.opengoofy.index12306.framework.starter.designpattern.chain.AbstractCh
 import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.opengoofy.index12306.frameworks.starter.user.core.UserInfoDTO;
 import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
+import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +56,9 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_DELETION;
+import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_REGISTER_REUSE_SHARDING;
+import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.USER_REGISTER_FAIL;
+import static org.opengoofy.index12306.biz.userservice.toolkit.UserReuseUtil.hashShardingIdx;
 
 /**
  * 用户登录接口实现
@@ -65,10 +71,12 @@ public class UserLoginServiceImpl implements UserLoginService {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final UserReuseMapper userReuseMapper;
     private final UserDeletionMapper userDeletionMapper;
     private final RedissonClient redissonClient;
     private final DistributedCache distributedCache;
     private final AbstractChainContext<UserRegisterReqDTO> abstractChainContext;
+    private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
 
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
@@ -104,10 +112,12 @@ public class UserLoginServiceImpl implements UserLoginService {
 
     @Override
     public Boolean hasUsername(String username) {
-        // TODO 需要使用布隆过滤器防止缓存穿透
-        LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
-                .eq(UserDO::getUsername, username);
-        return userMapper.selectOne(queryWrapper) == null ? Boolean.TRUE : Boolean.FALSE;
+        boolean hasUsername = userRegisterCachePenetrationBloomFilter.contains(username);
+        if (hasUsername) {
+            StringRedisTemplate instance = (StringRedisTemplate) distributedCache.getInstance();
+            return instance.opsForSet().isMember(USER_REGISTER_REUSE_SHARDING + hashShardingIdx(username), username);
+        }
+        return true;
     }
 
     @Override
@@ -115,8 +125,13 @@ public class UserLoginServiceImpl implements UserLoginService {
         abstractChainContext.handler(UserChainMarkEnum.USER_REGISTER_FILTER.name(), requestParam);
         int inserted = userMapper.insert(BeanUtil.convert(requestParam, UserDO.class));
         if (inserted < 1) {
-            throw new ServiceException("用户注册失败");
+            throw new ServiceException(USER_REGISTER_FAIL);
         }
+        String username = requestParam.getUsername();
+        userRegisterCachePenetrationBloomFilter.add(username);
+        StringRedisTemplate instance = (StringRedisTemplate) distributedCache.getInstance();
+        instance.opsForSet().remove(USER_REGISTER_REUSE_SHARDING + hashShardingIdx(username), username);
+        userReuseMapper.delete(Wrappers.update(new UserReuseDO(username)));
         return BeanUtil.convert(requestParam, UserRegisterRespDTO.class);
     }
 
@@ -129,6 +144,7 @@ public class UserLoginServiceImpl implements UserLoginService {
             throw new ClientException("注销账号与登录账号不一致");
         }
         RLock lock = redissonClient.getLock(USER_DELETION + requestParam.getUsername());
+        // 加锁为什么放在 try 语句外？https://www.yuque.com/magestack/12306/pu52u29i6eb1c5wh
         lock.lock();
         try {
             UserQueryRespDTO userQueryRespDTO = userService.queryUserByUsername(username);
@@ -137,10 +153,15 @@ public class UserLoginServiceImpl implements UserLoginService {
                     .idCard(userQueryRespDTO.getIdCard())
                     .build();
             userDeletionMapper.insert(userDeletionDO);
-            LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate(UserDO.class)
-                    .eq(UserDO::getUsername, username);
-            userMapper.delete(updateWrapper);
+            UserDO userDO = new UserDO();
+            userDO.setDeletionTime(System.currentTimeMillis());
+            userDO.setUsername(username);
+            // MyBatis Plus 不支持修改语句变更 del_flag 字段
+            userMapper.deletionUser(userDO);
             distributedCache.delete(UserContext.getToken());
+            userReuseMapper.insert(new UserReuseDO(username));
+            StringRedisTemplate instance = (StringRedisTemplate) distributedCache.getInstance();
+            instance.opsForSet().add(USER_REGISTER_REUSE_SHARDING + hashShardingIdx(username), username);
         } finally {
             lock.unlock();
         }

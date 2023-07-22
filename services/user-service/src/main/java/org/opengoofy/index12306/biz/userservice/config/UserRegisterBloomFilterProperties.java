@@ -15,50 +15,34 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice.common.enums;
+package org.opengoofy.index12306.biz.userservice.config;
 
-import lombok.AllArgsConstructor;
-import org.opengoofy.index12306.framework.starter.convention.errorcode.IErrorCode;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 用户注册错误码枚举
+ * 用户注册布隆过滤器属性配置
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@AllArgsConstructor
-public enum UserRegisterErrorCodeEnum implements IErrorCode {
+@Data
+@ConfigurationProperties(prefix = UserRegisterBloomFilterProperties.PREFIX)
+public final class UserRegisterBloomFilterProperties {
 
-    USER_REGISTER_FAIL("A006000", "用户注册失败"),
-
-    USER_NAME_NOTNULL("A006001", "用户名不能为空"),
-
-    PASSWORD_NOTNULL("A006002", "密码不能为空"),
-
-    PHONE_NOTNULL("A006003", "手机号不能为空"),
-
-    ID_TYPE_NOTNULL("A006004", "证件类型不能为空"),
-
-    ID_CARD_NOTNULL("A006005", "证件号不能为空"),
-
-    HAS_USERNAME_NOTNULL("A006006", "用户名已存在");
+    public static final String PREFIX = "framework.cache.redis.bloom-filter.user-register";
 
     /**
-     * 错误码
+     * 用户注册布隆过滤器实例名称
      */
-    private final String code;
+    private String name = " user_register_cache_penetration_bloom_filter";
 
     /**
-     * 错误提示消息
+     * 每个元素的预期插入量
      */
-    private final String message;
+    private Long expectedInsertions = 64000L;
 
-    @Override
-    public String code() {
-        return code;
-    }
-
-    @Override
-    public String message() {
-        return message;
-    }
+    /**
+     * 预期错误概率
+     */
+    private Double falseProbability = 0.03D;
 }
