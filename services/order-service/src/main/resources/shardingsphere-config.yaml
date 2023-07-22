@@ -36,8 +36,8 @@ rules:
           complex:
             shardingColumns: user_id,order_sn
             shardingAlgorithmName: order_item_table_complex_mod
-      t_order_passenger_relation:
-        actualDataNodes: ds_${0..1}.t_order_passenger_relation_${0..15}
+      t_order_item_passenger:
+        actualDataNodes: ds_${0..1}.t_order_item_passenger_${0..15}
         databaseStrategy:
           standard:
             shardingColumns: id_card

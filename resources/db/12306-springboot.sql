@@ -761,7 +761,7 @@ CREATE TABLE `t_order_item_9` (
                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='订单明细表';
 
-CREATE TABLE `t_order_passenger_relation` (
+CREATE TABLE `t_order_item_passenger` (
                                               `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
                                               `order_sn` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '订单号',
                                               `id_type` int(3) DEFAULT NULL COMMENT '证件类型',

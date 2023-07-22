@@ -39,8 +39,8 @@ rules:
           complex:
             shardingColumns: order_sn,pay_sn
             shardingAlgorithmName: pay_table_complex_mod
-      t_order_passenger_relation:
-        actualDataNodes: ds_0.t_order_passenger_relation_${0..15}
+      t_order_item_passenger:
+        actualDataNodes: ds_0.t_order_item_passenger_${0..15}
         tableStrategy:
           standard:
             shardingColumn: id_card

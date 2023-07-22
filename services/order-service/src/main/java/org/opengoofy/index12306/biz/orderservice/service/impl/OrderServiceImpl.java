@@ -29,10 +29,10 @@ import org.opengoofy.index12306.biz.orderservice.common.enums.OrderCanalErrorCod
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderDO;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
-import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderPassengerRelationDO;
+import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemPassengerDO;
 import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemMapper;
 import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderMapper;
-import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderPassengerRelationMapper;
+import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemPassengerMapper;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderItemCreateReqDTO;
@@ -72,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final OrderItemService orderItemService;
     private final OrderPassengerRelationService orderPassengerRelationService;
-    private final OrderPassengerRelationMapper orderPassengerRelationMapper;
+    private final OrderItemPassengerMapper orderItemPassengerMapper;
     private final RedissonClient redissonClient;
 
     @Override
@@ -126,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.insert(orderDO);
         List<TicketOrderItemCreateReqDTO> ticketOrderItems = requestParam.getTicketOrderItems();
         List<OrderItemDO> orderItemDOList = new ArrayList<>();
-        List<OrderPassengerRelationDO> orderPassengerRelationDOList = new ArrayList<>();
+        List<OrderItemPassengerDO> orderPassengerRelationDOList = new ArrayList<>();
         ticketOrderItems.forEach(each -> {
             OrderItemDO orderItemDO = OrderItemDO.builder()
                     .trainId(requestParam.getTrainId())
@@ -144,7 +144,7 @@ public class OrderServiceImpl implements OrderService {
                     .status(0)
                     .build();
             orderItemDOList.add(orderItemDO);
-            OrderPassengerRelationDO orderPassengerRelationDO = OrderPassengerRelationDO.builder()
+            OrderItemPassengerDO orderPassengerRelationDO = OrderItemPassengerDO.builder()
                     .idType(each.getIdType())
                     .idCard(each.getIdCard())
                     .orderSn(orderSn)
@@ -152,7 +152,7 @@ public class OrderServiceImpl implements OrderService {
             orderPassengerRelationDOList.add(orderPassengerRelationDO);
         });
         orderItemService.saveBatch(orderItemDOList);
-        orderPassengerRelationDOList.forEach(orderPassengerRelationMapper::insert);
+        orderPassengerRelationDOList.forEach(orderItemPassengerMapper::insert);
         return orderSn;
     }
 

@@ -18,8 +18,8 @@
 package org.opengoofy.index12306.biz.orderservice.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderPassengerRelationDO;
-import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderPassengerRelationMapper;
+import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemPassengerDO;
+import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemPassengerMapper;
 import org.opengoofy.index12306.biz.orderservice.service.OrderPassengerRelationService;
 import org.springframework.stereotype.Service;
 
@@ -29,5 +29,5 @@ import org.springframework.stereotype.Service;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Service
-public class OrderPassengerRelationServiceImpl extends ServiceImpl<OrderPassengerRelationMapper, OrderPassengerRelationDO> implements OrderPassengerRelationService {
+public class OrderPassengerRelationServiceImpl extends ServiceImpl<OrderItemPassengerMapper, OrderItemPassengerDO> implements OrderPassengerRelationService {
 }
