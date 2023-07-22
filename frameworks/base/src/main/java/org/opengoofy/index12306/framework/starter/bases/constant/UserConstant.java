@@ -38,4 +38,9 @@ public final class UserConstant {
      * 用户真实名称 Key
      */
     public static final String REAL_NAME_KEY = "realName";
+
+    /**
+     * 用户 Token Key
+     */
+    public static final String USER_TOKEN_KEY = "token";
 }

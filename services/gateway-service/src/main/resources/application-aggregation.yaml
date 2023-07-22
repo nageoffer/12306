@@ -13,6 +13,7 @@ spring:
                   - /api/user-service/passenger
                   - /api/user-service/query
                   - /api/user-service/logout
+                  - /api/user-service/deletion
 
         - id: index12306-ticket-aggregation-service
           uri: lb://index12306-aggregation-service/api/ticket-service/**
