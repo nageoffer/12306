@@ -55,7 +55,7 @@ rules:
         actualDataNodes: ds_0.t_user_phone_${0..15}
         tableStrategy:
           standard:
-            shardingColumn: mail
+            shardingColumn: phone
             shardingAlgorithmName: t_user_phone_table_mod
     shardingAlgorithms:
       user_hash_mod:
