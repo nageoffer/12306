@@ -28,6 +28,14 @@ import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 public interface UserService {
 
     /**
+     * 根据用户 ID 查询用户信息
+     *
+     * @param userId 用户 ID
+     * @return 用户详细信息
+     */
+    UserQueryRespDTO queryUserByUserId(@NotEmpty String userId);
+
+    /**
      * 根据用户名查询用户信息
      *
      * @param username 用户名

@@ -42,6 +42,17 @@ public class UserServiceImpl implements UserService {
     private final DistributedCache distributedCache;
 
     @Override
+    public UserQueryRespDTO queryUserByUserId(String userId) {
+        LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
+                .eq(UserDO::getId, userId);
+        UserDO userDO = userMapper.selectOne(queryWrapper);
+        if (userDO == null) {
+            throw new ClientException("用户不存在，请检查用户ID是否正确");
+        }
+        return BeanUtil.convert(userDO, UserQueryRespDTO.class);
+    }
+
+    @Override
     public UserQueryRespDTO queryUserByUsername(String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = Wrappers.lambdaQuery(UserDO.class)
                 .eq(UserDO::getUsername, username);
