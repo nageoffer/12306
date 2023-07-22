@@ -20,25 +20,39 @@ package org.opengoofy.index12306.biz.userservice.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.common.enums.UserChainMarkEnum;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
+import org.opengoofy.index12306.biz.userservice.dao.entity.UserDeletionDO;
+import org.opengoofy.index12306.biz.userservice.dao.mapper.UserDeletionMapper;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
+import org.opengoofy.index12306.biz.userservice.service.UserService;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
+import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.chain.AbstractChainContext;
+import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.opengoofy.index12306.frameworks.starter.user.core.UserInfoDTO;
 import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_DELETION;
 
 /**
  * 用户登录接口实现
@@ -49,9 +63,12 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UserLoginServiceImpl implements UserLoginService {
 
+    private final UserService userService;
     private final UserMapper userMapper;
+    private final UserDeletionMapper userDeletionMapper;
+    private final RedissonClient redissonClient;
     private final DistributedCache distributedCache;
-    private final AbstractChainContext abstractChainContext;
+    private final AbstractChainContext<UserRegisterReqDTO> abstractChainContext;
 
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
@@ -101,5 +118,31 @@ public class UserLoginServiceImpl implements UserLoginService {
             throw new ServiceException("用户注册失败");
         }
         return BeanUtil.convert(requestParam, UserRegisterRespDTO.class);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void deletion(UserDeletionReqDTO requestParam) {
+        String username = UserContext.getUsername();
+        if (!Objects.equals(username, requestParam.getUsername())) {
+            // 此处严谨来说，需要上报风控中心进行异常检测
+            throw new ClientException("注销账号与登录账号不一致");
+        }
+        RLock lock = redissonClient.getLock(USER_DELETION + requestParam.getUsername());
+        lock.lock();
+        try {
+            UserQueryRespDTO userQueryRespDTO = userService.queryUserByUsername(username);
+            UserDeletionDO userDeletionDO = UserDeletionDO.builder()
+                    .idType(userQueryRespDTO.getIdType())
+                    .idCard(userQueryRespDTO.getIdCard())
+                    .build();
+            userDeletionMapper.insert(userDeletionDO);
+            LambdaUpdateWrapper<UserDO> updateWrapper = Wrappers.lambdaUpdate(UserDO.class)
+                    .eq(UserDO::getUsername, username);
+            userMapper.delete(updateWrapper);
+            distributedCache.delete(UserContext.getToken());
+        } finally {
+            lock.unlock();
+        }
     }
 }

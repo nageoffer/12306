@@ -20,6 +20,7 @@ package org.opengoofy.index12306.biz.userservice.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
@@ -67,5 +68,14 @@ public class UserInfoController {
     @PostMapping("/api/user-service/register")
     public Result<UserRegisterRespDTO> register(@RequestBody @Valid UserRegisterReqDTO requestParam) {
         return Results.success(userLoginService.register(requestParam));
+    }
+
+    /**
+     * 注销用户
+     */
+    @PostMapping("/api/user-service/deletion")
+    public Result<Void> deletion(@RequestBody @Valid UserDeletionReqDTO requestParam) {
+        userLoginService.deletion(requestParam);
+        return Results.success();
     }
 }

@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.userservice.service;
 
+import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserLoginReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserLoginRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
@@ -67,4 +68,11 @@ public interface UserLoginService {
      * @return 用户注册返回结果
      */
     UserRegisterRespDTO register(UserRegisterReqDTO requestParam);
+
+    /**
+     * 注销用户
+     *
+     * @param requestParam 注销用户入参
+     */
+    void deletion(UserDeletionReqDTO requestParam);
 }
