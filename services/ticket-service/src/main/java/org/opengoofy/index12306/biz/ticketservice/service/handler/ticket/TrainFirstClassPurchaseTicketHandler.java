@@ -17,14 +17,24 @@
 
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket;
 
+import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
+import org.opengoofy.index12306.biz.ticketservice.service.CarriageService;
+import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base.AbstractTrainPurchaseTicketTemplate;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.SeatSelection;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 高铁一等座购票组件
@@ -32,7 +42,11 @@ import java.util.List;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Component
+@RequiredArgsConstructor
 public class TrainFirstClassPurchaseTicketHandler extends AbstractTrainPurchaseTicketTemplate {
+
+    private final CarriageService carriageService;
+    private final SeatService seatService;
 
     @Override
     public String mark() {
@@ -41,6 +55,92 @@ public class TrainFirstClassPurchaseTicketHandler extends AbstractTrainPurchaseT
 
     @Override
     protected List<TrainPurchaseTicketRespDTO> selectSeats(SelectSeatDTO requestParam) {
-        return null;
+        String trainId = requestParam.getRequestParam().getTrainId();
+        String departure = requestParam.getRequestParam().getDeparture();
+        String arrival = requestParam.getRequestParam().getArrival();
+        List<PurchaseTicketPassengerDetailDTO> passengerSeatDetails = requestParam.getPassengerSeatDetails();
+        List<TrainPurchaseTicketRespDTO> actualResult = new ArrayList<>(passengerSeatDetails.size());
+        List<String> trainCarriageList = carriageService.listCarriageNumber(trainId, requestParam.getSeatType());
+        List<Integer> trainStationCarriageRemainingTicket = seatService.listSeatRemainingTicket(trainId, departure, arrival, trainCarriageList);
+        Map<String, Integer> demotionStockNumMap = new LinkedHashMap<>(trainCarriageList.size());
+        Map<String, int[][]> actualSeatsMap = new HashMap<>(trainCarriageList.size());
+        String carriagesNumber;
+        for (int i = 0; i < trainStationCarriageRemainingTicket.size(); i++) {
+            int remainingTicket = trainStationCarriageRemainingTicket.get(i);
+            if (remainingTicket > passengerSeatDetails.size()) {
+                carriagesNumber = trainCarriageList.get(i);
+                List<String> listAvailableSeat = seatService.listAvailableSeat(trainId, carriagesNumber, requestParam.getSeatType(), departure, arrival);
+                int[][] actualSeats = new int[7][4];
+                for (int j = 1; j < 8; j++) {
+                    for (int k = 1; k < 5; k++) {
+                        // 当前默认按照复兴号商务座排序，后续这里需要按照简单工厂对车类型进行获取 y 轴
+                        String suffix = "";
+                        switch (k) {
+                            case 1 -> suffix = "A";
+                            case 2 -> suffix = "C";
+                            case 3 -> suffix = "D";
+                            case 4 -> suffix = "F";
+                        }
+                        actualSeats[j - 1][k - 1] = listAvailableSeat.contains("0" + j + suffix) ? 0 : 1;
+                    }
+                }
+                List<String> selectSeats = new ArrayList<>();
+                int[][] select = SeatSelection.adjacent(passengerSeatDetails.size(), actualSeats);
+                if (Objects.isNull(select)) {
+                    int demotionStockNum = 0;
+                    for (int[] actualSeat : actualSeats) {
+                        for (int i1 : actualSeat) {
+                            if (i1 == 0) {
+                                demotionStockNum++;
+                            }
+                        }
+                    }
+                    demotionStockNumMap.putIfAbsent(carriagesNumber, demotionStockNum);
+                    actualSeatsMap.putIfAbsent(carriagesNumber, actualSeats);
+                    if (i < trainStationCarriageRemainingTicket.size() - 1) {
+                        continue;
+                    }
+                    // 如果邻座算法无法匹配，尝试对用户进行降级分配：同车厢不邻座
+                    for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
+                        String carriagesNumberBack = entry.getKey();
+                        int demotionStockNumBack = entry.getValue();
+                        if (demotionStockNumBack > passengerSeatDetails.size()) {
+                            int[][] seats = actualSeatsMap.get(carriagesNumberBack);
+                            int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(passengerSeatDetails.size(), seats);
+                            if (Objects.equals(nonAdjacentSeats.length, passengerSeatDetails.size())) {
+                                select = nonAdjacentSeats;
+                                carriagesNumber = carriagesNumberBack;
+                                break;
+                            }
+                        }
+                    }
+                    // TODO 如果同车厢也已无法匹配，则对用户座位再次降级：不同车厢不邻座
+                }
+                if (select != null) {
+                    for (int[] ints : select) {
+                        String suffix = "";
+                        switch (ints[1]) {
+                            case 1 -> suffix = "A";
+                            case 2 -> suffix = "C";
+                            case 3 -> suffix = "D";
+                            case 4 -> suffix = "F";
+                        }
+                        selectSeats.add("0" + ints[0] + suffix);
+                    }
+                    for (int j = 0; j < selectSeats.size(); j++) {
+                        TrainPurchaseTicketRespDTO result = new TrainPurchaseTicketRespDTO();
+                        String seatNumber = selectSeats.get(j);
+                        PurchaseTicketPassengerDetailDTO currentTicketPassenger = passengerSeatDetails.get(j);
+                        result.setSeatNumber(seatNumber);
+                        result.setSeatType(currentTicketPassenger.getSeatType());
+                        result.setCarriageNumber(carriagesNumber);
+                        result.setPassengerId(currentTicketPassenger.getPassengerId());
+                        actualResult.add(result);
+                    }
+                    break;
+                }
+            }
+        }
+        return actualResult;
     }
 }
