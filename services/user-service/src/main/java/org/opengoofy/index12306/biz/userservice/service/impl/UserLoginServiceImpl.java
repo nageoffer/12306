@@ -22,6 +22,7 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.userservice.common.enums.UserChainMarkEnum;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDO;
 import org.opengoofy.index12306.biz.userservice.dao.entity.UserDeletionDO;
@@ -52,6 +53,7 @@ import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,8 @@ import java.util.concurrent.TimeUnit;
 
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_DELETION;
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_REGISTER_REUSE_SHARDING;
+import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.MAIL_REGISTERED;
+import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.PHONE_REGISTERED;
 import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.USER_REGISTER_FAIL;
 import static org.opengoofy.index12306.biz.userservice.toolkit.UserReuseUtil.hashShardingIdx;
 
@@ -70,6 +74,7 @@ import static org.opengoofy.index12306.biz.userservice.toolkit.UserReuseUtil.has
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserLoginServiceImpl implements UserLoginService {
@@ -163,13 +168,23 @@ public class UserLoginServiceImpl implements UserLoginService {
                 .phone(requestParam.getPhone())
                 .username(requestParam.getUsername())
                 .build();
-        userPhoneMapper.insert(userPhoneDO);
+        try {
+            userPhoneMapper.insert(userPhoneDO);
+        } catch (DuplicateKeyException dke) {
+            log.error("用户 [{}] 注册手机号 [{}] 重复", requestParam.getUsername(), requestParam.getPhone());
+            throw new ServiceException(PHONE_REGISTERED);
+        }
         if (StrUtil.isNotBlank(requestParam.getMail())) {
             UserMailDO userMailDO = UserMailDO.builder()
                     .mail(requestParam.getMail())
                     .username(requestParam.getUsername())
                     .build();
-            userMailMapper.insert(userMailDO);
+            try {
+                userMailMapper.insert(userMailDO);
+            } catch (DuplicateKeyException dke) {
+                log.error("用户 [{}] 注册邮箱 [{}] 重复", requestParam.getUsername(), requestParam.getMail());
+                throw new ServiceException(MAIL_REGISTERED);
+            }
         }
         String username = requestParam.getUsername();
         userRegisterCachePenetrationBloomFilter.add(username);
