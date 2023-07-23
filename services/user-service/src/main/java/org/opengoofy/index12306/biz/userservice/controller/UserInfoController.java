@@ -22,6 +22,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.req.UserUpdateReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
@@ -68,6 +69,15 @@ public class UserInfoController {
     @PostMapping("/api/user-service/register")
     public Result<UserRegisterRespDTO> register(@RequestBody @Valid UserRegisterReqDTO requestParam) {
         return Results.success(userLoginService.register(requestParam));
+    }
+
+    /**
+     * 修改用户
+     */
+    @PostMapping("/api/user-service/update")
+    public Result<Void> update(@RequestBody @Valid UserUpdateReqDTO requestParam) {
+        userService.update(requestParam);
+        return Results.success();
     }
 
     /**

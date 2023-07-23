@@ -51,6 +51,11 @@ public class UserDO extends BaseDO {
     private String realName;
 
     /**
+     * 国家/地区
+     */
+    private String region;
+
+    /**
      * 证件类型
      */
     private Integer idType;
@@ -64,6 +69,11 @@ public class UserDO extends BaseDO {
      * 手机号
      */
     private String phone;
+
+    /**
+     * 固定电话
+     */
+    private String telephone;
 
     /**
      * 邮箱

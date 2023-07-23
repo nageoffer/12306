@@ -20,42 +20,22 @@ package org.opengoofy.index12306.biz.userservice.dto.req;
 import lombok.Data;
 
 /**
- * 用户注册请求参数
+ * 用户修改请求参数
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-public class UserRegisterReqDTO {
+public class UserUpdateReqDTO {
+
+    /**
+     * 用户ID
+     */
+    private String id;
 
     /**
      * 用户名
      */
     private String username;
-
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * 真实姓名
-     */
-    private String realName;
-
-    /**
-     * 证件类型
-     */
-    private Integer idType;
-
-    /**
-     * 证件号
-     */
-    private String idCard;
-
-    /**
-     * 手机号
-     */
-    private String phone;
 
     /**
      * 邮箱
@@ -68,11 +48,6 @@ public class UserRegisterReqDTO {
     private Integer userType;
 
     /**
-     * 审核状态
-     */
-    private Integer verifyState;
-
-    /**
      * 邮编
      */
     private String postCode;
@@ -81,14 +56,4 @@ public class UserRegisterReqDTO {
      * 地址
      */
     private String address;
-
-    /**
-     * 国家/地区
-     */
-    private String region;
-
-    /**
-     * 固定电话
-     */
-    private String telephone;
 }

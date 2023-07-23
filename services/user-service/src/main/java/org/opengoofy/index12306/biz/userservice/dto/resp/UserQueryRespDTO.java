@@ -17,7 +17,9 @@
 
 package org.opengoofy.index12306.biz.userservice.dto.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.opengoofy.index12306.biz.userservice.serialize.PhoneDesensitizationSerializer;
 
 /**
  * 用户查询返回参数
@@ -38,6 +40,11 @@ public class UserQueryRespDTO {
     private String realName;
 
     /**
+     * 国家/地区
+     */
+    private String region;
+
+    /**
      * 证件类型
      */
     private Integer idType;
@@ -45,12 +52,19 @@ public class UserQueryRespDTO {
     /**
      * 证件号
      */
+    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
     private String idCard;
 
     /**
      * 手机号
      */
+    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
     private String phone;
+
+    /**
+     * 固定电话
+     */
+    private String telephone;
 
     /**
      * 邮箱
