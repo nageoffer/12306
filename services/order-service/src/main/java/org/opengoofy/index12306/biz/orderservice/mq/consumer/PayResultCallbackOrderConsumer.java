@@ -27,6 +27,9 @@ import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalD
 import org.opengoofy.index12306.biz.orderservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
+import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentSceneEnum;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentTypeEnum;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +50,13 @@ public class PayResultCallbackOrderConsumer implements RocketMQListener<MessageW
 
     private final OrderService orderService;
 
+    @Idempotent(
+            uniqueKeyPrefix = "index12306-order:pay_result_callback:",
+            key = "#message.getKeys()+'_'+#message.hashCode()",
+            type = IdempotentTypeEnum.SPEL,
+            scene = IdempotentSceneEnum.MQ,
+            keyTimeout = 7200L
+    )
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void onMessage(MessageWrapper<PayResultCallbackOrderEvent> message) {
