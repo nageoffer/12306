@@ -187,10 +187,10 @@ public class UserLoginServiceImpl implements UserLoginService {
             }
         }
         String username = requestParam.getUsername();
-        userRegisterCachePenetrationBloomFilter.add(username);
+        userReuseMapper.delete(Wrappers.update(new UserReuseDO(username)));
         StringRedisTemplate instance = (StringRedisTemplate) distributedCache.getInstance();
         instance.opsForSet().remove(USER_REGISTER_REUSE_SHARDING + hashShardingIdx(username), username);
-        userReuseMapper.delete(Wrappers.update(new UserReuseDO(username)));
+        userRegisterCachePenetrationBloomFilter.add(username);
         return BeanUtil.convert(requestParam, UserRegisterRespDTO.class);
     }
 
