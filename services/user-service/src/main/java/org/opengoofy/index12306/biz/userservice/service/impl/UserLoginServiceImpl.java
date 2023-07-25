@@ -127,7 +127,7 @@ public class UserLoginServiceImpl implements UserLoginService {
                     .realName(userDO.getRealName())
                     .build();
             String accessToken = JWTUtil.generateAccessToken(userInfo);
-            UserLoginRespDTO actual = new UserLoginRespDTO(requestParam.getUsernameOrMailOrPhone(), userDO.getRealName(), accessToken);
+            UserLoginRespDTO actual = new UserLoginRespDTO(userInfo.getUserId(), requestParam.getUsernameOrMailOrPhone(), userDO.getRealName(), accessToken);
             distributedCache.put(accessToken, JSON.toJSONString(actual), 30, TimeUnit.MINUTES);
             return actual;
         }
@@ -160,9 +160,14 @@ public class UserLoginServiceImpl implements UserLoginService {
     @Override
     public UserRegisterRespDTO register(UserRegisterReqDTO requestParam) {
         abstractChainContext.handler(UserChainMarkEnum.USER_REGISTER_FILTER.name(), requestParam);
-        int inserted = userMapper.insert(BeanUtil.convert(requestParam, UserDO.class));
-        if (inserted < 1) {
-            throw new ServiceException(USER_REGISTER_FAIL);
+        try {
+            int inserted = userMapper.insert(BeanUtil.convert(requestParam, UserDO.class));
+            if (inserted < 1) {
+                throw new ServiceException(USER_REGISTER_FAIL);
+            }
+        } catch (DuplicateKeyException dke) {
+            log.error("用户名 [{}] 重复注册", requestParam.getUsername());
+            throw new ServiceException(PHONE_REGISTERED);
         }
         UserPhoneDO userPhoneDO = UserPhoneDO.builder()
                 .phone(requestParam.getPhone())

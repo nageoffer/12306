@@ -32,6 +32,11 @@ import lombok.NoArgsConstructor;
 public class UserLoginRespDTO {
 
     /**
+     * 用户 ID
+     */
+    private String userId;
+
+    /**
      * 用户名
      */
     private String username;
