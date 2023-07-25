@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.orderservice.service.impl;
 
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -31,13 +32,16 @@ import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderDO;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemPassengerDO;
 import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemMapper;
-import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderMapper;
 import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemPassengerMapper;
+import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderMapper;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderItemCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderPageQueryReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderSelfPageQueryReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailSelfRespDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
 import org.opengoofy.index12306.biz.orderservice.service.OrderItemService;
@@ -92,12 +96,13 @@ public class OrderServiceImpl implements OrderService {
     public PageResponse<TicketOrderDetailRespDTO> pageTicketOrder(TicketOrderPageQueryReqDTO requestParam) {
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
                 .eq(OrderDO::getUserId, requestParam.getUserId())
+                .in(OrderDO::getStatus, buildOrderStatusList(requestParam))
                 .orderByDesc(OrderDO::getOrderTime);
         IPage<OrderDO> orderPage = orderMapper.selectPage(PageUtil.convert(requestParam), queryWrapper);
         return PageUtil.convert(orderPage, each -> {
             TicketOrderDetailRespDTO result = BeanUtil.convert(each, TicketOrderDetailRespDTO.class);
             LambdaQueryWrapper<OrderItemDO> orderItemQueryWrapper = Wrappers.lambdaQuery(OrderItemDO.class)
-                    .eq(OrderItemDO::getUserId, requestParam.getUserId());
+                    .eq(OrderItemDO::getOrderSn, each.getOrderSn());
             List<OrderItemDO> orderItemDOList = orderItemMapper.selectList(orderItemQueryWrapper);
             result.setPassengerDetails(BeanUtil.convert(orderItemDOList, TicketOrderPassengerDetailRespDTO.class));
             return result;
@@ -157,7 +162,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void closeTickOrder(String orderSn) {
+    public void closeTickOrder(CancelTicketOrderReqDTO requestParam) {
+        String orderSn = requestParam.getOrderSn();
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
                 .eq(OrderDO::getOrderSn, orderSn);
         OrderDO orderDO = orderMapper.selectOne(queryWrapper);
@@ -165,11 +171,12 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
         // 原则上订单关闭和订单取消这两个方法可以复用，为了区分未来考虑到的场景，这里对方法进行拆分但复用逻辑
-        cancelTickOrder(orderSn);
+        cancelTickOrder(requestParam);
     }
 
     @Override
-    public void cancelTickOrder(String orderSn) {
+    public void cancelTickOrder(CancelTicketOrderReqDTO requestParam) {
+        String orderSn = requestParam.getOrderSn();
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
                 .eq(OrderDO::getOrderSn, orderSn);
         OrderDO orderDO = orderMapper.selectOne(queryWrapper);
@@ -245,5 +252,44 @@ public class OrderServiceImpl implements OrderService {
         if (updateResult <= 0) {
             throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_STATUS_REVERSAL_ERROR);
         }
+    }
+
+    @Override
+    public PageResponse<TicketOrderDetailSelfRespDTO> pageSelfTicketOrder(TicketOrderSelfPageQueryReqDTO requestParam) {
+        LambdaQueryWrapper<OrderItemPassengerDO> queryWrapper = Wrappers.lambdaQuery(OrderItemPassengerDO.class)
+                .eq(OrderItemPassengerDO::getIdCard, requestParam.getIdCard())
+                .orderByDesc(OrderItemPassengerDO::getCreateTime);
+        IPage<OrderItemPassengerDO> orderItemPassengerPage = orderPassengerRelationService.page(PageUtil.convert(requestParam), queryWrapper);
+        return PageUtil.convert(orderItemPassengerPage, each -> {
+            LambdaQueryWrapper<OrderDO> orderQueryWrapper = Wrappers.lambdaQuery(OrderDO.class)
+                    .eq(OrderDO::getOrderSn, each.getOrderSn());
+            OrderDO orderDO = orderMapper.selectOne(orderQueryWrapper);
+            LambdaQueryWrapper<OrderItemDO> orderItemQueryWrapper = Wrappers.lambdaQuery(OrderItemDO.class)
+                    .eq(OrderItemDO::getOrderSn, each.getOrderSn())
+                    .eq(OrderItemDO::getIdCard, each.getIdCard());
+            OrderItemDO orderItemDO = orderItemMapper.selectOne(orderItemQueryWrapper);
+            TicketOrderDetailSelfRespDTO actualResult = BeanUtil.convert(orderDO, TicketOrderDetailSelfRespDTO.class);
+            BeanUtil.convertIgnoreNullAndBlank(orderItemDO, actualResult);
+            return actualResult;
+        });
+    }
+
+    private List<Integer> buildOrderStatusList(TicketOrderPageQueryReqDTO requestParam) {
+        List<Integer> result = new ArrayList<>();
+        switch (requestParam.getStatusType()) {
+            case 0 -> result = ListUtil.of(
+                    OrderStatusEnum.PENDING_PAYMENT.getStatus()
+            );
+            case 1 -> result = ListUtil.of(
+                    OrderStatusEnum.ALREADY_PAID.getStatus(),
+                    OrderStatusEnum.PARTIAL_REFUND.getStatus()
+            );
+            case 2 -> result = ListUtil.of(
+                    OrderStatusEnum.FULL_REFUND.getStatus(),
+                    OrderStatusEnum.COMPLETED.getStatus(),
+                    OrderStatusEnum.CLOSED.getStatus()
+            );
+        }
+        return result;
     }
 }
