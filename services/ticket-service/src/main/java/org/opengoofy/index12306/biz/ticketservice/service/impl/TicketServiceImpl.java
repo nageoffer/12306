@@ -39,6 +39,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMa
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatClassDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketOrderDetailRespDTO;
@@ -265,6 +266,11 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     @Override
     public PayInfoRespDTO getPayInfo(String orderSn) {
         return payRemoteService.getPayInfo(orderSn).getData();
+    }
+
+    @Override
+    public void cancelTicketOrder(CancelTicketOrderReqDTO requestParam) {
+        ticketOrderRemoteService.cancelTicketOrder(requestParam);
     }
 
     private List<String> buildDepartureStationList(List<TicketListDTO> seatResults) {

@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.opengoofy.index12306.biz.ticketservice.common.constant.TicketRocketMQConstant;
+import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
@@ -49,7 +50,7 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
     public void onMessage(MessageWrapper<DelayCloseOrderEvent> delayCloseOrderEventMessageWrapper) {
         log.info("[延迟关闭订单] 开始消费：{}", JSON.toJSONString(delayCloseOrderEventMessageWrapper));
         DelayCloseOrderEvent delayCloseOrderEvent = delayCloseOrderEventMessageWrapper.getMessage();
-        ticketOrderRemoteService.closeTickOrder(delayCloseOrderEvent.getOrderSn());
+        ticketOrderRemoteService.closeTickOrder(new CancelTicketOrderReqDTO(delayCloseOrderEvent.getOrderSn()));
         // TODO 释放车票余量
         // TODO 修改座位状态
     }

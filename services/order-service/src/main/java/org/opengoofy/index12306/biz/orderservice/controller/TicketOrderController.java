@@ -18,9 +18,12 @@
 package org.opengoofy.index12306.biz.orderservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.orderservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderPageQueryReqDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderSelfPageQueryReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
+import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailSelfRespDTO;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
 import org.opengoofy.index12306.framework.starter.convention.page.PageResponse;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
@@ -59,6 +62,14 @@ public class TicketOrderController {
     }
 
     /**
+     * 分页查询本人车票订单
+     */
+    @GetMapping("/api/order-service/order/ticket/self/page")
+    public Result<PageResponse<TicketOrderDetailSelfRespDTO>> pageSelfTicketOrder(TicketOrderSelfPageQueryReqDTO requestParam) {
+        return Results.success(orderService.pageSelfTicketOrder(requestParam));
+    }
+
+    /**
      * 车票订单创建
      */
     @PostMapping("/api/order-service/order/ticket/create")
@@ -70,8 +81,8 @@ public class TicketOrderController {
      * 车票订单关闭
      */
     @PostMapping("/api/order-service/order/ticket/close")
-    public Result<Void> closeTickOrder(@RequestParam("orderSn") String orderSn) {
-        orderService.closeTickOrder(orderSn);
+    public Result<Void> closeTickOrder(@RequestBody CancelTicketOrderReqDTO requestParam) {
+        orderService.closeTickOrder(requestParam);
         return Results.success();
     }
 
@@ -79,8 +90,8 @@ public class TicketOrderController {
      * 车票订单取消
      */
     @PostMapping("/api/order-service/order/ticket/cancel")
-    public Result<Void> cancelTickOrder(@RequestParam("orderSn") String orderSn) {
-        orderService.cancelTickOrder(orderSn);
+    public Result<Void> cancelTickOrder(@RequestBody CancelTicketOrderReqDTO requestParam) {
+        orderService.cancelTickOrder(requestParam);
         return Results.success();
     }
 }
