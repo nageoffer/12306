@@ -25,6 +25,7 @@ spring:
                 blackPathPre:
                   - /api/ticket-service/ticket/purchase
                   - /api/ticket-service/ticket/pay/query
+                  - /api/ticket-service/ticket/cancel
 
         - id: index12306-pay-service
           uri: lb://index12306-pay-service/api/pay-service/**
@@ -40,3 +41,4 @@ spring:
               args:
                 blackPathPre:
                   - /api/order-service/order/ticket/query
+                  - /api/order-service/order/ticket/self/page
