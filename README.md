@@ -21,7 +21,7 @@
 
 根据自己的学习和使用需求，选择合适的版本启动即可。微服务版本侧重学习设计，聚合服务版本侧重测试和部署。请根据场景需要，选择正确的版本进行学习和使用。
 
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306_biz_20230720-1.png)
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306-%E4%B8%9A%E5%8A%A1%E5%AF%BC%E5%9B%BE-2.png)
 
 ## 拿个offer 组织项目
 
