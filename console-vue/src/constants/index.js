@@ -9,6 +9,33 @@ const TICKET_TYPE_LIST = [
   }
 ]
 
+const TICKET_STATUS_LIST = [
+  {
+    label: '待支付',
+    value: 0
+  },
+  {
+    label: '已支付',
+    value: 1
+  },
+  {
+    label: '已进站',
+    value: 2
+  },
+  {
+    label: '已改签',
+    value: 3
+  },
+  {
+    label: '已退票',
+    value: 4
+  },
+  {
+    label: '已取消',
+    value: 5
+  }
+]
+
 const ID_CARD_TYPE = [
   {
     label: '中国居民身份证',
@@ -129,5 +156,6 @@ export {
   ID_CARD_TYPE,
   BANK_LIST,
   SEAT_CLASS_TYPE_LIST,
-  TRAIN_BRAND_LIST
+  TRAIN_BRAND_LIST,
+  TICKET_STATUS_LIST
 }

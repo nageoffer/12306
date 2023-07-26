@@ -749,7 +749,7 @@ const handleBook = (record) => {
             {{
               state.stationList.find(
                 (item) => item.code === headSearch.fromStation
-              )?.regionName
+              )?.name
             }}
           </span>
           <SwapRightOutlined />
@@ -757,7 +757,7 @@ const handleBook = (record) => {
             {{
               state.stationList.find(
                 (item) => item.code === headSearch.toStation
-              )?.regionName
+              )?.name
             }}
           </span>
 

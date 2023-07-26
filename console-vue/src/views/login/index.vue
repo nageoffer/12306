@@ -18,7 +18,7 @@ const useForm = Form.useForm
 
 const formState = reactive({
   usernameOrMailOrPhone: 'admin',
-  password: 'admin',
+  password: 'admin123456',
   code: ''
 })
 
@@ -45,7 +45,7 @@ const { validate, validateInfos } = useForm(formState, rulesRef)
 
 const registerForm = reactive({
   username: 'admin',
-  password: 'admin',
+  password: 'admin123456',
   realName: '',
   idType: 0,
   idCard: '',
@@ -140,6 +140,7 @@ const handleLogin = () => {
       }).then((res) => {
         if (res.success) {
           Cookies.set('token', res.data?.accessToken)
+          Cookies.set('userId', res.data?.userId)
           Cookies.set('username', res.data?.username)
           router.push('/ticketSearch')
         } else {
@@ -312,7 +313,7 @@ const registerSubmit = () => {
     <div class="wrapper">
       <h1 class="tip-text">
         {{
-          `扫码下方二维码，回复：12306获取拿个offer - 12306 在线购票系统体验密码`
+          `扫码下方二维码，回复：12306，获取拿个offer - 12306 在线购票系统人机验证码`
         }}
       </h1>
       <img

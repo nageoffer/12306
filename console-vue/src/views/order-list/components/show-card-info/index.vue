@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="order-date">订票日期：{{ props.time }}</div>
+    <div class="order-date">订票日期：{{ props.orderTime }}</div>
     <div>
       <span class="border">{{ departure }}</span>
       <span class="border">--></span>
@@ -17,7 +17,7 @@
 
 <script setup>
 const props = defineProps({
-  time: String,
+  orderTime: String,
   departure: String,
   arrival: String,
   trainNumber: String,
