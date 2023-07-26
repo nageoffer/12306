@@ -77,26 +77,26 @@ const columns = [
     dataIndex: 'trainNumber',
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
-    width: '120px',
-    maxWidth: '120px'
+    width: '100px',
+    maxWidth: '100px'
   },
   {
     key: 'station',
     slots: { title: 'customStaionTitle', customRender: 'station' },
-    width: '120px',
-    maxWidth: '120px'
+    width: '100px',
+    maxWidth: '100px'
   },
   {
     dataIndex: 'time',
     key: 'time',
     slots: { title: 'customTimeTitle', customRender: 'time' },
-    width: '120px'
+    width: '100px'
   },
   {
     title: '历时',
     dataIndex: 'duration',
     key: 'duration',
-    width: '120px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
@@ -182,24 +182,24 @@ const innerColumns = [
   {
     title: '车次',
     key: 'trainNumber',
-    width: '120px',
-    maxWidth: '120px'
+    width: '100px',
+    maxWidth: '100px'
   },
   {
     title: '车站',
     key: 'station',
-    width: '120px',
-    maxWidth: '120px'
+    width: '100px',
+    maxWidth: '100px'
   },
   {
     title: '时间',
     key: 'time',
-    width: '120px'
+    width: '100px'
   },
   {
     title: '历时',
     key: 'duration',
-    width: '120px'
+    width: '100px'
   },
   {
     dataIndex: 'seatClassList',
@@ -360,6 +360,14 @@ const getStationAll = () => {
   })
 }
 
+const handlePriceShow = (price) => {
+  if (price) {
+    return '￥' + price
+  } else {
+    return ''
+  }
+}
+
 onMounted(() => {
   fetchTicketSearch({
     fromStation: headSearch.fromStation,
@@ -394,6 +402,20 @@ const handleTrainClick = (trainId) => {
     state.trainStationList = res.data
     state.loading = false
   })
+}
+
+const handleBook = (record) => {
+  window.open(
+    `buyTicket?trainNumber=${record.trainNumber}&&trainId=${
+      record.trainId
+    }&&${Object.entries(headSearch)
+      ?.map((item) => {
+        return `${item[0]}=${
+          item[0] === 'departureDate' ? item[1].format('YYYY-MM-DD') : item[1]
+        }`
+      })
+      .join('&&')}`
+  )
 }
 </script>
 <template>
@@ -648,6 +670,7 @@ const handleTrainClick = (trainId) => {
                           <span class="spacial-label">车次席别</span>
                         </template>
                         <CheckboxGroup
+                          :style="{ minWidth: '300px', textWrap: 'nowrap' }"
                           :value="headSearch.seat"
                           @change="
                             (value) => {
@@ -765,76 +788,108 @@ const handleTrainClick = (trainId) => {
             >
               <template #highSpeedTrainPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{
-                    (text?.find((item) => item?.type === 0)?.price ||
-                      text?.find((item) => item?.type === 12)?.price) ??
-                    '--'
+                  {{
+                    // (text?.find((item) => item?.type === 0)?.price ||
+                    //   '￥' + text?.find((item) => item?.type === 12)?.price) ??
+                    // ''
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 0)?.price ||
+                        text.find((item) => item?.type === 12)?.price
+                    )
                   }}
                 </div>
               </template>
               <template #firstSeatPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{
-                    text?.find((item) => item?.type === 1)?.quantity ?? '--'
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 1)?.quantity
+                    )
                   }}
                 </div>
               </template>
               <template #secondSeatPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{
-                    (text?.find((item) => item?.type === 2)?.price ||
-                      text?.find((item) => item?.type === 3)?.price) ??
-                    '--'
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 2)?.price ||
+                        text?.find((item) => item.type === 3)?.price
+                    )
                   }}
                 </div>
               </template>
               <template #bedPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{ text?.find((item) => item?.type === 10)?.price ?? '--' }}
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 10)?.price
+                    )
+                  }}
                 </div>
               </template>
               <template #deluxSoftBedPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{ text?.find((item) => item?.type === 9)?.price ?? '--' }}
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 9)?.price
+                    )
+                  }}
                 </div>
               </template>
               <template #firstBed="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{
-                    (text?.find((item) => item?.type === 6)?.price ||
-                      text?.find((item) => item?.type === 4)?.price) ??
-                    '--'
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 6)?.price ||
+                        text?.find((item) => item?.type === 4)?.price
+                    )
                   }}
                 </div>
               </template>
               <template #scondHardBedPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥
                   {{
-                    (text?.find((item) => item?.type === 7)?.price ||
-                      text?.find((item) => item?.type === 5)?.price) ??
-                    '--'
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 7)?.price ||
+                        text?.find((item) => item?.type === 5)?.price
+                    )
                   }}
                 </div>
               </template>
               <template #firstSoftSeat="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{ text?.find((item) => item?.type === 11)?.price ?? '--' }}
+                  {{
+                    handlePriceShow(
+                      item?.find((item) => item?.type === 11)?.price
+                    )
+                  }}
                 </div>
               </template>
               <template #hardSeat="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{ text?.find((item) => item?.type === 8)?.price ?? '--' }}
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 8)?.price
+                    )
+                  }}
                 </div>
               </template>
               <template #noSeat="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{ text?.find((item) => item?.type === 13)?.price ?? '--' }}
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 8)?.price
+                    )
+                  }}
                 </div>
               </template>
               <template #other="{ text }">
                 <div :style="{ color: '#fc8302' }">
-                  ￥{{ text?.find((item) => item?.type === 14)?.price ?? '--' }}
+                  {{
+                    handlePriceShow(
+                      text?.find((item) => item?.type === 14)?.price
+                    )
+                  }}
                 </div>
               </template>
             </Table>
@@ -972,20 +1027,23 @@ const handleTrainClick = (trainId) => {
               type="primary"
               size="small"
               @click="
-                () =>
-                  router.push(
-                    `buyTicket?trainNumber=${record.trainNumber}&&trainId=${
-                      record.trainId
-                    }&&${Object.entries(headSearch)
-                      ?.map((item) => {
-                        return `${item[0]}=${
-                          item[0] === 'departureDate'
-                            ? item[1].format('YYYY-MM-DD')
-                            : item[1]
-                        }`
-                      })
-                      .join('&&')}`
-                  )
+                () => handleBook(record)
+                // () => {
+                //   console.log(window, window, 'window')
+                //   router.push(
+                //     `buyTicket?trainNumber=${record.trainNumber}&&trainId=${
+                //       record.trainId
+                //     }&&${Object.entries(headSearch)
+                //       ?.map((item) => {
+                //         return `${item[0]}=${
+                //           item[0] === 'departureDate'
+                //             ? item[1].format('YYYY-MM-DD')
+                //             : item[1]
+                //         }`
+                //       })
+                //       .join('&&')}`
+                //   )
+                // }
               "
               >预定</Button
             >

@@ -9,6 +9,7 @@ import AddPassanger from '../views/add-passenger'
 import CheckOrder from '../views/check-order'
 import BuyTicket from '../views/buy-ticket'
 import AliPay from '../views/ali-pay'
+import TikectList from '../views/order-list'
 import Cookies from 'js-cookie'
 const routes = [
   {
@@ -97,6 +98,14 @@ const routes = [
     path: '/aliPay',
     name: 'aliPay',
     component: AliPay,
+    icon: 'icon-zhifubao0',
+    meta: { requiresAuth: true }
+  },
+  {
+    label: '订单列表',
+    path: '/ticketList',
+    name: 'ticketList',
+    component: TikectList,
     icon: 'icon-zhifubao0',
     meta: { requiresAuth: true }
   }

@@ -6,7 +6,8 @@ import {
   InputPassword,
   Button,
   message,
-  Select
+  Select,
+  Modal
 } from 'ant-design-vue'
 import { reactive, ref, unref } from 'vue'
 import { fetchLogin, fetchRegister } from '../../service'
@@ -16,8 +17,13 @@ import Cookies from 'js-cookie'
 const useForm = Form.useForm
 
 const formState = reactive({
-  usernameOrMailOrPhone: 'machen',
-  password: 'doloreexcupidatat'
+  usernameOrMailOrPhone: 'admin',
+  password: 'admin',
+  code: ''
+})
+
+const state = reactive({
+  open: false
 })
 
 const rulesRef = reactive({
@@ -38,8 +44,8 @@ const rulesRef = reactive({
 const { validate, validateInfos } = useForm(formState, rulesRef)
 
 const registerForm = reactive({
-  username: '',
-  password: '',
+  username: 'admin',
+  password: 'admin',
   realName: '',
   idType: 0,
   idCard: '',
@@ -100,9 +106,38 @@ let currentAction = ref('login')
 const router = useRouter()
 
 const handleFinish = () => {
+  if (location.host.indexOf('12306') !== -1) {
+    validate()
+      .then(() => {
+        state.open = true
+      })
+      .catch((err) => console.log(err))
+    return
+  }
+  validate().then(() => {
+    fetchLogin({
+      ...formState
+    }).then((res) => {
+      if (res.success) {
+        Cookies.set('token', res.data?.accessToken)
+        Cookies.set('username', res.data?.username)
+        Cookies.set('userId', res.data?.userId)
+        router.push('/ticketSearch')
+      } else {
+        message.error(res.message)
+      }
+    })
+  })
+}
+
+const handleLogin = () => {
+  if (!formState.code) return message.error('请输入验证码')
   validate()
     .then(() => {
-      fetchLogin({ ...formState }).then((res) => {
+      fetchLogin({
+        usernameOrMailOrPhone: formState.usernameOrMailOrPhone,
+        password: formState.code
+      }).then((res) => {
         if (res.success) {
           Cookies.set('token', res.data?.accessToken)
           Cookies.set('username', res.data?.username)
@@ -116,6 +151,11 @@ const handleFinish = () => {
 }
 
 const registerSubmit = () => {
+  if (location.host.indexOf('12306') !== -1) {
+    message.info('关注公众获取验证码登录哦！')
+    currentAction.value = 'login'
+    return
+  }
   registerValidate()
     .then(() => {
       fetchRegister(registerForm).then((res) => {
@@ -260,6 +300,34 @@ const registerSubmit = () => {
       </div>
     </div>
   </div>
+  <Modal
+    :visible="state.open"
+    title="人机认证"
+    wrapClassName="code-modal"
+    width="450px"
+    @cancel="state.open = false"
+    @ok="handleLogin"
+    centered
+  >
+    <div class="wrapper">
+      <h1 class="tip-text">
+        {{
+          `扫码下方二维码，回复：12306获取拿个offer - 12306 在线购票系统体验密码`
+        }}
+      </h1>
+      <img
+        src="https://images-machen.oss-cn-beijing.aliyuncs.com/1_990064918_171_86_3_722467528_78457b21279219802d38525d32a77f39.png"
+        alt="微信公众号"
+      />
+      <div class="code-input">
+        <label class="code-label">验证码</label>
+        <Input
+          v-model:value="formState.code"
+          :style="{ width: '300px' }"
+        ></Input>
+      </div>
+    </div>
+  </Modal>
 </template>
 
 <style lang="scss" scoped>
@@ -388,7 +456,34 @@ const registerSubmit = () => {
     }
   }
 }
+.code-modal {
+  .wrapper {
+    text-align: center;
+    .tip-text {
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      color: red;
+    }
+    .code-input {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      .code-label {
+        margin: 10px;
+        &::before {
+          content: '*';
+          color: red;
+        }
+      }
+    }
+  }
+}
 ::v-deep {
+  .ant-modal-header {
+    background-color: #3b3b3b !important;
+  }
   .ant-form-item-label {
     label {
       color: #202020;
@@ -396,5 +491,3 @@ const registerSubmit = () => {
   }
 }
 </style>
-
-<!-- #B8B8B8 -->

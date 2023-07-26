@@ -79,5 +79,3 @@ watch(
   }
 }
 </style>
-
-{ nake:'' } currentType:'trainBrandList'

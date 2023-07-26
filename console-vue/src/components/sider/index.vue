@@ -39,7 +39,9 @@
             <IconFont type="icon-dingdan" />
           </template>
           <template #title>订单管理</template>
-          <Item key="order"><RouterLink to="/order">车票订单</RouterLink></Item>
+          <Item key="order"
+            ><RouterLink to="/ticketList">车票订单</RouterLink></Item
+          >
           <Item key="myTicket"
             ><RouterLink to="/myTicket">本人车票</RouterLink></Item
           >

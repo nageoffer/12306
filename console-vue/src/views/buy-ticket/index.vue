@@ -244,62 +244,68 @@
             {{ ID_CARD_TYPE.find((item) => item.value === text)?.label }}
           </template>
         </Table>
-        <a href=""
-          >*如果本次列车剩余席位无法满足您的选座需求，系统将自动为您分配席位</a
-        >
-        <div class="seat-choose-wrapper">
-          <div>
-            <div class="tip">
-              <IconFont type="icon-laba001"></IconFont>
-              选座咯
+        <div v-if="state.isChooseSeat">
+          <a href=""
+            >*如果本次列车剩余席位无法满足您的选座需求，系统将自动为您分配席位</a
+          >
+          {{ console.log(state.dataSource) }}
+          <div class="seat-choose-wrapper">
+            <div>
+              <div class="tip">
+                <IconFont type="icon-laba001"></IconFont>
+                选座咯
+              </div>
+              <div>
+                已选座{{ state.currentSeatCode.length }}/{{
+                  state.dataSource.length
+                }}
+              </div>
             </div>
             <div>
-              已选座{{ state.currentSeatCode.length }}/{{
-                state.dataSource.length
-              }}
-            </div>
-          </div>
-          <div>
-            <div v-for="(item, index) in state.dataSource">
-              <div class="action-wrapper">
-                <div>窗</div>
-                <Divider type="vertical"></Divider>
-                <div>
-                  <div
-                    class="seat-img"
-                    v-for="item in state.seatPosition
-                      .slice(0 + index * 5, 5 + index * 5)
-                      .slice(0, 3)"
-                    @click="() => handleSelectSeat(item)"
-                    :class="{
-                      cur: state.currentSeatCode?.indexOf(item) !== -1
-                    }"
-                  >
-                    {{ item.slice(0, 1) }}
-                  </div>
+              <div v-for="(item, index) in state.dataSource">
+                <div class="action-wrapper">
+                  <div>窗</div>
                   <Divider type="vertical"></Divider>
-                </div>
-                <div>过道</div>
-                <Divider type="vertical"></Divider>
-                <div>
-                  <div
-                    class="seat-img"
-                    v-for="item in state.seatPosition
-                      .slice(0 + index * 5, 5 + index * 5)
-                      .slice(3, 5)"
-                    @click="() => handleSelectSeat(item)"
-                    :class="{
-                      cur: state.currentSeatCode?.indexOf(item) !== -1
-                    }"
-                  >
-                    {{ item.slice(0, 1) }}
+                  <div>
+                    <div
+                      class="seat-img"
+                      v-for="item in state.seatPosition
+                        .slice(0 + index * 5, 5 + index * 5)
+                        .slice(0, 3)"
+                      @click="() => handleSelectSeat(item)"
+                      :class="{
+                        cur: state.currentSeatCode?.indexOf(item) !== -1
+                      }"
+                    >
+                      {{ item.slice(0, 1) }}
+                    </div>
+                    <Divider type="vertical"></Divider>
                   </div>
+                  <div>过道</div>
                   <Divider type="vertical"></Divider>
+                  <div>
+                    <div
+                      class="seat-img"
+                      v-for="item in state.seatPosition
+                        .slice(0 + index * 5, 5 + index * 5)
+                        .slice(3, 5)"
+                      @click="() => handleSelectSeat(item)"
+                      :class="{
+                        cur: state.currentSeatCode?.indexOf(item) !== -1
+                      }"
+                    >
+                      {{ item.slice(0, 1) }}
+                    </div>
+                    <Divider type="vertical"></Divider>
+                  </div>
+                  <div>窗</div>
                 </div>
-                <div>窗</div>
               </div>
             </div>
           </div>
+        </div>
+        <div v-else>
+          <a href="">*系统将随机为您申请席位，暂不支持自选席位</a>
         </div>
         <Divider dashed></Divider>
         <div class="info-tip">
@@ -357,7 +363,11 @@ import {
 } from '@/service'
 import { onMounted, reactive, toRaw, watch, ref } from 'vue'
 import { getWeekNumber } from '@/utils'
-import { UserOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
+import {
+  UserOutlined,
+  CloseCircleOutlined,
+  ConsoleSqlOutlined
+} from '@ant-design/icons-vue'
 import { TICKET_TYPE_LIST, ID_CARD_TYPE } from '@/constants'
 import IconFont from '@/components/icon-font'
 import dayjs from 'dayjs'
@@ -376,7 +386,8 @@ const state = reactive({
   currentSeat: [],
   open: false,
   currentSeatCode: [],
-  seatPosition: []
+  seatPosition: [],
+  isChooseSeat: true
 })
 const currPassenger = ref([])
 
@@ -432,6 +443,22 @@ watch([() => currPassenger.value], (newValue) => {
   })
   state.dataSource = newDataSource
 })
+
+watch(
+  () => state.dataSource,
+  (newValue) => {
+    let isChooseSeat = true
+    newValue.reduce((cur, pre) => {
+      if (cur && pre) {
+        if (cur?.seatType !== pre?.seatType) {
+          isChooseSeat = false
+        }
+      }
+    })
+    state.isChooseSeat = isChooseSeat
+  },
+  { deep: true }
+)
 
 const columns = [
   {

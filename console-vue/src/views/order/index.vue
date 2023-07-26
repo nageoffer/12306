@@ -192,13 +192,11 @@ const getOrder = () => {
   })
 }
 const totalAmount = computed(() => {
-  const amount = state.currentInfo?.passengerDetails?.reduce((pre, nex) => {
-    return (
-      (pre?.amount ? Number(pre?.amount) : 0) +
-      (nex?.amount ? Number(nex?.amount) : 0)
-    )
-  }, 0)
-  return amount ? amount / 100 : 0
+  let amount = 0
+  state.currentInfo?.passengerDetails?.map((item) => {
+    amount += item?.amount ?? 0
+  })
+  return amount / 100
 })
 
 const handlePay = (channel) => {

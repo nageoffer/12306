@@ -11,7 +11,7 @@ const TICKET_TYPE_LIST = [
 
 const ID_CARD_TYPE = [
   {
-    label: '身份证',
+    label: '中国居民身份证',
     value: 0
   }
 ]

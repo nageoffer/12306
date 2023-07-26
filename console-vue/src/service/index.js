@@ -134,6 +134,15 @@ const fetchTrainStation = async (params) => {
   })
   return data
 }
+
+const fetchTicketList = async (params) => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/order-service/order/ticket/page',
+    params
+  })
+  return data
+}
 export {
   fetchLogin,
   fetchRegister,
@@ -149,5 +158,6 @@ export {
   fetchPay,
   fetchStationAll,
   fechUserInfo,
-  fetchTrainStation
+  fetchTrainStation,
+  fetchTicketList
 }
