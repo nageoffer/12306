@@ -39,14 +39,24 @@ public enum TicketStatusEnum {
     PAID(1),
 
     /**
+     * 已进站
+     */
+    BOARDED(2),
+
+    /**
      * 改签
      */
-    CHANGED(2),
+    CHANGED(3),
 
     /**
      * 退票
      */
-    REFUNDED(3);
+    REFUNDED(4),
+
+    /**
+     * 已取消
+     */
+    CLOSED(5);
 
     @Getter
     private final Integer code;
