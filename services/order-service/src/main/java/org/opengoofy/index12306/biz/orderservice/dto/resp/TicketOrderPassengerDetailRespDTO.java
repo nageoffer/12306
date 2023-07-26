@@ -72,4 +72,9 @@ public class TicketOrderPassengerDetailRespDTO {
      * 订单金额
      */
     private Integer amount;
+
+    /**
+     * 车票状态
+     */
+    private Integer status;
 }

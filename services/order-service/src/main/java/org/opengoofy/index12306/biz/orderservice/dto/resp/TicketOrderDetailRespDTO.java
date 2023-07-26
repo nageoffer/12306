@@ -48,6 +48,12 @@ public class TicketOrderDetailRespDTO {
     private Date ridingDate;
 
     /**
+     * 订票日期
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date orderTime;
+
+    /**
      * 列车车次
      */
     private String trainNumber;
