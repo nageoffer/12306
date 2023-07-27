@@ -19,27 +19,20 @@ package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengoofy.index12306.biz.ticketservice.common.enums.SeatStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationPriceDO;
-import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
-import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.UserRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.PassengerRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
-import org.opengoofy.index12306.biz.ticketservice.toolkit.StationCalculateUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
@@ -62,8 +55,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public final class TrainSeatTypeSelector {
 
-    private final SeatMapper seatMapper;
-    private final TrainStationMapper trainStationMapper;
+    private final SeatService seatService;
     private final UserRemoteService userRemoteService;
     private final TrainStationPriceMapper trainStationPriceMapper;
     private final AbstractStrategyChoose abstractStrategyChoose;
@@ -123,23 +115,7 @@ public final class TrainSeatTypeSelector {
             log.error("用户服务远程调用查询乘车人相信信息错误", ex);
             throw ex;
         }
-        // 获取扣减开始站点和目的站点及中间站点信息
-        LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
-                .eq(TrainStationDO::getTrainId, requestParam.getTrainId());
-        List<TrainStationDO> trainStationDOList = trainStationMapper.selectList(queryWrapper);
-        List<String> trainStationAllList = trainStationDOList.stream().map(TrainStationDO::getDeparture).collect(Collectors.toList());
-        List<RouteDTO> routeList = StationCalculateUtil.throughStation(trainStationAllList, requestParam.getDeparture(), requestParam.getArrival());
-        // 锁定座位车票库存
-        actualResult.forEach(each -> routeList.forEach(item -> {
-            LambdaUpdateWrapper<SeatDO> updateWrapper = Wrappers.lambdaUpdate(SeatDO.class)
-                    .eq(SeatDO::getTrainId, requestParam.getTrainId())
-                    .eq(SeatDO::getCarriageNumber, each.getCarriageNumber())
-                    .eq(SeatDO::getStartStation, item.getStartStation())
-                    .eq(SeatDO::getEndStation, item.getEndStation())
-                    .eq(SeatDO::getSeatNumber, each.getSeatNumber());
-            SeatDO updateSeatDO = SeatDO.builder().seatStatus(SeatStatusEnum.LOCKED.getCode()).build();
-            seatMapper.update(updateSeatDO, updateWrapper);
-        }));
+        seatService.lockSeat(requestParam.getTrainId(), requestParam.getDeparture(), requestParam.getArrival(), actualResult);
         return actualResult;
     }
 }

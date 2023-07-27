@@ -20,12 +20,17 @@ package org.opengoofy.index12306.biz.ticketservice.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SeatStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
+import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -43,9 +48,10 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
  */
 @Service
 @RequiredArgsConstructor
-public class SeatServiceImpl implements SeatService {
+public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements SeatService {
 
     private final SeatMapper seatMapper;
+    private final TrainStationService trainStationService;
     private final DistributedCache distributedCache;
 
     @Override
@@ -53,7 +59,7 @@ public class SeatServiceImpl implements SeatService {
         LambdaQueryWrapper<SeatDO> queryWrapper = Wrappers.lambdaQuery(SeatDO.class)
                 .eq(SeatDO::getTrainId, trainId)
                 .eq(SeatDO::getCarriageNumber, carriageNumber)
-                .eq(SeatDO:: getSeatType, seatType)
+                .eq(SeatDO::getSeatType, seatType)
                 .eq(SeatDO::getStartStation, departure)
                 .eq(SeatDO::getEndStation, arrival)
                 .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode());
@@ -78,5 +84,39 @@ public class SeatServiceImpl implements SeatService {
                 .endStation(arrival)
                 .build();
         return seatMapper.listSeatRemainingTicket(seatDO, trainCarriageList);
+    }
+
+    @Override
+    public void lockSeat(String trainId, String departure, String arrival, List<TrainPurchaseTicketRespDTO> trainPurchaseTicketRespList) {
+        List<RouteDTO> routeList = trainStationService.listTrainStationRoute(trainId, departure, arrival);
+        trainPurchaseTicketRespList.forEach(each -> routeList.forEach(item -> {
+            LambdaUpdateWrapper<SeatDO> updateWrapper = Wrappers.lambdaUpdate(SeatDO.class)
+                    .eq(SeatDO::getTrainId, trainId)
+                    .eq(SeatDO::getCarriageNumber, each.getCarriageNumber())
+                    .eq(SeatDO::getStartStation, item.getStartStation())
+                    .eq(SeatDO::getEndStation, item.getEndStation())
+                    .eq(SeatDO::getSeatNumber, each.getSeatNumber());
+            SeatDO updateSeatDO = SeatDO.builder()
+                    .seatStatus(SeatStatusEnum.LOCKED.getCode())
+                    .build();
+            seatMapper.update(updateSeatDO, updateWrapper);
+        }));
+    }
+
+    @Override
+    public void unlock(String trainId, String departure, String arrival, List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults) {
+        List<RouteDTO> routeList = trainStationService.listTrainStationRoute(trainId, departure, arrival);
+        trainPurchaseTicketResults.forEach(each -> routeList.forEach(item -> {
+            LambdaUpdateWrapper<SeatDO> updateWrapper = Wrappers.lambdaUpdate(SeatDO.class)
+                    .eq(SeatDO::getTrainId, trainId)
+                    .eq(SeatDO::getCarriageNumber, each.getCarriageNumber())
+                    .eq(SeatDO::getStartStation, item.getStartStation())
+                    .eq(SeatDO::getEndStation, item.getEndStation())
+                    .eq(SeatDO::getSeatNumber, each.getSeatNumber());
+            SeatDO updateSeatDO = SeatDO.builder()
+                    .seatStatus(SeatStatusEnum.AVAILABLE.getCode())
+                    .build();
+            seatMapper.update(updateSeatDO, updateWrapper);
+        }));
     }
 }

@@ -24,6 +24,8 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketChainMarkEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
@@ -71,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -248,17 +251,26 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 log.error("订单服务调用失败，返回结果：{}", ticketOrderResult.getMessage());
                 throw new ServiceException("订单服务调用失败");
             }
-            // 发送 RocketMQ 延时消息，指定时间后取消订单
-            delayCloseOrderSendProduce.sendMessage(new DelayCloseOrderEvent(ticketOrderResult.getData()));
         } catch (Throwable ex) {
             log.error("远程调用订单服务创建错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
-            // TODO 回退锁定车票
             throw ex;
         }
-        if (!ticketOrderResult.isSuccess()) {
-            log.error("远程调用订单服务创建失败，请求参数：{}", JSON.toJSONString(requestParam));
-            // TODO 回退锁定车票
-            throw new ServiceException(ticketOrderResult.getMessage());
+        try {
+            // 发送 RocketMQ 延时消息，指定时间后取消订单
+            DelayCloseOrderEvent delayCloseOrderEvent = DelayCloseOrderEvent.builder()
+                    .trainId(requestParam.getTrainId())
+                    .departure(requestParam.getDeparture())
+                    .arrival(requestParam.getArrival())
+                    .orderSn(ticketOrderResult.getData())
+                    .trainPurchaseTicketResults(trainPurchaseTicketResults)
+                    .build();
+            SendResult sendResult = delayCloseOrderSendProduce.sendMessage(delayCloseOrderEvent);
+            if (!Objects.equals(sendResult.getSendStatus(), SendStatus.SEND_OK)) {
+                throw new ServiceException("投递延迟关闭订单消息队列失败");
+            }
+        } catch (Throwable ex) {
+            log.error("延迟关闭订单消息队列发送错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
+            throw ex;
         }
         return new TicketPurchaseRespDTO(ticketOrderResult.getData(), ticketOrderDetailResults);
     }
