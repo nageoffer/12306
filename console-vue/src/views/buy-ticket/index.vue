@@ -448,12 +448,13 @@ watch(
   () => state.dataSource,
   (newValue) => {
     let isChooseSeat = true
+    newValue?.length &&
     newValue.reduce((cur, pre) => {
       if (cur && pre) {
         if (cur?.seatType !== pre?.seatType) {
           isChooseSeat = false
         }
-      }
+        }
     })
     state.isChooseSeat = isChooseSeat
   },

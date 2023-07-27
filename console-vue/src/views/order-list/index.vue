@@ -18,8 +18,7 @@
         </div>
         <div>
           {{
-            ID_CARD_TYPE.find((item) => item.value === record?.idType)
-                ?.label
+            ID_CARD_TYPE.find((item) => item.value === record?.idType)?.label
           }}
         </div>
       </template>
@@ -68,19 +67,12 @@
 </template>
 
 <script setup>
-import {
-  Tabs,
-  TabPane,
-  Table,
-  Card,
-  Space,
-  Button,
-  Pagination
-} from 'ant-design-vue'
+import { Tabs, TabPane, Table, Card, Pagination } from 'ant-design-vue'
+
 import CarInfo from './components/show-card-info'
 import EditContent from './components/edit-content'
-import {fetchTicketList} from '@/service'
-import {reactive, watch, h} from 'vue'
+import { fetchTicketList } from '@/service'
+import { reactive, watch, h } from 'vue'
 import {
   ID_CARD_TYPE,
   SEAT_CLASS_TYPE_LIST,
@@ -175,23 +167,22 @@ watch(
         size: 10,
         statusType: newValue
       }).then((res) => {
-        console.log(res.data, 'res')
-        let dataSource = []
-        res.data.records.map((info) => {
-          info.passengerDetails?.map((item, index) => {
-            dataSource.push({
-              ...info,
-              ...item,
-              rowSpan: index === 0 ? info.passengerDetails.length : 0
-            })
+            console.log(res.data, 'res')
+            let dataSource = []
+            res.data.records.map((info) => {
+              info.passengerDetails?.map((item, index) => {
+                dataSource.push({
+                  ...info,
+                  ...item,
+                  rowSpan: index === 0 ? info.passengerDetails.length : 0
           })
         })
-        console.log(dataSource, 'datasource')
+      })
         state.dataSource = dataSource
         state.data = res.data
       })
     },
-    {immediate: true}
+    { immediate: true }
 )
 </script>
 
