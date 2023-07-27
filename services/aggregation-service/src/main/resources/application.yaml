@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: index12306-aggregation-service
+    name: index12306-aggregation${unique-name:}-service
   datasource:
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
     url: jdbc:shardingsphere:classpath:shardingsphere-config-${database.emv:dev}.yaml

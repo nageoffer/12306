@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: index12306-ticket-service
+    name: index12306-ticket${unique-name:}-service
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
@@ -31,7 +31,7 @@ spring:
 rocketmq:
   name-server: 127.0.0.1:9876
   producer:
-    group: index12306_ticket-service_common-message-execute_pg
+    group: index12306_ticket${unique-name:}-service_common-message-execute_pg
     send-message-timeout: 2000
     retry-times-when-send-failed: 1
     retry-times-when-send-async-failed: 1

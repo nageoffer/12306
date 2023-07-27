@@ -3,7 +3,7 @@ spring:
     gateway:
       routes:
         - id: index12306-user-service
-          uri: lb://index12306-user-service/api/user-service/**
+          uri: lb://index12306-user${unique-name:}-service/api/user-service/**
           predicates:
             - Path=/api/user-service/**
           filters:
@@ -16,7 +16,7 @@ spring:
                   - /api/user-service/deletion
 
         - id: index12306-ticket-service
-          uri: lb://index12306-ticket-service/api/ticket-service/**
+          uri: lb://index12306-ticket${unique-name:}-service/api/ticket-service/**
           predicates:
             - Path=/api/ticket-service/**
           filters:
@@ -28,12 +28,12 @@ spring:
                   - /api/ticket-service/ticket/cancel
 
         - id: index12306-pay-service
-          uri: lb://index12306-pay-service/api/pay-service/**
+          uri: lb://index12306-pay${unique-name:}-service/api/pay-service/**
           predicates:
             - Path=/api/pay-service/**
 
         - id: index12306-order-service
-          uri: lb://index12306-service/api/order-service/**
+          uri: lb://index12306-order${unique-name:}-service/api/order-service/**
           predicates:
             - Path=/api/order-service/**
           filters:
