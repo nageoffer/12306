@@ -22,12 +22,15 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationMapper;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TrainStationQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
+import org.opengoofy.index12306.biz.ticketservice.toolkit.StationCalculateUtil;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 列车站点接口实现层
@@ -46,5 +49,14 @@ public class TrainStationServiceImpl implements TrainStationService {
                 .eq(TrainStationDO::getTrainId, trainId);
         List<TrainStationDO> trainStationDOList = trainStationMapper.selectList(queryWrapper);
         return BeanUtil.convert(trainStationDOList, TrainStationQueryRespDTO.class);
+    }
+
+    @Override
+    public List<RouteDTO> listTrainStationRoute(String trainId, String departure, String arrival) {
+        LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
+                .eq(TrainStationDO::getTrainId, trainId);
+        List<TrainStationDO> trainStationDOList = trainStationMapper.selectList(queryWrapper);
+        List<String> trainStationAllList = trainStationDOList.stream().map(TrainStationDO::getDeparture).collect(Collectors.toList());
+        return StationCalculateUtil.throughStation(trainStationAllList, departure, arrival);
     }
 }
