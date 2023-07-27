@@ -23,6 +23,25 @@
           <a href="https://magestack.cn/pages/be7463/" target="_blank">
             <li>社区</li>
           </a>
+          <a v-if="route.fullPath !== '/login'">
+            <Dropdown :trigger="['click']">
+              <li :style="{ padding: '0 0 0 30px' }">
+                <Avatar shape="square" style="background-color: #1890ff"
+                  >{{ state.username?.slice(0, 1)?.toUpperCase() }}
+                </Avatar>
+              </li>
+              <template #overlay>
+                <Menu>
+                  <MenuItem>
+                    <a @click="() => router.push('/userInfo')">个人信息</a>
+                  </MenuItem>
+                  <MenuItem>
+                    <a @click="() => logout()">退出登录</a>
+                  </MenuItem>
+                </Menu>
+              </template>
+            </Dropdown>
+          </a>
         </ul>
       </div>
     </div>
@@ -30,9 +49,19 @@
 </template>
 
 <script setup>
-import { Layout } from 'ant-design-vue'
-import { useRouter } from 'vue-router'
-import { defineProps, toRefs } from 'vue'
+import {
+  Layout,
+  Avatar,
+  Dropdown,
+  Menu,
+  MenuItem,
+  message
+} from 'ant-design-vue'
+import { useRouter, useRoute } from 'vue-router'
+import { defineProps, reactive, toRefs, watch } from 'vue'
+import { fetchLogout } from '@/service'
+import Cookie from 'js-cookie'
+const username = Cookie.get('username')
 
 const { Header } = Layout
 const props = defineProps({
@@ -40,8 +69,31 @@ const props = defineProps({
 })
 
 const { isLogin } = toRefs(props)
+const state = reactive({
+  username: username
+})
 
 const router = useRouter()
+const route = useRoute()
+
+watch(
+  () => route.fullPath,
+  (newValue) => {
+    state.username = username
+  }
+)
+
+const logout = () => {
+  const token = Cookie.get('token')
+  fetchLogout({ accessToken: token }).then((res) => {
+    if (res.success) {
+      message.success('退出成功')
+      location.href = 'login'
+      Cookie.remove('token')
+      Cookie.remove('username')
+    }
+  })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -82,10 +134,12 @@ const router = useRouter()
 
   a {
     color: rgba(255, 255, 255, 0.8);
-
     li {
       padding: 0 30px;
     }
+    // &:last-child {
+    //   padding: 0 0 0 30px;
+    // }
   }
 }
 </style>
