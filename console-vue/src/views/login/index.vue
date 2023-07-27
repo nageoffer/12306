@@ -45,7 +45,7 @@ const { validate, validateInfos } = useForm(formState, rulesRef)
 
 const registerForm = reactive({
   username: 'admin',
-  password: 'admin',
+  password: 'admin123456',
   realName: '',
   idType: 0,
   idCard: '',

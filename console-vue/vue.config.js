@@ -2,7 +2,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/api': {
-        target: 'http://12306.magestack.cn/',
+        target: 'http://7zw8r9.natappfree.cc',
         changeOrigin: true,
         ws: true
       }
