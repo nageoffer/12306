@@ -55,6 +55,7 @@ import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderCreateRemoteReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderItemCreateRemoteReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
+import org.opengoofy.index12306.biz.ticketservice.service.cache.SeatMarginCacheLoader;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.TrainSeatTypeSelector;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil;
@@ -73,6 +74,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -102,6 +104,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final PayRemoteService payRemoteService;
     private final StationMapper stationMapper;
     private final TrainSeatTypeSelector trainSeatTypeSelector;
+    private final SeatMarginCacheLoader seatMarginCacheLoader;
     private final AbstractChainContext<PurchaseTicketReqDTO> abstractChainContext;
 
     @Override
@@ -151,14 +154,15 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             List<SeatClassDTO> seatClassList = new ArrayList<>();
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
             trainStationPriceDOList.forEach(item -> {
+                String seatType = String.valueOf(item.getSeatType());
                 String keySuffix = StrUtil.join("_", each.getTrainId(), item.getDeparture(), item.getArrival());
-                Object quantityObj = stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(item.getSeatType()));
+                Object quantityObj = stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, seatType);
                 int quantity = Optional.ofNullable(quantityObj)
                         .map(Object::toString)
                         .map(Integer::parseInt)
                         .orElseGet(() -> {
-                            // TODO 后续适配缓存时效逻辑
-                            return 0;
+                            Map<String, String> seatMarginMap = seatMarginCacheLoader.load(String.valueOf(each.getTrainId()), seatType, item.getDeparture(), item.getArrival());
+                            return Optional.ofNullable(seatMarginMap.get(String.valueOf(item.getSeatType()))).map(Integer::parseInt).orElse(0);
                         });
                 seatClassList.add(new SeatClassDTO(item.getSeatType(), quantity, new BigDecimal(item.getPrice()).divide(new BigDecimal("100"), 1, RoundingMode.HALF_UP), false));
             });

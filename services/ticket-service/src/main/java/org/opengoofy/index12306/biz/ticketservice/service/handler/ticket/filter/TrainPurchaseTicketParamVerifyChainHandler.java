@@ -17,11 +17,16 @@
 
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.filter;
 
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TrainStationDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.EnvironmentUtil;
@@ -48,6 +53,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 public class TrainPurchaseTicketParamVerifyChainHandler implements TrainPurchaseTicketChainFilter<PurchaseTicketReqDTO> {
 
     private final TrainMapper trainMapper;
+    private final TrainStationMapper trainStationMapper;
     private final DistributedCache distributedCache;
 
     @Override
@@ -76,7 +82,18 @@ public class TrainPurchaseTicketParamVerifyChainHandler implements TrainPurchase
             }
         }
         // 车站是否存在车次中，以及车站的顺序是否正确
-        String trainStationStopoverDetailStr = distributedCache.get(TRAIN_STATION_STOPOVER_DETAIL + requestParam.getTrainId(), String.class);
+        String trainStationStopoverDetailStr = distributedCache.safeGet(
+                TRAIN_STATION_STOPOVER_DETAIL + requestParam.getTrainId(),
+                String.class,
+                () -> {
+                    LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
+                            .eq(TrainStationDO::getTrainId, requestParam.getTrainId());
+                    List<TrainStationDO> actualTrainStationList = trainStationMapper.selectList(queryWrapper);
+                    return CollUtil.isNotEmpty(actualTrainStationList) ? JSON.toJSONString(actualTrainStationList) : null;
+                },
+                Index12306Constant.ADVANCE_TICKET_DAY,
+                TimeUnit.DAYS
+        );
         List<TrainStationDO> trainDOList = JSON.parseArray(trainStationStopoverDetailStr, TrainStationDO.class);
         boolean validateStation = validateStation(
                 trainDOList.stream().map(TrainStationDO::getDeparture).toList(),

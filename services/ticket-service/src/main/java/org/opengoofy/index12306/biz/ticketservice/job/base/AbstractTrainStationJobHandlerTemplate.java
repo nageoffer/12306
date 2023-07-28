@@ -32,6 +32,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 抽象列车&车票相关定时任务
@@ -54,7 +55,7 @@ public abstract class AbstractTrainStationJobHandlerTemplate extends IJobHandler
         var requestParam = getJobRequestParam();
         var dateTime = StrUtil.isNotBlank(requestParam) ? DateUtil.parse(requestParam, "yyyy-MM-dd") : DateUtil.tomorrow();
         var trainMapper = ApplicationContextHolder.getBean(TrainMapper.class);
-        for (;; currentPage++) {
+        for (; ; currentPage++) {
             var queryWrapper = Wrappers.lambdaQuery(TrainDO.class)
                     .between(TrainDO::getDepartureTime, DateUtil.beginOfDay(dateTime), DateUtil.endOfDay(dateTime));
             var trainDOPage = trainMapper.selectPage(new Page<>(currentPage, size), queryWrapper);
@@ -68,7 +69,7 @@ public abstract class AbstractTrainStationJobHandlerTemplate extends IJobHandler
 
     private String getJobRequestParam() {
         return EnvironmentUtil.isDevEnvironment()
-                ? ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest().getHeader("requestParam")
+                ? Optional.ofNullable(((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())).map(ServletRequestAttributes::getRequest).map(each -> each.getHeader("requestParam")).orElse(null)
                 : XxlJobHelper.getJobParam();
     }
 }
