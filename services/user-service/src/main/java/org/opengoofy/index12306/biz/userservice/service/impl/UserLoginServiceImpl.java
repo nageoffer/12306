@@ -64,6 +64,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_DELETION;
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_REGISTER_REUSE_SHARDING;
+import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.HAS_USERNAME_NOTNULL;
 import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.MAIL_REGISTERED;
 import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.PHONE_REGISTERED;
 import static org.opengoofy.index12306.biz.userservice.common.enums.UserRegisterErrorCodeEnum.USER_REGISTER_FAIL;
@@ -167,7 +168,7 @@ public class UserLoginServiceImpl implements UserLoginService {
             }
         } catch (DuplicateKeyException dke) {
             log.error("用户名 [{}] 重复注册", requestParam.getUsername());
-            throw new ServiceException(PHONE_REGISTERED);
+            throw new ServiceException(HAS_USERNAME_NOTNULL);
         }
         UserPhoneDO userPhoneDO = UserPhoneDO.builder()
                 .phone(requestParam.getPhone())
