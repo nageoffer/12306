@@ -188,7 +188,9 @@ public class StringRedisTemplateProxy implements DistributedCache {
     @Override
     public void safePut(String key, Object value, long timeout, TimeUnit timeUnit, RBloomFilter<String> bloomFilter) {
         put(key, value, timeout, timeUnit);
-        bloomFilter.add(key);
+        if (bloomFilter != null) {
+            bloomFilter.add(key);
+        }
     }
 
     @Override
