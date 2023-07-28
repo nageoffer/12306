@@ -52,7 +52,7 @@ class TicketSeatTests {
 
     @Test
     void testInitData() {
-        String trainId = "4";
+        String trainId = "2";
         List<TrainStationPriceDO> trainStationPrices = selectTrainStationPrices(trainId);
         List<CarriageDO> carriages = selectCarriages(trainId);
         TrainDO trainDO = trainMapper.selectById(trainId);
@@ -189,7 +189,7 @@ class TicketSeatTests {
                         } else {
                             seatDO.setSeatNumber(integer + num);
                         }
-                        seatDO.setSeatType(1);
+                        seatDO.setSeatType(2);
                         seatDO.setStartStation(each.getDeparture());
                         seatDO.setEndStation(each.getArrival());
                         seatDO.setSeatStatus(0);
