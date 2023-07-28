@@ -25,6 +25,7 @@ import org.opengoofy.index12306.biz.payservice.common.constant.PayRocketMQConsta
 import org.opengoofy.index12306.biz.payservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.payservice.mq.event.PayResultCallbackOrderEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -40,8 +41,11 @@ import java.util.UUID;
 @Component
 public class PayResultCallbackOrderSendProduce extends AbstractCommonSendProduceTemplate<PayResultCallbackOrderEvent> {
 
-    public PayResultCallbackOrderSendProduce(@Autowired RocketMQTemplate rocketMQTemplate) {
+    private final ConfigurableEnvironment environment;
+
+    public PayResultCallbackOrderSendProduce(@Autowired RocketMQTemplate rocketMQTemplate, @Autowired ConfigurableEnvironment environment) {
         super(rocketMQTemplate);
+        this.environment = environment;
     }
 
     @Override
@@ -49,8 +53,8 @@ public class PayResultCallbackOrderSendProduce extends AbstractCommonSendProduce
         return BaseSendExtendDTO.builder()
                 .eventName("支付结果回调订单")
                 .keys(messageSendEvent.getOrderSn())
-                .topic(PayRocketMQConstant.PAY_GLOBAL_TOPIC_KEY)
-                .tag(PayRocketMQConstant.PAY_RESULT_CALLBACK_ORDER_TAG_KEY)
+                .topic(environment.resolvePlaceholders(PayRocketMQConstant.PAY_GLOBAL_TOPIC_KEY))
+                .tag(environment.resolvePlaceholders(PayRocketMQConstant.PAY_RESULT_CALLBACK_ORDER_TAG_KEY))
                 .sentTimeout(2000L)
                 .build();
     }
