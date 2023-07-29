@@ -45,5 +45,4 @@ class UserServiceApplicationTests {
             System.out.println(String.format(SQL, i));
         }
     }
-
 }
