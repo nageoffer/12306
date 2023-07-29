@@ -17,10 +17,12 @@
 
 package org.opengoofy.index12306.biz.orderservice.dto.resp;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.orderservice.serialize.IdCardDesensitizationSerializer;
 
 /**
  * 车票订单详情返回参数
@@ -61,6 +63,7 @@ public class TicketOrderPassengerDetailRespDTO {
     /**
      * 证件号
      */
+    @JsonSerialize(using = IdCardDesensitizationSerializer.class)
     private String idCard;
 
     /**
