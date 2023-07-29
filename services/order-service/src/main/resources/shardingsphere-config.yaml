@@ -40,7 +40,7 @@ rules:
         actualDataNodes: ds_${0..1}.t_order_item_passenger_${0..15}
         databaseStrategy:
           standard:
-            shardingColumns: id_card
+            shardingColumn: id_card
             shardingAlgorithmName: order_passenger_relation_database_mod
         tableStrategy:
           standard:
@@ -70,6 +70,7 @@ rules:
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
           sharding-count: 16
+          strategy: complex
       order_passenger_relation_database_mod:
         type: HASH_MOD
         props:
