@@ -59,7 +59,7 @@ public final class AliPayNativeHandler extends AbstractPayHandler implements Abs
         AlipayConfig alipayConfig = BeanUtil.convert(aliPayProperties, AlipayConfig.class);
         AlipayClient alipayClient = new DefaultAlipayClient(alipayConfig);
         AlipayTradePagePayModel model = new AlipayTradePagePayModel();
-        model.setOutTradeNo(aliPayRequest.getOrderRequestId());
+        model.setOutTradeNo(aliPayRequest.getOrderSn());
         model.setTotalAmount(aliPayRequest.getTotalAmount().toString());
         model.setSubject(aliPayRequest.getSubject());
         model.setProductCode("FAST_INSTANT_TRADE_PAY");

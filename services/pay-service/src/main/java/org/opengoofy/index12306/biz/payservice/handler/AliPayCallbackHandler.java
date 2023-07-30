@@ -49,7 +49,7 @@ public final class AliPayCallbackHandler extends AbstractPayCallbackHandler impl
                 .payAmount(aliPayCallBackRequest.getBuyerPayAmount())
                 .tradeNo(aliPayCallBackRequest.getTradeNo())
                 .gmtPayment(aliPayCallBackRequest.getGmtPayment())
-                .orderRequestId(aliPayCallBackRequest.getOrderRequestId())
+                .orderSn(aliPayCallBackRequest.getOrderRequestId())
                 .build();
         payService.callbackPay(payCallbackRequestParam);
     }

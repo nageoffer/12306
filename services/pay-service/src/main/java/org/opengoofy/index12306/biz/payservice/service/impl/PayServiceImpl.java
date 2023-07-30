@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.payservice.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +84,7 @@ public class PayServiceImpl implements PayService {
     @Override
     public void callbackPay(PayCallbackReqDTO requestParam) {
         LambdaQueryWrapper<PayDO> queryWrapper = Wrappers.lambdaQuery(PayDO.class)
-                .eq(PayDO::getOrderRequestId, requestParam.getOrderRequestId());
+                .eq(PayDO::getOrderSn, requestParam.getOrderSn());
         PayDO payDO = payMapper.selectOne(queryWrapper);
         if (Objects.isNull(payDO)) {
             log.error("支付单不存在，orderRequestId：{}", requestParam.getOrderRequestId());
@@ -93,7 +94,9 @@ public class PayServiceImpl implements PayService {
         payDO.setStatus(requestParam.getStatus());
         payDO.setPayAmount(requestParam.getPayAmount());
         payDO.setGmtPayment(requestParam.getGmtPayment());
-        int result = payMapper.updateById(payDO);
+        LambdaUpdateWrapper<PayDO> updateWrapper = Wrappers.lambdaUpdate(PayDO.class)
+                .eq(PayDO::getOrderSn, requestParam.getOrderSn());
+        int result = payMapper.update(payDO, updateWrapper);
         if (result <= 0) {
             log.error("修改支付单支付结果失败，支付单信息：{}", JSON.toJSONString(payDO));
             throw new ServiceException("修改支付单支付结果失败");
