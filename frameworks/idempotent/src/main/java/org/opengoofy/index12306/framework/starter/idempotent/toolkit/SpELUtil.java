@@ -18,6 +18,8 @@
 package org.opengoofy.index12306.framework.starter.idempotent.toolkit;
 
 import cn.hutool.core.util.ArrayUtil;
+import org.springframework.core.DefaultParameterNameDiscoverer;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.StandardReflectionParameterNameDiscoverer;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -55,8 +57,7 @@ public class SpELUtil {
      * @return 解析的字符串值
      */
     public static Object parse(String spEl, Method method, Object[] contextObj) {
-        // TODO 转换为 Spring 最新处理器，需要验证是否适用
-        StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
+        DefaultParameterNameDiscoverer discoverer = new DefaultParameterNameDiscoverer();
         ExpressionParser parser = new SpelExpressionParser();
         Expression exp = parser.parseExpression(spEl);
         String[] params = discoverer.getParameterNames(method);
