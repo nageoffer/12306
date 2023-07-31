@@ -9,10 +9,6 @@
 
 项目中包含了缓存、消息队列、分库分表、设计模式等代码，通过这些代码可以全面了解分布式系统的核心知识点。
 
-在系统设计中，采用 JDK17 + SpringBoot3&SpringCloud 微服务架构，构建高并发、大数据量下仍然能提供高效可靠的 12306 购票服务。
-
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/1676637853202-c2af9e93-fe03-4c01-9fed-20ca07263476.png)
-
 为了方便大家学习，该系统提供了两种版本：
 
 - SpringBoot 聚合服务版本：适合测试和部署，可以直接启动 `aggregation-service` 聚合服务和网关服务。
@@ -21,7 +17,7 @@
 
 根据自己的学习和使用需求，选择合适的版本启动即可。微服务版本侧重学习设计，聚合服务版本侧重测试和部署。请根据场景需要，选择正确的版本进行学习和使用。
 
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306-%E4%B8%9A%E5%8A%A1%E5%AF%BC%E5%9B%BE-2.png)
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306-base-biz-20230801.png)
 
 ## 拿个offer 组织项目
 
@@ -35,6 +31,21 @@
 | [12306](https://gitee.com/nageoffer/12306)         | [![star](https://gitee.com/nageoffer/12306/badge/star.svg?theme=white)](https://gitee.com/nageoffer/12306/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/12306?color=green&style=social)](https://github.com/nageoffer/12306) | 完成高仿铁路 12306系统，帮助学生主打就业的项目   |
 | [CongoMall](https://gitee.com/nageoffer/congomall) | [![star](https://gitee.com/nageoffer/congomall/badge/star.svg?theme=white)](https://gitee.com/nageoffer/congomall/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/congomall?color=green&style=social)](https://github.com/nageoffer/congomall) | 企业级 TOC 商城，基于 DDD 领域驱动模型开发       |
 | [Seraph](https://gitee.com/nageoffer/seraph)       | [![star](https://gitee.com/nageoffer/seraph/badge/star.svg?theme=white)](https://gitee.com/nageoffer/seraph/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/seraph?color=green&style=social)](https://github.com/nageoffer/seraph) | 幂等基础组件，接口幂等和消息队列重复消费解决方案 |
+
+
+## 技术架构
+
+优质的项目必备一份完善的架构图，自夸一下 😎。
+
+下方的架构图全面描述了项目的服务集合、组件库列表和基础设置层等要素，有助于用户快速了解 12306 平台的顶层设计和业务细节，从零到一进行构建。
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230731165112595.png)
+
+另外，在系统设计中，采用最新 JDK17 + SpringBoot3&SpringCloud 微服务架构，构建高并发、大数据量下仍然能提供高效可靠的 12306 购票服务。
+
+通过学习 12306 项目，不仅能了解其运作机制，还能接触最新技术体系带来的新特性，从而拓展技术视野并提升自身技术水平。
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/1676637853202-c2af9e93-fe03-4c01-9fed-20ca07263476.png)
 
 ## 加群沟通
 
@@ -57,6 +68,15 @@
 3. 系统支持会员使用用户名、手机号以及邮箱等多种方式进行登录。由于登录时无法确定用户的分片键，造成的“读请求扩散”问题如何解决？
 4. 在高并发的会员注册场景下，绝对会出现缓存穿透问题。网上鼓吹的对不存在 Key 进行缓存值设为 Null，以及布隆过滤器等都存在漏洞，如何解决？
 5. 存在较多的敏感信息，比如会员或者乘车人的姓名、手机号、邮箱、证件号码以及住址，如何防止数据库被攻击时造成的敏感信息泄露？
+
+再以购票服务为例，当用户购买两个乘车人的高铁一等座票且没有选座时，座位的分配逻辑如下：
+
+1. 首先检查当前列车的一等座余票是否足够。如果余票不足，直接向客户端返回购票请求失败的响应；
+2. 获取所有车厢中有两个座位余票的车厢，并对这些车厢进行遍历，按照下述流程执行；
+3. 首先检查所有车厢中是否存在一等座车票的相邻座位。如果所有车厢中都没有相邻座位，进入下一步逻辑；
+4. 接着检查是否有车厢中包含两个不相邻的一等座座位？因为同车厢两座位相邻座位没有的话，就退而找同车厢不相邻座位；
+5. 如果以上逻辑都无法满足，那么最后选择分配不同车厢的不相邻座位。这种情况下，由于已经确认一等座的余票充足，因此一定能够成功完成购票；
+6. 通过以上步骤，购票系统能够在高铁一等座票余票充足的情况下，合理地分配座位，确保乘车人出行时有良好的座位体验。同时，如果余票不足，系统会优先满足乘车人顺利购票的需求。
 
 ## 如何使用
 
@@ -121,4 +141,4 @@ A：我觉得有必要，已经工作的同学虽然没办法把这个项目应�
 
 项目中的文档包括三部分，快速开始、核心技术文档以及从零到一开发。可根据自己的兴趣选择深入了解核心技术或从零到一复刻系统。
 
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306-article-structure.png)
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306%E6%96%87%E7%AB%A0%E7%BB%93%E6%9E%84-20230731.png)
