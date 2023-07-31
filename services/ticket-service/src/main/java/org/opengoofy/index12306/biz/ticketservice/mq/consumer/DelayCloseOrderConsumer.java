@@ -31,6 +31,7 @@ import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteServic
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
+import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -63,19 +64,38 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
     public void onMessage(MessageWrapper<DelayCloseOrderEvent> delayCloseOrderEventMessageWrapper) {
         log.info("[延迟关闭订单] 开始消费：{}", JSON.toJSONString(delayCloseOrderEventMessageWrapper));
         DelayCloseOrderEvent delayCloseOrderEvent = delayCloseOrderEventMessageWrapper.getMessage();
-        ticketOrderRemoteService.closeTickOrder(new CancelTicketOrderReqDTO(delayCloseOrderEvent.getOrderSn()));
-        String trainId = delayCloseOrderEvent.getTrainId();
-        String departure = delayCloseOrderEvent.getDeparture();
-        String arrival = delayCloseOrderEvent.getArrival();
-        List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults = delayCloseOrderEvent.getTrainPurchaseTicketResults();
-        seatService.unlock(trainId, departure, arrival, trainPurchaseTicketResults);
-        String keySuffix = StrUtil.join("_", trainId, departure, arrival);
-        StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-        Map<Integer, List<TrainPurchaseTicketRespDTO>> seatTypeMap = trainPurchaseTicketResults.stream()
-                .collect(Collectors.groupingBy(TrainPurchaseTicketRespDTO::getSeatType));
-        seatTypeMap.forEach(
-                (seatType, passengerSeatDetails) -> stringRedisTemplate.opsForHash()
-                        .increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(seatType), passengerSeatDetails.size())
-        );
+        String orderSn = delayCloseOrderEvent.getOrderSn();
+        Result<Boolean> closedTickOrder;
+        try {
+            closedTickOrder = ticketOrderRemoteService.closeTickOrder(new CancelTicketOrderReqDTO(orderSn));
+        } catch (Throwable ex) {
+            log.error("[延迟关闭订单] 订单号：{} 远程调用订单服务失败", orderSn, ex);
+            throw ex;
+        }
+        if (closedTickOrder.isSuccess() && closedTickOrder.getData()) {
+            String trainId = delayCloseOrderEvent.getTrainId();
+            String departure = delayCloseOrderEvent.getDeparture();
+            String arrival = delayCloseOrderEvent.getArrival();
+            List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults = delayCloseOrderEvent.getTrainPurchaseTicketResults();
+            try {
+                seatService.unlock(trainId, departure, arrival, trainPurchaseTicketResults);
+            } catch (Throwable ex) {
+                log.error("[延迟关闭订单] 订单号：{} 回滚列车DB座位状态失败", orderSn, ex);
+                throw ex;
+            }
+            try {
+                String keySuffix = StrUtil.join("_", trainId, departure, arrival);
+                StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
+                Map<Integer, List<TrainPurchaseTicketRespDTO>> seatTypeMap = trainPurchaseTicketResults.stream()
+                        .collect(Collectors.groupingBy(TrainPurchaseTicketRespDTO::getSeatType));
+                seatTypeMap.forEach(
+                        (seatType, passengerSeatDetails) -> stringRedisTemplate.opsForHash()
+                                .increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(seatType), passengerSeatDetails.size())
+                );
+            } catch (Throwable ex) {
+                log.error("[延迟关闭订单] 订单号：{} 回滚列车Cache余票失败", orderSn, ex);
+                throw ex;
+            }
+        }
     }
 }

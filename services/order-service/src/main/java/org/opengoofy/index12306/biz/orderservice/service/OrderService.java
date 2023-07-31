@@ -63,14 +63,14 @@ public interface OrderService {
      *
      * @param requestParam 关闭火车票订单入参
      */
-    void closeTickOrder(CancelTicketOrderReqDTO requestParam);
+    boolean closeTickOrder(CancelTicketOrderReqDTO requestParam);
 
     /**
      * 取消火车票订单
      *
      * @param requestParam 取消火车票订单入参
      */
-    void cancelTickOrder(CancelTicketOrderReqDTO requestParam);
+    boolean cancelTickOrder(CancelTicketOrderReqDTO requestParam);
 
     /**
      * 订单状态反转
