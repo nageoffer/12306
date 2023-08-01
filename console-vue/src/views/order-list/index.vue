@@ -8,9 +8,10 @@
   </div>
   <Card :bordered="false" :style="{ padding: '0 10px' }">
     <Table
-        :columns="columns"
-        :data-source="state.dataSource"
-        :pagination="false"
+      :columns="columns"
+      :data-source="state.dataSource"
+      :pagination="false"
+      :loading="state.loading"
     >
       <template #idType="{ text, record }">
         <div>
@@ -26,7 +27,7 @@
         <div>
           {{
             SEAT_CLASS_TYPE_LIST.find((item) => item.code === record?.seatType)
-                ?.label
+              ?.label
           }}
         </div>
         <div>
@@ -40,7 +41,7 @@
         <div>
           {{
             TICKET_TYPE_LIST.find((item) => item.value === record?.ticketType)
-                ?.label
+              ?.label
           }}
         </div>
         <div :style="{ color: 'orange' }">￥{{ record?.amount / 100 }}</div>
@@ -50,28 +51,30 @@
         <div>
           {{
             TICKET_STATUS_LIST.find((item) => item.value === record?.status)
-                ?.label
+              ?.label
           }}
         </div>
       </template>
     </Table>
     <div align="end" :style="{ width: '100%', marginTop: '20px' }">
       <Pagination
-          :show-total="(total) => `总共 ${state.data?.total} 条`"
-          :current="state.current"
-          :size="state.size"
-          :total="state.data?.total"
+        :show-total="(total) => `总共 ${state.data?.total} 条`"
+        :current="state.current"
+        :size="state.size"
+        :total="state.data?.total"
+        show-size-changer
+        @change="handlePage"
       ></Pagination>
     </div>
   </Card>
 </template>
 
 <script setup>
-import { Tabs, TabPane, Table, Card, Pagination } from 'ant-design-vue'
+import { Tabs, TabPane, Table, Card, Pagination, message } from 'ant-design-vue'
 
 import CarInfo from './components/show-card-info'
 import EditContent from './components/edit-content'
-import { fetchTicketList } from '@/service'
+import { fetchTicketList, fetchOrderCancel } from '@/service'
 import { reactive, watch, h } from 'vue'
 import {
   ID_CARD_TYPE,
@@ -80,23 +83,26 @@ import {
   TICKET_STATUS_LIST
 } from '@/constants'
 import Cookie from 'js-cookie'
+import { useRouter } from 'vue-router'
 
 const state = reactive({
   activeKey: 0,
   dataSource: [],
   data: null,
   current: 1,
-  size: 10
+  size: 10,
+  loading: false
 })
 const userId = Cookie.get('userId')
+const router = useRouter()
 
 const columns = [
   {
     title: '车次信息',
     dataIndex: 'arrival',
     key: 'arrival',
-    slots: {customRender: 'info'},
-    customRender: ({text, record}) => {
+    slots: { customRender: 'info' },
+    customRender: ({ text, record }) => {
       return {
         children: h(CarInfo, {
           trainNumber: record?.trainNumber,
@@ -116,34 +122,34 @@ const columns = [
     title: '旅客信息',
     dataIndex: 'idType',
     key: 'idType',
-    slots: {customRender: 'idType'}
+    slots: { customRender: 'idType' }
   },
   {
     title: '席位信息',
     dataIndex: 'seatType',
     key: 'seatType',
-    slots: {customRender: 'seatType'}
+    slots: { customRender: 'seatType' }
   },
   {
     title: '票价',
     dataIndex: 'amount',
     key: 'amount',
-    slots: {customRender: 'amount'}
+    slots: { customRender: 'amount' }
   },
   {
     title: '车票状态',
     dataIndex: 'status',
     key: 'status',
-    slots: {customRender: 'status'}
+    slots: { customRender: 'status' }
   },
   {
     title: '操作',
     dataIndex: 'edit',
     key: 'edit',
-    slots: {customRender: 'edit'},
-    customRender: ({text, record}) => {
+    slots: { customRender: 'edit' },
+    customRender: ({ text, record }) => {
       return {
-        children: h(EditContent, {cancel, pay}),
+        children: h(EditContent, { orderSn: record?.orderSn, cancel, pay }),
         props: {
           rowSpan: record?.rowSpan
         }
@@ -151,38 +157,60 @@ const columns = [
     }
   }
 ]
-const cancel = () => {
-  console.log('取消支付')
+
+const handlePage = (page, pagesize) => {
+  state.current = page
+  state.size = pagesize
+}
+const cancel = (sn) => {
+  fetchOrderCancel({ orderSn: sn }).then((res) => {
+    if (res.success) {
+      message.success('订单取消成功')
+      getTicketList(state.current, state.size, state.activeKey)
+    } else {
+      message.error(res.message)
+    }
+  })
 }
 
-const pay = () => {
-  console.log('去支付')
+const pay = (sn) => {
+  router.push(`/order?sn=${sn}`)
 }
-watch(
-    () => state.activeKey,
-    (newValue) => {
-      fetchTicketList({
-        userId,
-        current: 1,
-        size: 10,
-        statusType: newValue
-      }).then((res) => {
-            console.log(res.data, 'res')
-            let dataSource = []
-            res.data.records.map((info) => {
-              info.passengerDetails?.map((item, index) => {
-                dataSource.push({
-                  ...info,
-                  ...item,
-                  rowSpan: index === 0 ? info.passengerDetails.length : 0
+const getTicketList = (current, size, statusType) => {
+  fetchTicketList({
+    userId,
+    current,
+    size,
+    statusType
+  })
+    .then((res) => {
+      let dataSource = []
+      res.data.records.map((info) => {
+        info.passengerDetails?.map((item, index) => {
+          dataSource.push({
+            ...info,
+            ...item,
+            rowSpan: index === 0 ? info.passengerDetails.length : 0
           })
         })
       })
-        state.dataSource = dataSource
-        state.data = res.data
-      })
-    },
-    { immediate: true }
+      state.dataSource = dataSource
+      state.data = res.data
+      state.loading = false
+    })
+    .catch((err) => {
+      console.log(err)
+      state.loading = false
+    })
+}
+watch(
+  () => [state.activeKey, state.current, state.size],
+  (newValue) => {
+    state.loading = true
+    const [statusType, current, size] = newValue
+    getTicketList(current, size, statusType)
+  },
+  { immediate: true }
 )
 </script>
 

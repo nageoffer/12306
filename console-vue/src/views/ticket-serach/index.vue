@@ -20,7 +20,11 @@ import {
   Tooltip,
   message
 } from 'ant-design-vue'
-import { RetweetOutlined, SwapRightOutlined } from '@ant-design/icons-vue'
+import {
+  CloseSquareFilled,
+  RetweetOutlined,
+  SwapRightOutlined
+} from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
 import { getWeekNumber } from '@/utils'
 import {
@@ -77,99 +81,127 @@ const columns = [
     dataIndex: 'trainNumber',
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
-    width: '100px',
-    maxWidth: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     key: 'station',
     slots: { title: 'customStaionTitle', customRender: 'station' },
-    width: '100px',
-    maxWidth: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'time',
     key: 'time',
     slots: { title: 'customTimeTitle', customRender: 'time' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '历时',
     dataIndex: 'duration',
     key: 'duration',
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrain' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '一等座',
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeat' },
     key: 'first_seat',
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '动卧',
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bed' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '高级软卧',
     dataIndex: 'seatClassList',
     key: 'delux_soft_bed',
     slots: { customRender: 'deluxSoftBed' },
-    width: '100px'
+    width: 90,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'scond_hard_bed',
     slots: { title: 'customScondHardSeadTitle', customRender: 'scondHardBed' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '软座',
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '硬座',
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '无座',
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '其他',
     dataIndex: 'seatClassList',
     key: 'other',
     slots: { customRender: 'other' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '备注',
@@ -182,63 +214,83 @@ const innerColumns = [
   {
     title: '车次',
     key: 'trainNumber',
-    width: '100px',
-    maxWidth: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '车站',
     key: 'station',
-    width: '100px',
-    maxWidth: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '时间',
     key: 'time',
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '历时',
     key: 'duration',
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrainPrice' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '一等座',
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeatPrice' },
     key: 'first_seat',
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeatPrice' },
-    width: '100px'
+
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '动卧',
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bedPrice' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '高级软卧',
     dataIndex: 'seatClassList',
     key: 'delux_soft_bed',
     slots: { customRender: 'deluxSoftBedPrice' },
-    width: '100px'
+    width: 90,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
-    width: '100px'
+
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     dataIndex: 'seatClassList',
@@ -247,40 +299,51 @@ const innerColumns = [
       title: 'customScondHardSeadTitle',
       customRender: 'scondHardBedPrice'
     },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '软座',
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '硬座',
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '无座',
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '其他',
     dataIndex: 'other',
     key: 'other',
     slots: { customRender: 'other' },
-    width: '100px'
+    width: 85,
+    ellipsis: true,
+    resizeble: false
   },
   {
     title: '备注',
     dataIndex: 'remark',
-    slots: { customRender: 'operation' }
+    slots: { customRender: 'operation' },
+    fixed: 'right'
   }
 ]
 
@@ -793,7 +856,7 @@ const handleBook = (record) => {
                     //   '￥' + text?.find((item) => item?.type === 12)?.price) ??
                     // ''
                     handlePriceShow(
-                      text?.find((item) => item?.type === 0)?.price ||
+                      text?.find((item) => item?.type === 0)?.price ??
                         text.find((item) => item?.type === 12)?.price
                     )
                   }}
@@ -812,7 +875,7 @@ const handleBook = (record) => {
                 <div :style="{ color: '#fc8302' }">
                   {{
                     handlePriceShow(
-                      text?.find((item) => item?.type === 2)?.price ||
+                      text?.find((item) => item?.type === 2)?.price ??
                         text?.find((item) => item.type === 3)?.price
                     )
                   }}
@@ -840,7 +903,7 @@ const handleBook = (record) => {
                 <div :style="{ color: '#fc8302' }">
                   {{
                     handlePriceShow(
-                      text?.find((item) => item?.type === 6)?.price ||
+                      text?.find((item) => item?.type === 6)?.price ??
                         text?.find((item) => item?.type === 4)?.price
                     )
                   }}
@@ -850,7 +913,7 @@ const handleBook = (record) => {
                 <div :style="{ color: '#fc8302' }">
                   {{
                     handlePriceShow(
-                      text?.find((item) => item?.type === 7)?.price ||
+                      text?.find((item) => item?.type === 7)?.price ??
                         text?.find((item) => item?.type === 5)?.price
                     )
                   }}
@@ -934,22 +997,22 @@ const handleBook = (record) => {
           <template #highSpeedTrain="{ text }">
             <div>
               {{
-                (text?.find((item) => item?.type === 0)?.quantity ||
-                  text?.find((item) => item?.type === 12)?.quantity) ??
+                text?.find((item) => item?.type === 0)?.quantity ??
+                text?.find((item) => item?.type === 12)?.quantity ??
                 '--'
               }}
             </div>
           </template>
           <template #firstSeat="{ text }">
             <div>
-              {{ text?.find((item) => item?.type === 1)?.quantity ?? '--' }}
+              {{ text?.find((item) => item?.type === 3)?.quantity ?? '--' }}
             </div>
           </template>
           <template #secondSeat="{ text }">
             <div>
               {{
-                (text?.find((item) => item?.type === 2)?.quantity ||
-                  text?.find((item) => item?.type === 3)?.quantity) ??
+                text?.find((item) => item?.type === 2)?.quantity ??
+                text?.find((item) => item?.type === 3)?.quantity ??
                 '--'
               }}
             </div>
@@ -967,8 +1030,8 @@ const handleBook = (record) => {
           <template #firstBed="{ text }">
             <div>
               {{
-                (text?.find((item) => item?.type === 6)?.quantity ||
-                  text?.find((item) => item?.type === 4)?.quantity) ??
+                text?.find((item) => item?.type === 6)?.quantity ??
+                text?.find((item) => item?.type === 4)?.quantity ??
                 '--'
               }}
             </div>
@@ -976,8 +1039,8 @@ const handleBook = (record) => {
           <template #scondHardBed="{ text }">
             <div>
               {{
-                (text?.find((item) => item?.type === 7)?.quantity ||
-                  text?.find((item) => item?.type === 5)?.quantity) ??
+                text?.find((item) => item?.type === 7)?.quantity ??
+                text?.find((item) => item?.type === 5)?.quantity ??
                 '--'
               }}
             </div>

@@ -142,7 +142,7 @@ onMounted(() => {
       }))
       state.editUserInfoMap = editUserInfoMap.map((item) => ({
         ...item,
-        value: res.data[item.name] ?? '未知'
+        value: res.data[item.name] ?? ''
       }))
     }
   })

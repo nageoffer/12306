@@ -83,7 +83,21 @@
           }"
         >
           <Space size="large">
-            <Button @click="() => console.log('取消')">取消订单</Button>
+            <Button
+              @click="
+                () => {
+                  fetchOrderCancel({ orderSn: query?.sn }).then((res) => {
+                    if (res.success) {
+                      message.success('订单取消成功')
+                      router.push('/ticketSearch')
+                    } else {
+                      message.error(res.message)
+                    }
+                  })
+                }
+              "
+              >取消订单</Button
+            >
             <Button
               :style="{
                 backgroundColor: '#ff8001',
@@ -137,8 +151,8 @@ import {
   Spin
 } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import { fetchOrderBySn, fetchPay } from '@/service'
-import { useRoute } from 'vue-router'
+import { fetchOrderBySn, fetchPay, fetchOrderCancel } from '@/service'
+import { useRoute, useRouter } from 'vue-router'
 import { onMounted, reactive, computed, toRaw } from 'vue'
 import {
   TICKET_TYPE_LIST,
@@ -149,6 +163,7 @@ import {
 import { getWeekNumber } from '@/utils'
 
 const { query } = useRoute()
+const router = useRouter()
 const state = reactive({
   count: 600000,
   currentInfo: null,

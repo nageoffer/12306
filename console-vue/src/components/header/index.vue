@@ -3,10 +3,10 @@
     <div class="header-wrapper">
       <div>
         <img
-            @click="router.push('/ticketSearch')"
-            class="logo"
-            src="../../assets/logo.png"
-            alt="logo"
+          @click="router.push('/ticketSearch')"
+          class="logo"
+          src="../../assets/logo.png"
+          alt="logo"
         />
       </div>
       <div>
@@ -27,7 +27,7 @@
             <Dropdown :trigger="['click']">
               <li :style="{ padding: '0 0 0 30px' }">
                 <Avatar shape="square" style="background-color: #1890ff"
-                >{{ state.username?.slice(0, 1)?.toUpperCase() }}
+                  >{{ state.username?.slice(0, 1)?.toUpperCase() }}
                 </Avatar>
               </li>
               <template #overlay>
@@ -63,12 +63,12 @@ import { fetchLogout } from '@/service'
 import Cookie from 'js-cookie'
 const username = Cookie.get('username')
 
-const {Header} = Layout
+const { Header } = Layout
 const props = defineProps({
   isLogin: Boolean
 })
 
-const {isLogin} = toRefs(props)
+const { isLogin } = toRefs(props)
 
 const state = reactive({
   username: username
@@ -78,10 +78,11 @@ const router = useRouter()
 const route = useRoute()
 
 watch(
-    () => route.fullPath,
-    (newValue) => {
-      state.username = username
-    }
+  () => route.fullPath,
+  (newValue) => {
+    state.username = username
+  },
+  { immediate: true }
 )
 
 const logout = () => {

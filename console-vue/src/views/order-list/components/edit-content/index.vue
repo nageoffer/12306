@@ -1,12 +1,7 @@
 <template>
   <Space>
-    <Button @click="props.cancel">取消订单</Button>
-    <Button
-      :style="{ backgroundColor: 'orange', border: 'none' }"
-      type="primary"
-      @click="props.pay"
-      >去支付</Button
-    >
+    <Button @click="() => props.cancel(orderSn)" type="link">取消订单</Button>
+    <Button type="link" @click="() => props.pay(orderSn)">去支付</Button>
   </Space>
 </template>
 
@@ -14,10 +9,10 @@
 import { Space, Button } from 'ant-design-vue'
 import { defineProps } from 'vue'
 const props = defineProps({
+  orderSn: String,
   cancel: Function,
   pay: Function
 })
-// const emit = defineEmits(['cancel', 'pay'])
 </script>
 
 <style lang="scss" scoped></style>
