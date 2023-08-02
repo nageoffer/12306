@@ -67,5 +67,15 @@ public final class RedisKeyConstant {
     /**
      * 用户购票分布式锁 Key，后续替换为 LUA 脚本就不需要了
      */
-    public static final String LOCK_PURCHASE_TICKETS = "${unique-name:}index12306-ticket-service:purchase_tickets_%s";
+    public static final String LOCK_PURCHASE_TICKETS = "${unique-name:}index12306-ticket-service:lock:purchase_tickets_%s";
+
+    /**
+     * 获取全部地点集合 Key
+     */
+    public static final String QUERY_ALL_REGION_LIST = "index12306-ticket-service:query_all_region_list";
+
+    /**
+     * 获取全部地点集合分布式锁 Key
+     */
+    public static final String LOCK_QUERY_ALL_REGION_LIST = "index12306-ticket-service:lock:query_all_region_list";
 }

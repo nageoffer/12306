@@ -109,13 +109,15 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final StationMapper stationMapper;
     private final TrainSeatTypeSelector trainSeatTypeSelector;
     private final SeatMarginCacheLoader seatMarginCacheLoader;
-    private final AbstractChainContext<PurchaseTicketReqDTO> abstractChainContext;
+    private final AbstractChainContext<TicketPageQueryReqDTO> ticketPageQueryAbstractChainContext;
+    private final AbstractChainContext<PurchaseTicketReqDTO> purchaseTicketAbstractChainContext;
     private final RedissonClient redissonClient;
     private final ConfigurableEnvironment environment;
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
-        // TODO 责任链模式 验证城市名称是否存在、不存在加载缓存等等
+        // 责任链模式 验证城市名称是否存在、不存在加载缓存等等
+        ticketPageQueryAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_QUERY_FILTER.name(), requestParam);
         StationDO fromStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
                 .eq(StationDO::getCode, requestParam.getFromStation())
         );
@@ -188,7 +190,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     @Transactional(rollbackFor = Throwable.class)
     public TicketPurchaseRespDTO purchaseTickets(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 0：参数必填 1：参数正确性 2：列车车次余量是否充足 3：乘客是否已买当前车次等
-        abstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
+        purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
         String trainId = requestParam.getTrainId();
         TrainDO trainDO = distributedCache.safeGet(
                 TRAIN_INFO + trainId,
