@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@FeignClient(value = "index12306-order-service", url = "${aggregation.remote-url:}")
+@FeignClient(value = "index12306-order${unique-name:}-service", url = "${aggregation.remote-url:}")
 public interface TicketOrderRemoteService {
 
     /**
