@@ -53,8 +53,8 @@ public final class IdempotentSpELByRestAPIExecuteHandler extends AbstractIdempot
 
     @Override
     public void handler(IdempotentParamWrapper wrapper) {
-        String lockKey = wrapper.getLockKey();
-        RLock lock = redissonClient.getLock(lockKey);
+        String uniqueKey = wrapper.getIdempotent().uniqueKeyPrefix() + wrapper.getLockKey();
+        RLock lock = redissonClient.getLock(uniqueKey);
         if (!lock.tryLock()) {
             throw new ClientException(wrapper.getIdempotent().message());
         }
