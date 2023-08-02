@@ -15,20 +15,29 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.userservice.dto.req;
+package org.opengoofy.index12306.biz.userservice.common.enums;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- * 乘车人移除请求参数
+ * 用户注册错误码枚举
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Data
-public class PassengerRemoveReqDTO {
+@AllArgsConstructor
+public enum VerifyStatusEnum {
 
     /**
-     * 乘车人id
+     * 未审核
      */
-    private String id;
+    UNREVIEWED(0),
+
+    /**
+     * 已审核
+     */
+    REVIEWED(1);
+
+    @Getter
+    private final int code;
 }
