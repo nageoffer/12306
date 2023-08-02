@@ -33,6 +33,7 @@ import org.opengoofy.index12306.biz.ticketservice.remote.dto.PassengerRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
+import org.opengoofy.index12306.framework.starter.convention.exception.RemoteException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
@@ -88,33 +89,38 @@ public final class TrainSeatTypeSelector {
         try {
             // 查询乘车人信息并赋值
             passengerRemoteResult = userRemoteService.listPassengerQueryByIds(UserContext.getUsername(), passengerIds);
-            if (passengerRemoteResult.isSuccess() && CollUtil.isNotEmpty(passengerRemoteResultList = passengerRemoteResult.getData())) {
-                actualResult.forEach(each -> {
-                    String passengerId = each.getPassengerId();
-                    passengerRemoteResultList.stream()
-                            .filter(item -> Objects.equals(item.getId(), passengerId))
-                            .findFirst()
-                            .ifPresent(passenger -> {
-                                each.setIdCard(passenger.getIdCard());
-                                each.setPhone(passenger.getPhone());
-                                each.setUserType(passenger.getDiscountType());
-                                each.setIdType(passenger.getIdType());
-                                each.setRealName(passenger.getRealName());
-                            });
-                    // 查询车次出发站-终点站座位价格
-                    LambdaQueryWrapper<TrainStationPriceDO> lambdaQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
-                            .eq(TrainStationPriceDO::getTrainId, requestParam.getTrainId())
-                            .eq(TrainStationPriceDO::getDeparture, requestParam.getDeparture())
-                            .eq(TrainStationPriceDO::getArrival, requestParam.getArrival())
-                            .eq(TrainStationPriceDO::getSeatType, each.getSeatType());
-                    TrainStationPriceDO trainStationPriceDO = trainStationPriceMapper.selectOne(lambdaQueryWrapper);
-                    each.setAmount(trainStationPriceDO.getPrice());
-                });
+            if (!passengerRemoteResult.isSuccess() || CollUtil.isEmpty(passengerRemoteResultList = passengerRemoteResult.getData())) {
+                throw new RemoteException("用户服务远程调用查询乘车人相信信息错误");
             }
         } catch (Throwable ex) {
-            log.error("用户服务远程调用查询乘车人相信信息错误", ex);
+            if (ex instanceof RemoteException) {
+                log.error("用户服务远程调用查询乘车人相信信息错误，当前用户：{}，请求参数：{}", UserContext.getUsername(), passengerIds);
+            } else {
+                log.error("用户服务远程调用查询乘车人相信信息错误，当前用户：{}，请求参数：{}", UserContext.getUsername(), passengerIds, ex);
+            }
             throw ex;
         }
+        actualResult.forEach(each -> {
+            String passengerId = each.getPassengerId();
+            passengerRemoteResultList.stream()
+                    .filter(item -> Objects.equals(item.getId(), passengerId))
+                    .findFirst()
+                    .ifPresent(passenger -> {
+                        each.setIdCard(passenger.getIdCard());
+                        each.setPhone(passenger.getPhone());
+                        each.setUserType(passenger.getDiscountType());
+                        each.setIdType(passenger.getIdType());
+                        each.setRealName(passenger.getRealName());
+                    });
+            // 查询车次出发站-终点站座位价格
+            LambdaQueryWrapper<TrainStationPriceDO> lambdaQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
+                    .eq(TrainStationPriceDO::getTrainId, requestParam.getTrainId())
+                    .eq(TrainStationPriceDO::getDeparture, requestParam.getDeparture())
+                    .eq(TrainStationPriceDO::getArrival, requestParam.getArrival())
+                    .eq(TrainStationPriceDO::getSeatType, each.getSeatType());
+            TrainStationPriceDO trainStationPriceDO = trainStationPriceMapper.selectOne(lambdaQueryWrapper);
+            each.setAmount(trainStationPriceDO.getPrice());
+        });
         seatService.lockSeat(requestParam.getTrainId(), requestParam.getDeparture(), requestParam.getArrival(), actualResult);
         return actualResult;
     }
