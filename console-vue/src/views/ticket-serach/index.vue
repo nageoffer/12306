@@ -82,7 +82,7 @@ const columns = [
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
     width: 85,
-    ellipsis: true,
+    // ellipsis: true,
     resizeble: false
   },
   {

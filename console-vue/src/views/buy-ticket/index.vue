@@ -244,11 +244,10 @@
             {{ ID_CARD_TYPE.find((item) => item.value === text)?.label }}
           </template>
         </Table>
-        <div v-if="state.isChooseSeat">
+        <div v-if="state.isChooseSeat && !(state.dataSource?.length > 5)">
           <a href=""
             >*如果本次列车剩余席位无法满足您的选座需求，系统将自动为您分配席位</a
           >
-          {{ console.log(state.dataSource) }}
           <div class="seat-choose-wrapper">
             <div>
               <div class="tip">
@@ -262,16 +261,19 @@
               </div>
             </div>
             <div>
-              <div v-for="(item, index) in state.dataSource">
+              <div v-for="(item, index) in state.dataSource?.slice(0, 2)">
                 <div class="action-wrapper">
                   <div>窗</div>
                   <Divider type="vertical"></Divider>
                   <div>
                     <div
                       class="seat-img"
-                      v-for="item in state.seatPosition
-                        .slice(0 + index * 5, 5 + index * 5)
-                        .slice(0, 3)"
+                      v-for="(item, index, length) in state.seatPosition
+                        .slice(
+                          0 + index * state.seatNumber,
+                          (1 + index) * state.seatNumber
+                        )
+                        .slice(0, state.seatLeft)"
                       @click="() => handleSelectSeat(item)"
                       :class="{
                         cur: state.currentSeatCode?.indexOf(item) !== -1
@@ -286,9 +288,12 @@
                   <div>
                     <div
                       class="seat-img"
-                      v-for="item in state.seatPosition
-                        .slice(0 + index * 5, 5 + index * 5)
-                        .slice(3, 5)"
+                      v-for="(item, index, length) in state.seatPosition
+                        .slice(
+                          0 + index * state.seatNumber,
+                          (1 + index) * state.seatNumber
+                        )
+                        .slice(state.seatLeft, state.seatNumber)"
                       @click="() => handleSelectSeat(item)"
                       :class="{
                         cur: state.currentSeatCode?.indexOf(item) !== -1
@@ -387,7 +392,9 @@ const state = reactive({
   open: false,
   currentSeatCode: [],
   seatPosition: [],
-  isChooseSeat: true
+  isChooseSeat: true,
+  seatLeft: 3,
+  seatNumber: 5
 })
 const currPassenger = ref([])
 
@@ -423,16 +430,47 @@ onMounted(() => {
 watch(
   () => state.dataSource,
   (newValue) => {
-    let seatList = new Array(newValue.length * 5).fill('')
-    const seatPosition = ['A', 'B', 'C', 'D', 'F']
+    let seatType = newValue?.length && newValue[0]?.seatType
+    let seatPosition = ['A', 'B', 'C', 'D', 'E']
+    let seatLeft = 3
+    if (
+      seatType ===
+      SEAT_CLASS_TYPE_LIST.find((item) => item.label === '商务座')?.code
+    ) {
+      seatPosition = ['A', 'B', 'C']
+      seatLeft = 2
+    }
+    if (
+      seatType ===
+      SEAT_CLASS_TYPE_LIST.find((item) => item.label === '一等座')?.code
+    ) {
+      seatPosition = ['A', 'B', 'C', 'D']
+      seatLeft = 2
+    }
+    if (
+      seatType ===
+      SEAT_CLASS_TYPE_LIST.find((item) => item.label === '二等座')?.code
+    ) {
+      seatPosition = ['A', 'B', 'C', 'D', 'E']
+      seatLeft = 3
+    }
+    let seatList = new Array(newValue?.length * seatPosition.length).fill('')
+
     seatList = seatList?.map((item, index) => {
-      if (index < 4) {
+      if (index < seatPosition.length - 1) {
         return `${seatPosition[index]}0`
       } else {
-        return `${seatPosition[index % 5]}${Math.floor(index / 5)}`
+        return `${seatPosition[index % seatPosition.length]}${Math.floor(
+          index / seatPosition.length
+        )}`
       }
     })
     state.seatPosition = seatList
+    state.seatLeft = seatLeft
+    state.seatNumber = seatPosition.length
+  },
+  {
+    deep: true
   }
 )
 
@@ -448,14 +486,13 @@ watch(
   () => state.dataSource,
   (newValue) => {
     let isChooseSeat = true
+    let seatType = newValue?.length && newValue[0].seatType
     newValue?.length &&
-    newValue.reduce((cur, pre) => {
-      if (cur && pre) {
-        if (cur?.seatType !== pre?.seatType) {
+      newValue.map((item) => {
+        if (item.seatType !== seatType) {
           isChooseSeat = false
         }
-        }
-    })
+      })
     state.isChooseSeat = isChooseSeat
   },
   { deep: true }
