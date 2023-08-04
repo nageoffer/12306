@@ -78,4 +78,9 @@ public final class RedisKeyConstant {
      * 获取全部地点集合分布式锁 Key
      */
     public static final String LOCK_QUERY_ALL_REGION_LIST = "index12306-ticket-service:lock:query_all_region_list";
+
+    /**
+     * 获取列车车厢数量集合分布式锁 Key
+     */
+    public static final String LOCK_QUERY_CARRIAGE_NUMBER_LIST = "index12306-ticket-service:lock:query_carriage_number_list_%s";
 }
