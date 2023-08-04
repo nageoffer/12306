@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
         LambdaUpdateWrapper<UserDO> userUpdateWrapper = Wrappers.lambdaUpdate(UserDO.class)
                 .eq(UserDO::getUsername, requestParam.getUsername());
         userMapper.update(userDO, userUpdateWrapper);
-        if (StrUtil.isNotBlank(requestParam.getMail()) && Objects.equals(requestParam.getMail(), userQueryRespDTO.getMail())) {
+        if (StrUtil.isNotBlank(requestParam.getMail()) && !Objects.equals(requestParam.getMail(), userQueryRespDTO.getMail())) {
             LambdaUpdateWrapper<UserMailDO> updateWrapper = Wrappers.lambdaUpdate(UserMailDO.class)
                     .eq(UserMailDO::getMail, userQueryRespDTO.getMail());
             userMailMapper.delete(updateWrapper);
