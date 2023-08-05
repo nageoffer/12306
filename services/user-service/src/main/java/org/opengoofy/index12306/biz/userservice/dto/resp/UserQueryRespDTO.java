@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.userservice.dto.resp;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.opengoofy.index12306.biz.userservice.serialize.IdCardDesensitizationSerializer;
 import org.opengoofy.index12306.biz.userservice.serialize.PhoneDesensitizationSerializer;
 
 /**
@@ -52,7 +53,7 @@ public class UserQueryRespDTO {
     /**
      * 证件号
      */
-    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
+    @JsonSerialize(using = IdCardDesensitizationSerializer.class)
     private String idCard;
 
     /**
