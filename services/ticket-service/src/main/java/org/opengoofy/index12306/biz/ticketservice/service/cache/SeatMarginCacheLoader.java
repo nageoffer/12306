@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant.ADVANCE_TICKET_DAY;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_SAFE_LOAD_SEAT_MARGIN_GET;
 
 /**
  * 座位余量缓存加载
@@ -55,9 +56,8 @@ public class SeatMarginCacheLoader {
 
     public Map<String, String> load(String trainId, String seatType, String departure, String arrival) {
         Map<String, String> trainStationRemainingTicket = new HashMap<>();
-        String distributedLockKey = "safe_load_seat_margin_distributed_lock_get:";
         String keySuffix = CacheUtil.buildKey(trainId, departure, arrival);
-        RLock lock = redissonClient.getLock(distributedLockKey + keySuffix);
+        RLock lock = redissonClient.getLock(String.format(LOCK_SAFE_LOAD_SEAT_MARGIN_GET, keySuffix));
         lock.lock();
         try {
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();

@@ -93,4 +93,9 @@ public final class RedisKeyConstant {
      * 获取地区以及站点集合分布式锁 Key
      */
     public static final String LOCK_QUERY_REGION_STATION_LIST = "index12306-ticket-service:lock:query_region_station_list_%s";
+
+    /**
+     * 获取相邻座位余票分布式锁 Key
+     */
+    public static final String LOCK_SAFE_LOAD_SEAT_MARGIN_GET = "index12306-ticket-service:lock:safe_load_seat_margin_%s";
 }
