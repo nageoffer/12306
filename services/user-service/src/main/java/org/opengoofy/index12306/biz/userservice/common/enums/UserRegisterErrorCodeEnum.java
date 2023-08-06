@@ -44,7 +44,23 @@ public enum UserRegisterErrorCodeEnum implements IErrorCode {
 
     PHONE_REGISTERED("A006007", "手机号已被占用"),
 
-    MAIL_REGISTERED("A006008", "邮箱已被占用");
+    MAIL_REGISTERED("A006008", "邮箱已被占用"),
+
+    MAIL_NOTNULL("A006009", "邮箱不能为空"),
+
+    USER_TYPE_NOTNULL("A006010", "旅客类型不能为空"),
+
+    POST_CODE_NOTNULL("A006011", "邮编不能为空"),
+
+    ADDRESS_NOTNULL("A006012", "地址不能为空"),
+
+    REGION_NOTNULL("A006012", "国家/地区不能为空"),
+
+    TELEPHONE_NOTNULL("A006013", "固定电话不能为空"),
+
+    VERIFY_STATE_NOTNULL("A006014", "审核状态不能为空"),
+
+    REAL_NAME_NOTNULL("A006015", "真实姓名不能为空");
 
     /**
      * 错误码

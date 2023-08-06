@@ -44,8 +44,23 @@ public final class UserRegisterParamNotNullChainHandler implements UserRegisterC
             throw new ClientException(UserRegisterErrorCodeEnum.ID_TYPE_NOTNULL);
         } else if (Objects.isNull(requestParam.getIdCard())) {
             throw new ClientException(UserRegisterErrorCodeEnum.ID_CARD_NOTNULL);
+        } else if (Objects.isNull(requestParam.getMail())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.MAIL_NOTNULL);
+        } else if (Objects.isNull(requestParam.getPostCode())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.POST_CODE_NOTNULL);
+        } else if (Objects.isNull(requestParam.getAddress())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.ADDRESS_NOTNULL);
+        } else if (Objects.isNull(requestParam.getRegion())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.REGION_NOTNULL);
+        } else if (Objects.isNull(requestParam.getVerifyState())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.VERIFY_STATE_NOTNULL);
+        } else if (Objects.isNull(requestParam.getUserType())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.USER_TYPE_NOTNULL);
+        } else if (Objects.isNull(requestParam.getTelephone())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.TELEPHONE_NOTNULL);
+        } else if (Objects.isNull(requestParam.getRealName())) {
+            throw new ClientException(UserRegisterErrorCodeEnum.REAL_NAME_NOTNULL);
         }
-        // xxx 这里应该把所有用户注册入参校验必填，因为重复工作量所以暂时验证上述这些
     }
 
     @Override
