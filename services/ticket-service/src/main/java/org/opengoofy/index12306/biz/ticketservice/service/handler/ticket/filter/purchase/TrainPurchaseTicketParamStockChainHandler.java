@@ -60,7 +60,7 @@ public class TrainPurchaseTicketParamStockChainHandler implements TrainPurchaseT
                 Map<String, String> seatMarginMap = seatMarginCacheLoader.load(String.valueOf(requestParam.getTrainId()), String.valueOf(seatType), requestParam.getDeparture(), requestParam.getArrival());
                 return Optional.ofNullable(seatMarginMap.get(String.valueOf(seatType))).map(Integer::parseInt).orElse(0);
             });
-            if (stock > passengerDetails.size()) {
+            if (stock >= passengerSeatDetails.size()) {
                 return;
             }
             throw new ClientException("列车站点已无余票");
