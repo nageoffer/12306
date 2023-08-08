@@ -87,6 +87,20 @@ public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements 
     }
 
     @Override
+    public List<String> listUsableCarriageNumber(String trainId, Integer carriageType, String departure, String arrival) {
+        LambdaQueryWrapper<SeatDO> queryWrapper = Wrappers.lambdaQuery(SeatDO.class)
+                .eq(SeatDO::getTrainId, trainId)
+                .eq(SeatDO::getSeatType, carriageType)
+                .eq(SeatDO::getStartStation, departure)
+                .eq(SeatDO::getEndStation, arrival)
+                .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode())
+                .groupBy(SeatDO::getCarriageNumber)
+                .select(SeatDO::getCarriageNumber);
+        List<SeatDO> seatDOList = seatMapper.selectList(queryWrapper);
+        return seatDOList.stream().map(SeatDO::getCarriageNumber).collect(Collectors.toList());
+    }
+
+    @Override
     public void lockSeat(String trainId, String departure, String arrival, List<TrainPurchaseTicketRespDTO> trainPurchaseTicketRespList) {
         List<RouteDTO> routeList = trainStationService.listTrainStationRoute(trainId, departure, arrival);
         trainPurchaseTicketRespList.forEach(each -> routeList.forEach(item -> {

@@ -54,6 +54,17 @@ public interface SeatService extends IService<SeatDO> {
     List<Integer> listSeatRemainingTicket(String trainId, String departure, String arrival, List<String> trainCarriageList);
 
     /**
+     * 查询列车有余票的车厢号集合
+     *
+     * @param trainId      列车 ID
+     * @param carriageType 车厢类型
+     * @param departure    出发站
+     * @param arrival      到达站
+     * @return 车厢号集合
+     */
+    List<String> listUsableCarriageNumber(String trainId, Integer carriageType, String departure, String arrival);
+
+    /**
      * 锁定选中以及沿途车票状态
      *
      * @param trainId                     列车 ID
