@@ -17,6 +17,8 @@
 
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.ListUtil;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
@@ -28,9 +30,11 @@ import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.Sel
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.SeatSelection;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.SeatNumberUtil;
+import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,75 +64,223 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
         String departure = requestParam.getRequestParam().getDeparture();
         String arrival = requestParam.getRequestParam().getArrival();
         List<PurchaseTicketPassengerDetailDTO> passengerSeatDetails = requestParam.getPassengerSeatDetails();
-        List<TrainPurchaseTicketRespDTO> actualResult = new ArrayList<>(passengerSeatDetails.size());
         List<String> trainCarriageList = carriageService.listCarriageNumber(trainId, requestParam.getSeatType());
         List<Integer> trainStationCarriageRemainingTicket = seatService.listSeatRemainingTicket(trainId, departure, arrival, trainCarriageList);
-        Map<String, Integer> demotionStockNumMap = new LinkedHashMap<>(trainCarriageList.size());
-        Map<String, int[][]> actualSeatsMap = new HashMap<>(trainCarriageList.size());
+        int remainingTicketSum = trainStationCarriageRemainingTicket.stream().mapToInt(Integer::intValue).sum();
+        if (remainingTicketSum < passengerSeatDetails.size()) {
+            throw new ServiceException("站点余票不足，请尝试更换座位类型或选择其它站点");
+        }
+        if (passengerSeatDetails.size() < 3) {
+            return selectSeats(requestParam, trainCarriageList, trainStationCarriageRemainingTicket);
+        }
+        return selectComplexSeats(requestParam, trainCarriageList, trainStationCarriageRemainingTicket);
+    }
+
+    private List<TrainPurchaseTicketRespDTO> selectSeats(SelectSeatDTO requestParam, List<String> trainCarriageList, List<Integer> trainStationCarriageRemainingTicket) {
+        String trainId = requestParam.getRequestParam().getTrainId();
+        String departure = requestParam.getRequestParam().getDeparture();
+        String arrival = requestParam.getRequestParam().getArrival();
+        List<PurchaseTicketPassengerDetailDTO> passengerSeatDetails = requestParam.getPassengerSeatDetails();
+        List<TrainPurchaseTicketRespDTO> actualResult = new ArrayList<>();
+        Map<String, Integer> demotionStockNumMap = new LinkedHashMap<>();
+        Map<String, int[][]> actualSeatsMap = new HashMap<>();
+        Map<String, int[][]> carriagesNumberSeatsMap = new HashMap<>();
         String carriagesNumber;
         for (int i = 0; i < trainStationCarriageRemainingTicket.size(); i++) {
-            int remainingTicket = trainStationCarriageRemainingTicket.get(i);
-            if (remainingTicket > passengerSeatDetails.size()) {
-                carriagesNumber = trainCarriageList.get(i);
-                List<String> listAvailableSeat = seatService.listAvailableSeat(trainId, carriagesNumber, requestParam.getSeatType(), departure, arrival);
-                int[][] actualSeats = new int[2][3];
-                for (int j = 1; j < 3; j++) {
-                    for (int k = 1; k < 4; k++) {
-                        // 当前默认按照复兴号商务座排序，后续这里需要按照简单工厂对车类型进行获取 y 轴
-                        actualSeats[j - 1][k - 1] = listAvailableSeat.contains("0" + j + SeatNumberUtil.convert(0, k)) ? 0 : 1;
+            carriagesNumber = trainCarriageList.get(i);
+            List<String> listAvailableSeat = seatService.listAvailableSeat(trainId, carriagesNumber, requestParam.getSeatType(), departure, arrival);
+            int[][] actualSeats = new int[2][3];
+            for (int j = 1; j < 3; j++) {
+                for (int k = 1; k < 4; k++) {
+                    // 当前默认按照复兴号商务座排序，后续这里需要按照简单工厂对车类型进行获取 y 轴
+                    actualSeats[j - 1][k - 1] = listAvailableSeat.contains("0" + j + SeatNumberUtil.convert(0, k)) ? 0 : 1;
+                }
+            }
+            int[][] select = SeatSelection.adjacent(passengerSeatDetails.size(), actualSeats);
+            if (select != null) {
+                carriagesNumberSeatsMap.put(carriagesNumber, select);
+                break;
+            }
+            int demotionStockNum = 0;
+            for (int[] actualSeat : actualSeats) {
+                for (int i1 : actualSeat) {
+                    if (i1 == 0) {
+                        demotionStockNum++;
                     }
                 }
-                List<String> selectSeats = new ArrayList<>();
-                int[][] select = SeatSelection.adjacent(passengerSeatDetails.size(), actualSeats);
-                if (Objects.isNull(select)) {
-                    int demotionStockNum = 0;
-                    for (int[] actualSeat : actualSeats) {
-                        for (int i1 : actualSeat) {
-                            if (i1 == 0) {
-                                demotionStockNum++;
-                            }
-                        }
+            }
+            demotionStockNumMap.putIfAbsent(carriagesNumber, demotionStockNum);
+            actualSeatsMap.putIfAbsent(carriagesNumber, actualSeats);
+            if (i < trainStationCarriageRemainingTicket.size() - 1) {
+                continue;
+            }
+            // 如果邻座算法无法匹配，尝试对用户进行降级分配：同车厢不邻座
+            for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
+                String carriagesNumberBack = entry.getKey();
+                int demotionStockNumBack = entry.getValue();
+                if (demotionStockNumBack > passengerSeatDetails.size()) {
+                    int[][] seats = actualSeatsMap.get(carriagesNumberBack);
+                    int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(passengerSeatDetails.size(), seats);
+                    if (Objects.equals(nonAdjacentSeats.length, passengerSeatDetails.size())) {
+                        select = nonAdjacentSeats;
+                        carriagesNumberSeatsMap.put(carriagesNumberBack, select);
+                        break;
                     }
-                    demotionStockNumMap.putIfAbsent(carriagesNumber, demotionStockNum);
-                    actualSeatsMap.putIfAbsent(carriagesNumber, actualSeats);
-                    if (i < trainStationCarriageRemainingTicket.size() - 1) {
-                        continue;
-                    }
-                    // 如果邻座算法无法匹配，尝试对用户进行降级分配：同车厢不邻座
-                    for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
-                        String carriagesNumberBack = entry.getKey();
-                        int demotionStockNumBack = entry.getValue();
-                        if (demotionStockNumBack > passengerSeatDetails.size()) {
-                            int[][] seats = actualSeatsMap.get(carriagesNumberBack);
-                            int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(passengerSeatDetails.size(), seats);
-                            if (Objects.equals(nonAdjacentSeats.length, passengerSeatDetails.size())) {
-                                select = nonAdjacentSeats;
-                                carriagesNumber = carriagesNumberBack;
-                                break;
-                            }
-                        }
-                    }
-                    // TODO 如果同车厢也已无法匹配，则对用户座位再次降级：不同车厢不邻座
                 }
-                if (select != null) {
-                    for (int[] ints : select) {
-                        selectSeats.add("0" + ints[0] + SeatNumberUtil.convert(0, ints[1]));
-                    }
-                    for (int j = 0; j < selectSeats.size(); j++) {
-                        TrainPurchaseTicketRespDTO result = new TrainPurchaseTicketRespDTO();
-                        String seatNumber = selectSeats.get(j);
-                        PurchaseTicketPassengerDetailDTO currentTicketPassenger = passengerSeatDetails.get(j);
-                        result.setSeatNumber(seatNumber);
-                        result.setSeatType(currentTicketPassenger.getSeatType());
-                        result.setCarriageNumber(carriagesNumber);
-                        result.setPassengerId(currentTicketPassenger.getPassengerId());
-                        actualResult.add(result);
-                    }
-                    break;
+            }
+            // 如果同车厢也已无法匹配，则对用户座位再次降级：不同车厢不邻座
+            if (Objects.isNull(select)) {
+                for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
+                    String carriagesNumberBack = entry.getKey();
+                    int demotionStockNumBack = entry.getValue();
+                    int[][] seats = actualSeatsMap.get(carriagesNumberBack);
+                    int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(demotionStockNumBack, seats);
+                    carriagesNumberSeatsMap.put(entry.getKey(), nonAdjacentSeats);
                 }
             }
         }
-        // TODO 如果一个车厢不满足乘客人数，需要进行拆分
+        // 乘车人员在单一车厢座位不满足，触发乘车人元分布在不同车厢
+        int count = (int) carriagesNumberSeatsMap.values().stream()
+                .flatMap(Arrays::stream)
+                .count();
+        if (CollUtil.isNotEmpty(carriagesNumberSeatsMap) && passengerSeatDetails.size() == count) {
+            int countNum = 0;
+            for (Map.Entry<String, int[][]> entry : carriagesNumberSeatsMap.entrySet()) {
+                List<String> selectSeats = new ArrayList<>();
+                for (int[] ints : entry.getValue()) {
+                    selectSeats.add("0" + ints[0] + SeatNumberUtil.convert(0, ints[1]));
+                }
+                for (String selectSeat : selectSeats) {
+                    TrainPurchaseTicketRespDTO result = new TrainPurchaseTicketRespDTO();
+                    PurchaseTicketPassengerDetailDTO currentTicketPassenger = passengerSeatDetails.get(countNum++);
+                    result.setSeatNumber(selectSeat);
+                    result.setSeatType(currentTicketPassenger.getSeatType());
+                    result.setCarriageNumber(entry.getKey());
+                    result.setPassengerId(currentTicketPassenger.getPassengerId());
+                    actualResult.add(result);
+                }
+            }
+        }
         return actualResult;
+    }
+
+    private List<TrainPurchaseTicketRespDTO> selectComplexSeats(SelectSeatDTO requestParam, List<String> trainCarriageList, List<Integer> trainStationCarriageRemainingTicket) {
+        String trainId = requestParam.getRequestParam().getTrainId();
+        String departure = requestParam.getRequestParam().getDeparture();
+        String arrival = requestParam.getRequestParam().getArrival();
+        List<PurchaseTicketPassengerDetailDTO> passengerSeatDetails = requestParam.getPassengerSeatDetails();
+        List<TrainPurchaseTicketRespDTO> actualResult = new ArrayList<>();
+        Map<String, Integer> demotionStockNumMap = new LinkedHashMap<>();
+        Map<String, int[][]> actualSeatsMap = new HashMap<>();
+        Map<String, int[][]> carriagesNumberSeatsMap = new HashMap<>();
+        String carriagesNumber;
+        // 多人分配同一车厢邻座
+        for (int i = 0; i < trainStationCarriageRemainingTicket.size(); i++) {
+            carriagesNumber = trainCarriageList.get(i);
+            List<String> listAvailableSeat = seatService.listAvailableSeat(trainId, carriagesNumber, requestParam.getSeatType(), departure, arrival);
+            int[][] actualSeats = new int[2][3];
+            for (int j = 1; j < 3; j++) {
+                for (int k = 1; k < 4; k++) {
+                    // 当前默认按照复兴号商务座排序，后续这里需要按照简单工厂对车类型进行获取 y 轴
+                    actualSeats[j - 1][k - 1] = listAvailableSeat.contains("0" + j + SeatNumberUtil.convert(0, k)) ? 0 : 1;
+                }
+            }
+            int[][] actualSeatsTranscript = deepCopy(actualSeats);
+            List<int[][]> actualSelects = new ArrayList<>();
+            List<List<PurchaseTicketPassengerDetailDTO>> splitPassengerSeatDetails = ListUtil.split(passengerSeatDetails, 2);
+            for (List<PurchaseTicketPassengerDetailDTO> each : splitPassengerSeatDetails) {
+                int[][] select = SeatSelection.adjacent(each.size(), actualSeatsTranscript);
+                if (select != null) {
+                    for (int[] ints : select) {
+                        actualSeatsTranscript[ints[0] - 1][ints[1] - 1] = 1;
+                    }
+                    actualSelects.add(actualSeatsTranscript);
+                }
+            }
+            if (actualSelects.size() == splitPassengerSeatDetails.size()) {
+                int[][] actualSelect = null;
+                for (int j = 0; j < actualSelects.size(); j++) {
+                    if (j == 0) {
+                        actualSelect = mergeArrays(actualSelects.get(j), actualSelects.get(j + 1));
+                    } else {
+                        actualSelect = mergeArrays(actualSelect, actualSelects.get(j + 2));
+                    }
+                }
+                carriagesNumberSeatsMap.put(carriagesNumber, actualSelect);
+                break;
+            }
+            int demotionStockNum = 0;
+            for (int[] actualSeat : actualSeats) {
+                for (int i1 : actualSeat) {
+                    if (i1 == 0) {
+                        demotionStockNum++;
+                    }
+                }
+            }
+            demotionStockNumMap.putIfAbsent(carriagesNumber, demotionStockNum);
+            actualSeatsMap.putIfAbsent(carriagesNumber, actualSeats);
+        }
+        // 如果邻座算法无法匹配，尝试对用户进行降级分配：同车厢不邻座
+        if (CollUtil.isEmpty(carriagesNumberSeatsMap)) {
+            for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
+                String carriagesNumberBack = entry.getKey();
+                int demotionStockNumBack = entry.getValue();
+                if (demotionStockNumBack > passengerSeatDetails.size()) {
+                    int[][] seats = actualSeatsMap.get(carriagesNumberBack);
+                    int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(passengerSeatDetails.size(), seats);
+                    if (Objects.equals(nonAdjacentSeats.length, passengerSeatDetails.size())) {
+                        carriagesNumberSeatsMap.put(carriagesNumberBack, nonAdjacentSeats);
+                        break;
+                    }
+                }
+            }
+        }
+        // 如果同车厢也已无法匹配，则对用户座位再次降级：不同车厢不邻座
+        if (CollUtil.isEmpty(carriagesNumberSeatsMap)) {
+            for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
+                String carriagesNumberBack = entry.getKey();
+                int demotionStockNumBack = entry.getValue();
+                int[][] seats = actualSeatsMap.get(carriagesNumberBack);
+                int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(demotionStockNumBack, seats);
+                carriagesNumberSeatsMap.put(entry.getKey(), nonAdjacentSeats);
+            }
+        }
+        // 乘车人员在单一车厢座位不满足，触发乘车人元分布在不同车厢
+        int count = (int) carriagesNumberSeatsMap.values().stream()
+                .flatMap(Arrays::stream)
+                .count();
+        if (CollUtil.isNotEmpty(carriagesNumberSeatsMap) && passengerSeatDetails.size() == count) {
+            int countNum = 0;
+            for (Map.Entry<String, int[][]> entry : carriagesNumberSeatsMap.entrySet()) {
+                List<String> selectSeats = new ArrayList<>();
+                for (int[] ints : entry.getValue()) {
+                    selectSeats.add("0" + ints[0] + SeatNumberUtil.convert(0, ints[1]));
+                }
+                for (String selectSeat : selectSeats) {
+                    TrainPurchaseTicketRespDTO result = new TrainPurchaseTicketRespDTO();
+                    PurchaseTicketPassengerDetailDTO currentTicketPassenger = passengerSeatDetails.get(countNum++);
+                    result.setSeatNumber(selectSeat);
+                    result.setSeatType(currentTicketPassenger.getSeatType());
+                    result.setCarriageNumber(entry.getKey());
+                    result.setPassengerId(currentTicketPassenger.getPassengerId());
+                    actualResult.add(result);
+                }
+            }
+        }
+        return actualResult;
+    }
+
+    public static int[][] mergeArrays(int[][] array1, int[][] array2) {
+        List<int[]> list = new ArrayList<>(Arrays.asList(array1));
+        list.addAll(Arrays.asList(array2));
+        return list.toArray(new int[0][]);
+    }
+
+    public static int[][] deepCopy(int[][] originalArray) {
+        int[][] copy = new int[originalArray.length][originalArray[0].length];
+        for (int i = 0; i < originalArray.length; i++) {
+            System.arraycopy(originalArray[i], 0, copy[i], 0, originalArray[i].length);
+        }
+        return copy;
     }
 }
