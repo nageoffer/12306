@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleSeatTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
-import org.opengoofy.index12306.biz.ticketservice.service.CarriageService;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base.AbstractTrainPurchaseTicketTemplate;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
@@ -50,7 +49,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurchaseTicketTemplate {
 
-    private final CarriageService carriageService;
     private final SeatService seatService;
 
     @Override
@@ -64,7 +62,7 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
         String departure = requestParam.getRequestParam().getDeparture();
         String arrival = requestParam.getRequestParam().getArrival();
         List<PurchaseTicketPassengerDetailDTO> passengerSeatDetails = requestParam.getPassengerSeatDetails();
-        List<String> trainCarriageList = carriageService.listCarriageNumber(trainId, requestParam.getSeatType());
+        List<String> trainCarriageList = seatService.listUsableCarriageNumber(trainId, requestParam.getSeatType(), departure, arrival);
         List<Integer> trainStationCarriageRemainingTicket = seatService.listSeatRemainingTicket(trainId, departure, arrival, trainCarriageList);
         int remainingTicketSum = trainStationCarriageRemainingTicket.stream().mapToInt(Integer::intValue).sum();
         if (remainingTicketSum < passengerSeatDetails.size()) {
@@ -194,7 +192,7 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                     for (int[] ints : select) {
                         actualSeatsTranscript[ints[0] - 1][ints[1] - 1] = 1;
                     }
-                    actualSelects.add(actualSeatsTranscript);
+                    actualSelects.add(select);
                 }
             }
             if (actualSelects.size() == splitPassengerSeatDetails.size()) {
@@ -202,8 +200,9 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                 for (int j = 0; j < actualSelects.size(); j++) {
                     if (j == 0) {
                         actualSelect = mergeArrays(actualSelects.get(j), actualSelects.get(j + 1));
-                    } else {
-                        actualSelect = mergeArrays(actualSelect, actualSelects.get(j + 2));
+                    }
+                    if (j != 0 && actualSelects.size() > 2){
+                        actualSelect = mergeArrays(actualSelect, actualSelects.get(j + 1));
                     }
                 }
                 carriagesNumberSeatsMap.put(carriagesNumber, actualSelect);
@@ -237,11 +236,13 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
         }
         // 如果同车厢也已无法匹配，则对用户座位再次降级：不同车厢不邻座
         if (CollUtil.isEmpty(carriagesNumberSeatsMap)) {
+            int undistributedPassengerSize = passengerSeatDetails.size();
             for (Map.Entry<String, Integer> entry : demotionStockNumMap.entrySet()) {
                 String carriagesNumberBack = entry.getKey();
                 int demotionStockNumBack = entry.getValue();
                 int[][] seats = actualSeatsMap.get(carriagesNumberBack);
-                int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(demotionStockNumBack, seats);
+                int[][] nonAdjacentSeats = SeatSelection.nonAdjacent(Math.min(undistributedPassengerSize, demotionStockNumBack), seats);
+                undistributedPassengerSize = undistributedPassengerSize - demotionStockNumBack;
                 carriagesNumberSeatsMap.put(entry.getKey(), nonAdjacentSeats);
             }
         }
