@@ -26,15 +26,17 @@ initAxios.interceptors.request.use(
 //响应拦截器
 initAxios.interceptors.response.use(
   (response) => {
-    if (response.code === '401') {
-      location.href = '/login'
+    if (response.code === 401) {
+      message.error('用户未登录或已过期！')
+      // location.href = '/login'
+      window.location.href = 'login'
     }
     return response
   },
   (error) => {
     console.log(error, 'error')
     if (error.response.status === 401) {
-      message.error('登录失效，请重新登录')
+      message.error('用户未登录或已过期！')
       window.location.href = 'login'
     }
     return Promise.reject(error)

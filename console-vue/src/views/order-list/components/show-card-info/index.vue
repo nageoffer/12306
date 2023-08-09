@@ -3,7 +3,7 @@
     <div class="order-date">订票日期：{{ props.orderTime }}</div>
     <div>
       <span class="border">{{ departure }}</span>
-      <span class="border">--></span>
+      <span class="border">{{ '-->' }}</span>
       <span class="border">{{ arrival }}</span
       ><span class="border">{{ props['trainNumber'] }}</span>
     </div>

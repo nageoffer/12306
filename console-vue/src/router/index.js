@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { message } from 'ant-design-vue'
 import Login from '../views/login'
 import TicketSearch from '../views/ticket-serach'
 import Userinfo from '../views/user-info'
@@ -126,7 +127,7 @@ router.beforeEach(async (to, from) => {
     to.name !== 'login' &&
     (!Cookies.get('username') || !Cookies.get('token'))
   ) {
-    console.log('hhh')
+    message.error('用户未登录或已过期！')
     return {
       name: 'login'
     }

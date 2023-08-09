@@ -244,7 +244,13 @@
             {{ ID_CARD_TYPE.find((item) => item.value === text)?.label }}
           </template>
         </Table>
-        <div v-if="state.isChooseSeat && !(state.dataSource?.length > 5)">
+        <div
+          v-if="
+            state.isChooseSeat &&
+            !(state.dataSource?.length > 5) &&
+            state.dataSource?.length <= state.seatPosition.length
+          "
+        >
           <a href=""
             >*如果本次列车剩余席位无法满足您的选座需求，系统将自动为您分配席位</a
           >

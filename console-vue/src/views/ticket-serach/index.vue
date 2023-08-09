@@ -1184,7 +1184,7 @@ const handleBook = (record) => {
     margin-left: 0;
   }
   .ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
-    // border-right: none;
+    /* // border-right: none; */
   }
   .ant-tabs-nav-wrap {
     width: 100%;
@@ -1195,7 +1195,7 @@ const handleBook = (record) => {
         border-left: none;
       }
       .ant-tabs-tab {
-        // flex: 1;
+        /* // flex: 1; */
         width: 6.5%;
         text-align: center;
         border-top-left-radius: 0px !important;

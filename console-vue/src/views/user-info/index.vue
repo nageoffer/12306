@@ -166,7 +166,7 @@ const handleOtherSubmit = () => {
 .info-wrapper {
   width: 100%;
   text-align: center;
-  // padding: 10px;
+  /* // padding: 10px; */
   margin-bottom: 24px;
   height: 32px;
   line-height: 32px;

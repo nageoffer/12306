@@ -7,56 +7,116 @@
     </Tabs>
   </div>
   <Card :bordered="false" :style="{ padding: '0 10px' }">
-    <Table
-      :columns="columns"
-      :data-source="state.dataSource"
-      :pagination="false"
-      :loading="state.loading"
+    <CheckboxGroup
+      :style="{ width: '100%' }"
+      v-model:value="state.checkList"
+      @change="
+        (e) => {
+          state.checkList = e
+        }
+      "
     >
-      <template #idType="{ text, record }">
-        <div>
-          <span>{{ record?.realName }}</span>
-        </div>
-        <div>
-          {{
-            ID_CARD_TYPE.find((item) => item.value === record?.idType)?.label
-          }}
-        </div>
-      </template>
-      <template #seatType="{ text, record }">
-        <div>
-          {{
-            SEAT_CLASS_TYPE_LIST.find((item) => item.code === record?.seatType)
-              ?.label
-          }}
-        </div>
-        <div>
-          <span>{{ record?.carriageNumber }}</span>
-          <span>车</span>
-          <span>{{ record?.seatNumber }}</span>
-          <span>号</span>
-        </div>
-      </template>
-      <template #amount="{ text, record }">
-        <div>
-          {{
-            TICKET_TYPE_LIST.find((item) => item.value === record?.ticketType)
-              ?.label
-          }}
-        </div>
-        <div :style="{ color: 'orange' }">￥{{ record?.amount / 100 }}</div>
-      </template>
+      <Table
+        :columns="state.columns"
+        :data-source="state.dataSource"
+        :pagination="false"
+        :loading="state.loading"
+        :bordered="true"
+      >
+        <template #idType="{ text, record }">
+          <div
+            :style="{
+              display: 'flex',
+              alignItems: 'center'
+            }"
+          >
+            <div
+              v-if="state.activeKey !== 0"
+              :style="{ marginRight: '20px', width: '30px' }"
+            >
+              <Checkbox
+                :value="String(record.idCard) + String(record.orderSn)"
+                @change="
+                  () =>
+                    console.log(
+                      String(record.idCard) + String(record.orderSn),
+                      'value'
+                    )
+                "
+              ></Checkbox>
+            </div>
+            <div :style="{}">
+              <div>
+                <span :style="{ marginRight: '5px', width: '60%' }">{{
+                  record?.realName
+                }}</span>
+                <a
+                  v-if="state.activeKey !== 0"
+                  :style="{ textDecoration: 'underline' }"
+                  >打印信息单</a
+                >
+              </div>
+              <div>
+                {{
+                  ID_CARD_TYPE.find((item) => item.value === record?.idType)
+                    ?.label
+                }}
+              </div>
+            </div>
+          </div>
+        </template>
+        <template #seatType="{ text, record }">
+          <div>
+            {{
+              SEAT_CLASS_TYPE_LIST.find(
+                (item) => item.code === record?.seatType
+              )?.label
+            }}
+          </div>
+          <div>
+            <span>{{ record?.carriageNumber }}</span>
+            <span>车</span>
+            <span>{{ record?.seatNumber }}</span>
+            <span>号</span>
+          </div>
+        </template>
+        <template #amount="{ text, record }">
+          <div>
+            {{
+              TICKET_TYPE_LIST.find((item) => item.value === record?.ticketType)
+                ?.label
+            }}
+          </div>
+          <div :style="{ color: 'orange' }">￥{{ record?.amount / 100 }}</div>
+        </template>
 
-      <template #status="{ text, record }">
-        <div>
-          {{
-            TICKET_STATUS_LIST.find((item) => item.value === record?.status)
-              ?.label
-          }}
-        </div>
-      </template>
-    </Table>
-    <div align="end" :style="{ width: '100%', marginTop: '20px' }">
+        <template #status="{ text, record }">
+          <div>
+            {{
+              TICKET_STATUS_LIST.find((item) => item.value === record?.status)
+                ?.label ?? '--'
+            }}
+          </div>
+        </template>
+        <template #summary>
+          <TableSummary :fixed="fixedTop ? 'top' : 'bottom'">
+            <TableSummaryRow>
+              <TableSummaryCell :index="0" :col-span="24">
+                <div>
+                  <Checkbox
+                    v-model:checked="state.checkedAll"
+                    @change="onCheckAllChange"
+                    :indeterminate="state.indeterminate"
+                    >全选</Checkbox
+                  >
+                </div>
+              </TableSummaryCell>
+            </TableSummaryRow>
+          </TableSummary>
+        </template>
+      </Table>
+    </CheckboxGroup>
+    <div :style="{ width: '100%', marginTop: '20px' }">
       <Pagination
         :show-total="(total) => `总共 ${state.data?.total} 条`"
         :current="state.current"
@@ -66,11 +126,33 @@
         @change="handlePage"
       ></Pagination>
     </div>
+    <div class="tips-txt">
+      <h2 :style="{ fontSize: '16px' }">温馨提示：</h2>
+      <p>1. 席位已锁定，请在指定时间内完成网上支付。</p>
+      <p>2. 逾期未支付，系统将取消本次交易。</p>
+      <p>3. 在完成支付或取消订单之前，您将无法购买其他车票</p>
+      <p>
+        4.
+        未尽事宜详见《国铁集团铁路旅客运输规程》《广深港高铁铁路跨境旅客运输组织规则》《中老铁路跨境旅客联运组织规则》等有关规定和车站公告。
+      </p>
+    </div>
   </Card>
 </template>
 
 <script setup>
-import { Tabs, TabPane, Table, Card, Pagination, message } from 'ant-design-vue'
+import {
+  Tabs,
+  TabPane,
+  Table,
+  Card,
+  Pagination,
+  message,
+  CheckboxGroup,
+  Checkbox,
+  TableSummary,
+  TableSummaryCell,
+  TableSummaryRow
+} from 'ant-design-vue'
 
 import CarInfo from './components/show-card-info'
 import EditContent from './components/edit-content'
@@ -84,6 +166,7 @@ import {
 } from '@/constants'
 import Cookie from 'js-cookie'
 import { useRouter } from 'vue-router'
+// import { css } from 'vue.config'
 
 const state = reactive({
   activeKey: 0,
@@ -91,7 +174,10 @@ const state = reactive({
   data: null,
   current: 1,
   size: 10,
-  loading: false
+  loading: false,
+  columns: [],
+  checkList: [],
+  checkedAll: false
 })
 const userId = Cookie.get('userId')
 const router = useRouter()
@@ -141,22 +227,48 @@ const columns = [
     dataIndex: 'status',
     key: 'status',
     slots: { customRender: 'status' }
-  },
-  {
-    title: '操作',
-    dataIndex: 'edit',
-    key: 'edit',
-    slots: { customRender: 'edit' },
-    customRender: ({ text, record }) => {
-      return {
-        children: h(EditContent, { orderSn: record?.orderSn, cancel, pay }),
-        props: {
-          rowSpan: record?.rowSpan
-        }
-      }
-    }
   }
 ]
+
+watch(
+  () => state.activeKey,
+  (newValue) => {
+    if (newValue === 0) {
+      state.columns = [
+        ...columns,
+        {
+          title: '操作',
+          dataIndex: 'edit',
+          key: 'edit',
+          slots: { customRender: 'edit' },
+          customRender: ({ text, record }) => {
+            return {
+              children: h(EditContent, {
+                orderSn: record?.orderSn,
+                cancel,
+                pay
+              }),
+              props: {
+                rowSpan: record?.rowSpan
+              }
+            }
+          }
+        }
+      ]
+    } else {
+      state.columns = columns
+    }
+  },
+  { immediate: true }
+)
+watch(
+  () => state.checkList,
+  (val) => {
+    console.log(val, 'val:::')
+    state.indeterminate = !!val.length && val.length < state.dataSource.length
+    state.checkAll = val.length === state.dataSource.length
+  }
+)
 
 const handlePage = (page, pagesize) => {
   state.current = page
@@ -212,11 +324,33 @@ watch(
   },
   { immediate: true }
 )
+const onCheckAllChange = (e) => {
+  // if (e.target.checked) {
+  //   state.dataSource.map((item) => {
+  //     state.checkList.push(String(item.idCard) + String(item.orderSn))
+  //   })
+  // } else {
+  //   state.checkList = []
+  // }
+  const a = state.dataSource.map(
+    (item) => String(item.idCard) + String(item.orderSn)
+  )
+  Object.assign(state, {
+    checkList: e.target.checked ? a : [],
+    indeterminate: false
+  })
+}
 </script>
 
 <style lang="scss" scoped>
 .card-container {
   overflow: hidden;
+}
+.tips-txt {
+  background: #fffbe5;
+  border: 1px solid #fbd800;
+  padding: 5px;
+  margin-top: 10px;
 }
 
 .card-container > .ant-tabs-card > .ant-tabs-content {
@@ -226,7 +360,7 @@ watch(
 
 .card-container > .ant-tabs-card > .ant-tabs-content > .ant-tabs-tabpane {
   background: #fff;
-  //   padding: 16px;
+  /* //   padding: 16px; */
 }
 
 .card-container > .ant-tabs-card > .ant-tabs-bar {

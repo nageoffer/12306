@@ -42,9 +42,9 @@
           <Item key="order"
             ><RouterLink to="/ticketList">车票订单</RouterLink></Item
           >
-          <Item key="myTicket"
+          <!-- <Item key="myTicket"
             ><RouterLink to="/myTicket">本人车票</RouterLink></Item
-          >
+          > -->
         </SubMenu>
       </Menu>
     </Sider>
