@@ -281,7 +281,7 @@ const registerSubmit = () => {
             <FormItem label="邮件" v-bind="registerValidateInfos.mail">
               <Input
                 v-model:value="registerForm.mail"
-                placeholder="请输入手机号码"
+                placeholder="请输入邮箱账号"
               >
               </Input>
             </FormItem>
