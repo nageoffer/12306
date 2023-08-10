@@ -78,6 +78,7 @@
                             <file>${maven.multiModuleProjectDirectory}/format/12306_spotless_formatter.xml</file>
                         </eclipse>-->
                         <licenseHeader>
+                            <!-- ${maven.multiModuleProjectDirectory} 爆红属于正常，并不影响编译或者运行，忽略就好 -->
                             <file>${maven.multiModuleProjectDirectory}/format/license-header</file>
                         </licenseHeader>
                     </java>
@@ -97,8 +98,10 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven-checkstyle-plugin.version}</version>
                 <configuration>
+                    <!-- ${maven.multiModuleProjectDirectory} 爆红属于正常，并不影响编译或者运行，忽略就好 -->
                     <configLocation>${maven.multiModuleProjectDirectory}/checkstyle/12306_checkstyle.xml
                     </configLocation>
+                    <!-- ${maven.multiModuleProjectDirectory} 爆红属于正常，并不影响编译或者运行，忽略就好 -->
                     <suppressionsLocation>
                         ${maven.multiModuleProjectDirectory}/checkstyle/12306_checkstyle_suppression.xml
                     </suppressionsLocation>
