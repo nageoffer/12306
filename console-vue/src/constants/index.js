@@ -11,28 +11,16 @@ const TICKET_TYPE_LIST = [
 
 const TICKET_STATUS_LIST = [
   {
-    label: '待支付',
+    label: '待进站',
     value: 0
   },
   {
-    label: '已支付',
-    value: 1
-  },
-  {
     label: '已进站',
-    value: 2
+    value: 20
   },
   {
-    label: '已改签',
-    value: 3
-  },
-  {
-    label: '已退票',
-    value: 4
-  },
-  {
-    label: '已取消',
-    value: 5
+    label: ' 已取消',
+    value: 30
   }
 ]
 
