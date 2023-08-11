@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.userservice.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.opengoofy.index12306.biz.userservice.common.constant.RedisKeyConstant.USER_PASSENGER_LIST;
 
@@ -68,7 +70,15 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public List<PassengerRespDTO> listPassengerQueryByUsername(String username) {
-        String actualUserPassengerListStr = distributedCache.safeGet(
+        String actualUserPassengerListStr = getActualUserPassengerListStr(username);
+        return Optional.ofNullable(actualUserPassengerListStr)
+                .map(each -> JSON.parseArray(each, PassengerDO.class))
+                .map(each -> BeanUtil.convert(each, PassengerRespDTO.class))
+                .orElse(null);
+    }
+
+    private String getActualUserPassengerListStr(String username) {
+        return  distributedCache.safeGet(
                 USER_PASSENGER_LIST + username,
                 String.class,
                 () -> {
@@ -80,31 +90,18 @@ public class PassengerServiceImpl implements PassengerService {
                 1,
                 TimeUnit.DAYS
         );
-        return Optional.ofNullable(actualUserPassengerListStr)
-                .map(each -> JSON.parseArray(each, PassengerDO.class))
-                .map(each -> BeanUtil.convert(each, PassengerRespDTO.class))
-                .orElse(null);
     }
 
     @Override
     public List<PassengerActualRespDTO> listPassengerQueryByIds(String username, List<Long> ids) {
-        String actualUserPassengerListStr = distributedCache.safeGet(
-                USER_PASSENGER_LIST + username,
-                String.class,
-                () -> {
-                    LambdaQueryWrapper<PassengerDO> queryWrapper = Wrappers.lambdaQuery(PassengerDO.class)
-                            .eq(PassengerDO::getUsername, username)
-                            .in(PassengerDO::getId, ids);
-                    List<PassengerDO> passengerDOList = passengerMapper.selectList(queryWrapper);
-                    return CollUtil.isNotEmpty(passengerDOList) ? JSON.toJSONString(passengerDOList) : null;
-                },
-                1,
-                TimeUnit.DAYS
-        );
-        return Optional.ofNullable(actualUserPassengerListStr)
-                .map(each -> JSON.parseArray(each, PassengerDO.class))
+        String actualUserPassengerListStr = getActualUserPassengerListStr(username);
+        if (StrUtil.isEmpty(actualUserPassengerListStr)) {
+            return null;
+        }
+        return JSON.parseArray(actualUserPassengerListStr, PassengerDO.class)
+                .stream().filter(passengerDO -> ids.contains(passengerDO.getId()))
                 .map(each -> BeanUtil.convert(each, PassengerActualRespDTO.class))
-                .orElse(null);
+                .collect(Collectors.toList());
     }
 
     @Override
