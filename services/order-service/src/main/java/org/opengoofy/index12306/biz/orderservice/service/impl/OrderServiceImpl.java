@@ -166,7 +166,8 @@ public class OrderServiceImpl implements OrderService {
     public boolean closeTickOrder(CancelTicketOrderReqDTO requestParam) {
         String orderSn = requestParam.getOrderSn();
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
-                .eq(OrderDO::getOrderSn, orderSn);
+                .eq(OrderDO::getOrderSn, orderSn)
+                .select(OrderDO::getStatus);
         OrderDO orderDO = orderMapper.selectOne(queryWrapper);
         if (Objects.isNull(orderDO) || orderDO.getStatus() != OrderStatusEnum.PENDING_PAYMENT.getStatus()) {
             return false;
