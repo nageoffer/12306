@@ -42,4 +42,9 @@ public final class OrderStatusReversalDTO {
      * 订单反转后状态
      */
     private Integer orderStatus;
+
+    /**
+     * 订单明细反转后状态
+     */
+    private Integer orderItemStatus;
 }

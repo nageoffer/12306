@@ -29,9 +29,14 @@ import lombok.RequiredArgsConstructor;
 public enum OrderItemStatusEnum {
 
     /**
-     * 待进站
+     * 待支付
      */
-    PENDING_PULL_IN(0),
+    PENDING_PAYMENT(0),
+
+    /**
+     * 已支付
+     */
+    ALREADY_PAID(10),
 
     /**
      * 已进站
@@ -41,7 +46,17 @@ public enum OrderItemStatusEnum {
     /**
      * 已取消
      */
-    CLOSED(30);
+    CLOSED(30),
+
+    /**
+     * 已退票
+     */
+    REFUNDED(40),
+
+    /**
+     * 已改签
+     */
+    RESCHEDULED(50);
 
     @Getter
     private final int status;

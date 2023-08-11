@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public enum OrderStatusEnum {
 
     /**
-     * 待付款：用户选好车票下单，但还未付款的状态
+     * 待支付：用户选好车票下单，但还未付款的状态
      */
     PENDING_PAYMENT(0),
 

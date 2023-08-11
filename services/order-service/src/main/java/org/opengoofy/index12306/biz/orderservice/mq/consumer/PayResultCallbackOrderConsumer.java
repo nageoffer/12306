@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.opengoofy.index12306.biz.orderservice.common.constant.OrderRocketMQConstant;
+import org.opengoofy.index12306.biz.orderservice.common.enums.OrderItemStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.domain.MessageWrapper;
@@ -64,6 +65,7 @@ public class PayResultCallbackOrderConsumer implements RocketMQListener<MessageW
         OrderStatusReversalDTO orderStatusReversalDTO = OrderStatusReversalDTO.builder()
                 .orderSn(payResultCallbackOrderEvent.getOrderSn())
                 .orderStatus(OrderStatusEnum.ALREADY_PAID.getStatus())
+                .orderItemStatus(OrderItemStatusEnum.ALREADY_PAID.getStatus())
                 .build();
         orderService.statusReversal(orderStatusReversalDTO);
         orderService.payCallbackOrder(payResultCallbackOrderEvent);

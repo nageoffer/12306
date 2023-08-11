@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderCanalErrorCodeEnum;
+import org.opengoofy.index12306.biz.orderservice.common.enums.OrderItemStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderDO;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
@@ -200,7 +201,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_CANAL_ERROR);
             }
             OrderItemDO updateOrderItemDO = new OrderItemDO();
-            updateOrderItemDO.setStatus(OrderStatusEnum.CLOSED.getStatus());
+            updateOrderItemDO.setStatus(OrderItemStatusEnum.CLOSED.getStatus());
             updateOrderItemDO.setOrderSn(orderSn);
             LambdaUpdateWrapper<OrderItemDO> updateItemWrapper = Wrappers.lambdaUpdate(OrderItemDO.class)
                     .eq(OrderItemDO::getOrderSn, orderSn);
@@ -235,6 +236,14 @@ public class OrderServiceImpl implements OrderService {
                     .eq(OrderDO::getOrderSn, requestParam.getOrderSn());
             int updateResult = orderMapper.update(updateOrderDO, updateWrapper);
             if (updateResult <= 0) {
+                throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_STATUS_REVERSAL_ERROR);
+            }
+            OrderItemDO orderItemDO = new OrderItemDO();
+            orderItemDO.setStatus(requestParam.getOrderItemStatus());
+            LambdaUpdateWrapper<OrderItemDO> orderItemUpdateWrapper = Wrappers.lambdaUpdate(OrderItemDO.class)
+                    .eq(OrderItemDO::getOrderSn, requestParam.getOrderSn());
+            int orderItemUpdateResult = orderItemMapper.update(orderItemDO, orderItemUpdateWrapper);
+            if (orderItemUpdateResult <= 0) {
                 throw new ServiceException(OrderCanalErrorCodeEnum.ORDER_STATUS_REVERSAL_ERROR);
             }
         } finally {
@@ -283,12 +292,11 @@ public class OrderServiceImpl implements OrderService {
             );
             case 1 -> result = ListUtil.of(
                     OrderStatusEnum.ALREADY_PAID.getStatus(),
-                    OrderStatusEnum.PARTIAL_REFUND.getStatus()
+                    OrderStatusEnum.PARTIAL_REFUND.getStatus(),
+                    OrderStatusEnum.FULL_REFUND.getStatus()
             );
             case 2 -> result = ListUtil.of(
-                    OrderStatusEnum.FULL_REFUND.getStatus(),
-                    OrderStatusEnum.COMPLETED.getStatus(),
-                    OrderStatusEnum.CLOSED.getStatus()
+                    OrderStatusEnum.COMPLETED.getStatus()
             );
         }
         return result;
