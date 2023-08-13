@@ -22,6 +22,8 @@ import org.opengoofy.index12306.biz.payservice.convert.PayRequestConvert;
 import org.opengoofy.index12306.biz.payservice.dto.PayCommand;
 import org.opengoofy.index12306.biz.payservice.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.PayRespDTO;
+import org.opengoofy.index12306.biz.payservice.dto.RefundReqDTO;
+import org.opengoofy.index12306.biz.payservice.dto.RefundRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 import org.opengoofy.index12306.biz.payservice.service.PayService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
@@ -68,5 +70,13 @@ public class PayController {
     @GetMapping("/api/pay-service/pay/query/pay-sn")
     public Result<PayInfoRespDTO> getPayInfoByPaySn(@RequestParam(value = "paySn") String paySn) {
         return Results.success(payService.getPayInfoByPaySn(paySn));
+    }
+
+    /**
+     * 公共退款接口
+     */
+    @PostMapping("/api/pay-service/refund")
+    public Result<RefundRespDTO> refund(@RequestBody RefundReqDTO requestParam) {
+        return Results.success(payService.commonRefund(requestParam));
     }
 }

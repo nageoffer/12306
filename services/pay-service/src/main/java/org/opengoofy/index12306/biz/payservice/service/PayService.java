@@ -20,6 +20,8 @@ package org.opengoofy.index12306.biz.payservice.service;
 import org.opengoofy.index12306.biz.payservice.dto.PayCallbackReqDTO;
 import org.opengoofy.index12306.biz.payservice.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.PayRespDTO;
+import org.opengoofy.index12306.biz.payservice.dto.RefundReqDTO;
+import org.opengoofy.index12306.biz.payservice.dto.RefundRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 
 /**
@@ -59,4 +61,12 @@ public interface PayService {
      * @return 支付单详情
      */
     PayInfoRespDTO getPayInfoByPaySn(String paySn);
+
+    /**
+     * 公共退款接口
+     *
+     * @param requestParam 退款请求参数
+     * @return 退款返回详情
+     */
+    RefundRespDTO commonRefund(RefundReqDTO requestParam);
 }
