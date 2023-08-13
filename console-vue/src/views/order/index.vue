@@ -111,6 +111,57 @@
         </div>
       </Space>
     </Card>
+    <div>
+      <div class="tips-txt">
+        <h2>温馨提示：</h2>
+        <p>
+          1.
+          一张有效身份证件同一乘车日期同一车次只能购买一张车票，高铁动卧列车除外。
+        </p>
+        <p>
+          2.
+          购买儿童票时，乘车儿童有有效身份证件的，请填写本人有效身份证件信息。自2023年1月1日起，每一名持票成年人旅客可免费携带一名未满6周岁且不单独占用席位的儿童乘车，超过一名时，超过人数应购买儿童优惠票。免费儿童可以在购票成功后添加。
+        </p>
+        <p>
+          3.
+          购买残疾军人（伤残警察）优待票的，须在购票后、开车前办理换票手续方可进站乘车。换票时，不符合规定的减价优待条件，没有有效"中华人民共和国残疾军人证"或"中华人民共和国伤残人民警察证"的，不予换票，所购车票按规定办理退票手续。
+        </p>
+        <p>
+          4.一天内3次申请车票成功后取消订单（包含无座票时取消5次计为取消1次），当日将不能在12306继续购票。
+        </p>
+        <p>
+          <strong
+            >5.购买铁路乘意险的注册用户年龄须在18周岁以上，使用非中国居民身份证注册的用户如购买铁路乘意险，须在<a
+              href="../view/information.html"
+              shape="rect"
+              >我的12306——个人信息</a
+            >
+            如实填写“出生日期”。</strong
+          >
+        </p>
+        <p>
+          <strong
+            >6.父母为未成年子女投保，须在<a
+              href="../view/passengers.html"
+              shape="rect"
+              >我的乘车人</a
+            >
+            登记未成年子女的有效身份证件信息。</strong
+          >
+        </p>
+        <p>7.未尽事宜详见《铁路旅客运输规程》等有关规定和车站公告。</p>
+        <p name="xjky" style="display: none">
+          8.
+          为确保乘客在旅途中有一个安全、舒适的乘坐环境，自2020年11月17日起，<span
+            style="color: red"
+            >旅客不得随身携带长宽高之和大于130厘米的雪具乘车</span
+          >
+          。您可选择雪具快运服务，请提前1-2天选择雪具快运“门到站”或“站到站”服务，中铁快运提供雪具到站后3日免费保管，请您根据出行时间，提前咨询和办理。中铁快运客服热线：95572<br
+            clear="none"
+          />
+        </p>
+      </div>
+    </div>
   </Space>
   <Modal
     :visible="state.open"
@@ -137,6 +188,39 @@
       </div>
     </Spin>
   </Modal>
+  <Modal :visible="state.isPayingOpen" title="网上支付提示" :footer="null">
+    <Row :gutter="[24, 6]">
+      <Col
+        :span="6"
+        :style="{
+          display: 'flex',
+          textAlign: 'end',
+          alignItems: 'center',
+          justifyContent: 'end'
+        }"
+      >
+        <Spin size="large" :spinning="true"></Spin>
+      </Col>
+      <Col :span="14">
+        <div :style="{ fontSize: '12px' }">
+          支付完成后，请不要关闭此支付验证窗口
+        </div>
+        <div :style="{ fontSize: '12px' }">
+          支付完成后请更具您支付的情况点击下面按钮。
+        </div>
+      </Col>
+    </Row>
+    <Space
+      :style="{ display: 'flex', justifyContent: 'center', marginTop: '20px' }"
+    >
+      <Button type="default" @click="() => router.push('/ticketList')"
+        >支付遇到问题</Button
+      >
+      <Button type="primary" @click="() => router.push('/ticketList')"
+        >支付完成</Button
+      >
+    </Space>
+  </Modal>
 </template>
 
 <script setup>
@@ -148,12 +232,19 @@ import {
   Button,
   Modal,
   message,
-  Spin
+  Spin,
+  Row,
+  Col
 } from 'ant-design-vue'
 import dayjs from 'dayjs'
-import { fetchOrderBySn, fetchPay, fetchOrderCancel } from '@/service'
+import {
+  fetchOrderBySn,
+  fetchPay,
+  fetchOrderCancel,
+  fetchOrderStatus
+} from '@/service'
 import { useRoute, useRouter } from 'vue-router'
-import { onMounted, reactive, computed, toRaw } from 'vue'
+import { onMounted, reactive, computed, renderSlot, watch } from 'vue'
 import {
   TICKET_TYPE_LIST,
   ID_CARD_TYPE,
@@ -169,7 +260,9 @@ const state = reactive({
   currentInfo: null,
   open: false,
   html: '',
-  loading: false
+  loading: false,
+  isPaying: false,
+  isPayingOpen: false
 })
 const columns = [
   { title: '序号', dataIndex: 'id', slots: { customRender: 'id' } },
@@ -194,6 +287,7 @@ const columns = [
 onMounted(() => {
   setInterval(() => {
     state.count -= 1000
+    getOrderStatus()
   }, 1000)
   dayjs.duration(state.count).minutes()
   getOrder()
@@ -206,6 +300,13 @@ const getOrder = () => {
     }
   })
 }
+
+watch(
+  () => state.isPaying,
+  (newV) => {
+    state.isPayingOpen = newV
+  }
+)
 const totalAmount = computed(() => {
   let amount = 0
   state.currentInfo?.passengerDetails?.map((item) => {
@@ -215,7 +316,6 @@ const totalAmount = computed(() => {
 })
 
 const handlePay = (channel) => {
-  console.log(toRaw(totalAmount))
   if (channel !== 0) {
     return message.error('该支付方式暂未对接，请稍候...')
   }
@@ -236,6 +336,16 @@ const handlePay = (channel) => {
     }, 500)
   })
 }
+
+const getOrderStatus = () => {
+  fetchOrderStatus({ orderSn: query?.sn })
+    .then((res) => {
+      state.isPaying = res.data.status === 0
+    })
+    .catch((error) => {
+      console.log('error:::', error)
+    })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -255,6 +365,17 @@ const handlePay = (channel) => {
     color: #fd6a09;
     font-weight: bolder;
   }
+}
+
+.tips-txt {
+  background: #fffbe5;
+  border: 1px solid #fbd800;
+  padding: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  -webkit-border-radius: 5px;
 }
 .important-text {
   font-size: 16px;

@@ -98,7 +98,7 @@
             }}
           </div>
         </template>
-        <template #summary>
+        <template #summary v-if="state.activeKey !== 0">
           <TableSummary :fixed="fixedTop ? 'top' : 'bottom'">
             <TableSummaryRow>
               <TableSummaryCell :index="0" :col-span="24">
@@ -116,7 +116,14 @@
         </template>
       </Table>
     </CheckboxGroup>
-    <div :style="{ width: '100%', marginTop: '20px' }">
+    <div
+      :style="{
+        width: '100%',
+        marginTop: '20px',
+        display: 'flex',
+        justifyContent: 'end'
+      }"
+    >
       <Pagination
         :show-total="(total) => `总共 ${state.data?.total} 条`"
         :current="state.current"
@@ -166,7 +173,6 @@ import {
 } from '@/constants'
 import Cookie from 'js-cookie'
 import { useRouter } from 'vue-router'
-// import { css } from 'vue.config'
 
 const state = reactive({
   activeKey: 0,
@@ -325,13 +331,6 @@ watch(
   { immediate: true }
 )
 const onCheckAllChange = (e) => {
-  // if (e.target.checked) {
-  //   state.dataSource.map((item) => {
-  //     state.checkList.push(String(item.idCard) + String(item.orderSn))
-  //   })
-  // } else {
-  //   state.checkList = []
-  // }
   const a = state.dataSource.map(
     (item) => String(item.idCard) + String(item.orderSn)
   )

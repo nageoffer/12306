@@ -53,12 +53,10 @@ watch(
 .page-wrapper {
   box-sizing: border-box;
   padding-top: 64px;
-  // padding-left: 200px;
-
+  /* min-width: 1230px; */
   .app-wrapper {
     box-sizing: border-box;
     margin: 20px;
-    min-width: 1230px;
     transition: all 0.2s;
   }
 }

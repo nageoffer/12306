@@ -39,7 +39,10 @@
       <Form :label-col="{ span: 8 }" :wrapper-col="{ span: 4 }">
         <div v-for="item in state.editUserInfoMap">
           <FormItem :label="item.label" :required="item.require">
-            <Input v-model:value="item.value"></Input>
+            <Input
+              v-model:value="item.value"
+              :disabled="item.name === 'phone'"
+            ></Input>
           </FormItem>
         </div>
       </Form>
@@ -60,14 +63,20 @@
           <label class="info-label info-require">优惠(待)类</label>
         </Col>
         <Col :span="4" :style="{ textAlign: 'start' }">
-          <span class="info-value">{{ '未知' }}</span></Col
+          <span class="info-value">{{
+            DISCOUNTS_TYPE.find((item) => item.value === state.userType)?.label
+          }}</span></Col
         >
       </Row>
     </div>
     <div v-else>
       <Form :label-col="{ span: 8 }" :wrapper-col="{ span: 4 }">
         <FormItem label="优惠(待)类" required>
-          <Input value="未知"></Input>
+          <Select v-model:value="state.userType">
+            <SelectOption v-for="item in DISCOUNTS_TYPE" :value="item.value">{{
+              item.label
+            }}</SelectOption>
+          </Select>
         </FormItem>
       </Form>
     </div>
@@ -84,11 +93,15 @@ import {
   Button,
   Divider,
   Row,
-  Col
+  Col,
+  Select,
+  SelectOption,
+  message
 } from 'ant-design-vue'
 import { reactive, onMounted } from 'vue'
 import jsCookie from 'js-cookie'
-import { fechUserInfo } from '@/service'
+import { fechUserInfo, fetchUserUpdate } from '@/service'
+import { REGIN_MAP, CHECK_STATUS, DISCOUNTS_TYPE } from '@/constants'
 const useForm = Form.useForm
 
 const state = reactive({
@@ -97,7 +110,12 @@ const state = reactive({
   userInfoMap: [
     { label: '用户名', value: '--', key: 'username' },
     { label: '姓名', value: '--', key: 'realName' },
-    { label: '国家/地区', value: '--', key: 'regin' },
+    {
+      label: '国家/地区',
+      value: '--',
+      key: 'region',
+      render: (value) => REGIN_MAP.find((item) => item.value === value)?.label
+    },
     {
       label: '证件类型',
       value: '--',
@@ -110,16 +128,18 @@ const state = reactive({
       value: '--',
       unRequire: true,
       color: '#fe9a5e',
-      key: 'verifyStatus'
+      key: 'verifyStatus',
+      render: (value) =>
+        CHECK_STATUS.find((item) => item.value === value)?.label ?? '--'
     }
   ],
   editUserInfoMap: [
     { label: '手机号', value: undefined, name: 'phone', require: true },
-    { label: '绑定电话', value: undefined, name: 'telephone' },
     { label: '邮箱', value: undefined, name: 'mail' },
     { label: '地址', value: undefined, name: 'address' },
     { label: '邮编', value: undefined, name: 'postCode' }
-  ]
+  ],
+  userType: undefined
 })
 
 const username = jsCookie.get('username')
@@ -135,7 +155,6 @@ onMounted(() => {
   fechUserInfo({ username }).then((res) => {
     const { userInfoMap, editUserInfoMap } = state
     if (res.success) {
-      console.log(res.data)
       state.userInfoMap = userInfoMap.map((item) => ({
         ...item,
         value: res.data[item.key]
@@ -144,6 +163,7 @@ onMounted(() => {
         ...item,
         value: res.data[item.name] ?? ''
       }))
+      state.userType = res.data?.userType
     }
   })
 })
@@ -156,10 +176,44 @@ const handleOtherEditTypeChange = () => {
 }
 
 const handleContactSubmit = () => {
-  state.contactEditType = 'view'
+  fetchUserUpdate({
+    username: username,
+    mail: state.editUserInfoMap.find((item) => item.name === 'mail')?.value,
+    postCode: state.editUserInfoMap.find((item) => item.name === 'postCode')
+      ?.value,
+    address: state.editUserInfoMap.find((item) => item.name === 'address')
+      ?.value
+  })
+    .then((res) => {
+      if (res.success) {
+        state.contactEditType = 'view'
+        message.success('修改信息成功')
+      } else {
+        message.error('修改失败')
+      }
+    })
+    .catch((err) => {
+      state.contactEditType = 'view'
+      console.log('err:::', err)
+    })
 }
 const handleOtherSubmit = () => {
-  state.otherEditType = 'view'
+  fetchUserUpdate({
+    username: username,
+    userType: state.userType
+  })
+    .then((res) => {
+      if (res.success) {
+        state.otherEditType = 'view'
+        message.success('修改信息成功')
+      } else {
+        message.error('修改失败')
+      }
+    })
+    .catch((err) => {
+      state.otherEditType = 'view'
+      console.log('err:::', err)
+    })
 }
 </script>
 <style lang="scss" scoped>

@@ -337,6 +337,7 @@
         >
           <Button @click="state.open = false">返回修改</Button>
           <Button
+            :loading="state.loading"
             :style="{
               backgroundColor: '#ff8001',
               color: '#fff',
@@ -400,7 +401,8 @@ const state = reactive({
   seatPosition: [],
   isChooseSeat: true,
   seatLeft: 3,
-  seatNumber: 5
+  seatNumber: 5,
+  loading: false
 })
 const currPassenger = ref([])
 
@@ -573,11 +575,9 @@ const handleChooseTicketType = (id, value) => {
 }
 
 const handleSubmit = () => {
-  console.log(state.dataSource)
   const canNotSubmit = state.dataSource.some(
     (item) => item.seatType === null || item.seatType === undefined
   )
-  console.log(canNotSubmit, 'jjj')
   if (canNotSubmit || state.dataSource?.length === 0) {
     return message.error('请补全信息')
   }
@@ -641,16 +641,23 @@ const handleSubmitBuyTicket = () => {
     departure: state.currTrain?.departure,
     arrival: state.currTrain?.arrival
   }
-  fetchBuyTicket(params).then((res) => {
-    if (res.success) {
-      message.success('下单成功，正在跳转至订单')
-      setTimeout(() => {
-        router.push(`/order?sn=${res.data.orderSn}`)
-      }, 500)
-    } else {
-      message.error(res.message)
-    }
-  })
+  state.loading = true
+  fetchBuyTicket(params)
+    .then((res) => {
+      if (res.success) {
+        message.success('下单成功，正在跳转至订单')
+        setTimeout(() => {
+          router.push(`/order?sn=${res.data.orderSn}`)
+        }, 500)
+      } else {
+        message.error(res.message)
+      }
+      state.loading = false
+    })
+    .catch((error) => {
+      state.loading = false
+      console.log(error)
+    })
 }
 </script>
 

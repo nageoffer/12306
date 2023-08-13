@@ -81,14 +81,14 @@ const columns = [
     dataIndex: 'trainNumber',
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
-    width: 85,
+    width: '5.5%',
     // ellipsis: true,
     resizeble: false
   },
   {
     key: 'station',
     slots: { title: 'customStaionTitle', customRender: 'station' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -96,7 +96,7 @@ const columns = [
     dataIndex: 'time',
     key: 'time',
     slots: { title: 'customTimeTitle', customRender: 'time' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -104,7 +104,7 @@ const columns = [
     title: '历时',
     dataIndex: 'duration',
     key: 'duration',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -112,7 +112,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrain' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -121,7 +121,7 @@ const columns = [
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeat' },
     key: 'first_seat',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -129,7 +129,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -138,7 +138,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bed' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -155,7 +155,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -163,7 +163,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'scond_hard_bed',
     slots: { title: 'customScondHardSeadTitle', customRender: 'scondHardBed' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -172,7 +172,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -181,7 +181,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -190,7 +190,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -199,7 +199,7 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'other',
     slots: { customRender: 'other' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -214,28 +214,28 @@ const innerColumns = [
   {
     title: '车次',
     key: 'trainNumber',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
   {
     title: '车站',
     key: 'station',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
   {
     title: '时间',
     key: 'time',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
   {
     title: '历时',
     key: 'duration',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -243,7 +243,7 @@ const innerColumns = [
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrainPrice' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -252,7 +252,7 @@ const innerColumns = [
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeatPrice' },
     key: 'first_seat',
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -261,7 +261,7 @@ const innerColumns = [
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeatPrice' },
 
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -270,7 +270,7 @@ const innerColumns = [
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bedPrice' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -288,7 +288,7 @@ const innerColumns = [
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
 
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -299,7 +299,7 @@ const innerColumns = [
       title: 'customScondHardSeadTitle',
       customRender: 'scondHardBedPrice'
     },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -308,7 +308,7 @@ const innerColumns = [
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -317,7 +317,7 @@ const innerColumns = [
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -326,7 +326,7 @@ const innerColumns = [
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -335,7 +335,7 @@ const innerColumns = [
     dataIndex: 'other',
     key: 'other',
     slots: { customRender: 'other' },
-    width: 85,
+    width: '5.5%',
     ellipsis: true,
     resizeble: false
   },
@@ -865,6 +865,7 @@ const handleBook = (record) => {
               <template #firstSeatPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
                   {{
+                    // console.log(text,'text')
                     handlePriceShow(
                       text?.find((item) => item?.type === 1)?.quantity
                     )
@@ -960,6 +961,9 @@ const handleBook = (record) => {
           <template #trainNumber="{ text, record }">
             <h1
               class="card-name"
+              :style="{
+                cursor: 'pointer'
+              }"
               @click="
                 () => {
                   state.loading = true
@@ -1005,7 +1009,7 @@ const handleBook = (record) => {
           </template>
           <template #firstSeat="{ text }">
             <div>
-              {{ text?.find((item) => item?.type === 3)?.quantity ?? '--' }}
+              {{ text?.find((item) => item?.type === 1)?.quantity ?? '--' }}
             </div>
           </template>
           <template #secondSeat="{ text }">
@@ -1086,28 +1090,7 @@ const handleBook = (record) => {
             <div>一等卧</div>
           </template>
           <template #operation="{ text, record }">
-            <Button
-              type="primary"
-              size="small"
-              @click="
-                () => handleBook(record)
-                // () => {
-                //   console.log(window, window, 'window')
-                //   router.push(
-                //     `buyTicket?trainNumber=${record.trainNumber}&&trainId=${
-                //       record.trainId
-                //     }&&${Object.entries(headSearch)
-                //       ?.map((item) => {
-                //         return `${item[0]}=${
-                //           item[0] === 'departureDate'
-                //             ? item[1].format('YYYY-MM-DD')
-                //             : item[1]
-                //         }`
-                //       })
-                //       .join('&&')}`
-                //   )
-                // }
-              "
+            <Button type="link" size="small" @click="() => handleBook(record)"
               >预定</Button
             >
           </template></Table

@@ -9,6 +9,25 @@ const TICKET_TYPE_LIST = [
   }
 ]
 
+const DISCOUNTS_TYPE = [
+  {
+    label: '成人',
+    value: 0
+  },
+  {
+    label: '儿童',
+    value: 1
+  },
+  {
+    label: '学生',
+    value: 2
+  },
+  {
+    label: '残疾军人',
+    value: 3
+  }
+]
+
 const TICKET_STATUS_LIST = [
   {
     label: '待支付',
@@ -150,6 +169,23 @@ const BANK_LIST = [
     value: 13
   }
 ]
+
+const REGIN_MAP = [
+  {
+    value: '0',
+    label: '中国'
+  }
+]
+const CHECK_STATUS = [
+  {
+    value: 0,
+    label: '通过'
+  },
+  {
+    value: 1,
+    label: '未通过'
+  }
+]
 export {
   TICKET_TYPE_LIST,
   SEAT_NAME_MAP,
@@ -157,5 +193,8 @@ export {
   BANK_LIST,
   SEAT_CLASS_TYPE_LIST,
   TRAIN_BRAND_LIST,
-  TICKET_STATUS_LIST
+  TICKET_STATUS_LIST,
+  DISCOUNTS_TYPE,
+  REGIN_MAP,
+  CHECK_STATUS
 }

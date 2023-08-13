@@ -26,8 +26,11 @@
         <TypographyTitle :level="5">附加信息</TypographyTitle>
         <FormItem label="优惠(待)类型" v-bind="validateInfos.discountType">
           <Select :disabled="disabled" v-model:value="formData.discountType">
-            <SelectOption :value="0">无优惠</SelectOption>
-            <SelectOption :value="1">学生优惠</SelectOption>
+            <!-- <SelectOption :value="0">无优惠</SelectOption>
+            <SelectOption :value="1">学生优惠</SelectOption> -->
+            <SelectOption v-for="item in DISCOUNTS_TYPE" :value="item.value">
+              {{ item.label }}</SelectOption
+            >
           </Select>
         </FormItem>
         <Row align="center">
@@ -65,6 +68,7 @@ import {
   fetchPassengerList,
   fetchEditPassenger
 } from '@/service'
+import { DISCOUNTS_TYPE } from '@/constants'
 import { useRouter, useRoute } from 'vue-router'
 import Cookie from 'js-cookie'
 const useForm = Form.useForm

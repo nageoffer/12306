@@ -154,11 +154,21 @@ const fetchOrderCancel = async (body) => {
 }
 
 const fetchUserUpdate = async (body) => {
-  const data = await http({
+  const { data } = await http({
     method: 'POST',
     url: '/api/user-service/update',
     data: body
   })
+  return data
+}
+
+const fetchOrderStatus = async (params) => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/pay-service/pay/query/order-sn',
+    params
+  })
+  return data
 }
 
 export {
@@ -178,5 +188,7 @@ export {
   fechUserInfo,
   fetchTrainStation,
   fetchTicketList,
-  fetchOrderCancel
+  fetchOrderCancel,
+  fetchOrderStatus,
+  fetchUserUpdate
 }
