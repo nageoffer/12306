@@ -36,3 +36,6 @@ framework:
     redis:
       value-timeout: 16
       value-time-unit: days
+
+rocketmq:
+  name-server: 127.0.0.1:9876
