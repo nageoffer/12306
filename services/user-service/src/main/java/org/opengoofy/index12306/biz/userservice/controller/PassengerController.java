@@ -98,7 +98,6 @@ public class PassengerController {
 
     /**
      * 移除乘车人
-     * TODO 方法命名错误，remote -> remove
      */
     @Idempotent(
             uniqueKeyPrefix = "index12306-user:lock_passenger-alter:",
