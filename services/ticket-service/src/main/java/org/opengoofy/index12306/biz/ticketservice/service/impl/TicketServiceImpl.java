@@ -58,6 +58,7 @@ import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
 import org.opengoofy.index12306.biz.ticketservice.service.cache.SeatMarginCacheLoader;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.TrainSeatTypeSelector;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.tokenbucket.TicketAvailabilityTokenBucket;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
@@ -113,6 +114,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final AbstractChainContext<PurchaseTicketReqDTO> purchaseTicketAbstractChainContext;
     private final RedissonClient redissonClient;
     private final ConfigurableEnvironment environment;
+    private final TicketAvailabilityTokenBucket ticketAvailabilityTokenBucket;
 
     @Override
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
@@ -188,9 +190,35 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public TicketPurchaseRespDTO purchaseTickets(PurchaseTicketReqDTO requestParam) {
-        // 责任链模式，验证 0：参数必填 1：参数正确性 2：列车车次余量是否充足 3：乘客是否已买当前车次等
+    public TicketPurchaseRespDTO purchaseTicketsV1(PurchaseTicketReqDTO requestParam) {
+        // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
+        String lockKey = environment.resolvePlaceholders(String.format(LOCK_PURCHASE_TICKETS, requestParam.getTrainId()));
+        RLock lock = redissonClient.getLock(lockKey);
+        lock.lock();
+        try {
+            return executePurchaseTickets(requestParam);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public TicketPurchaseRespDTO purchaseTicketsV2(PurchaseTicketReqDTO requestParam) {
+        // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
+        purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
+        boolean tokenResult = ticketAvailabilityTokenBucket.takeTokenFromBucket(requestParam);
+        if (!tokenResult) {
+            throw new ServiceException("列车站点已无余票");
+        }
+        return executePurchaseTickets(requestParam);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public TicketPurchaseRespDTO executePurchaseTickets(PurchaseTicketReqDTO requestParam) {
+        List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
         String trainId = requestParam.getTrainId();
         TrainDO trainDO = distributedCache.safeGet(
                 TRAIN_INFO + trainId,
@@ -198,98 +226,90 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 () -> trainMapper.selectById(trainId),
                 ADVANCE_TICKET_DAY,
                 TimeUnit.DAYS);
-        Result<String> ticketOrderResult;
-        List<TicketOrderDetailRespDTO> ticketOrderDetailResults = new ArrayList<>();
-        String lockKey = environment.resolvePlaceholders(String.format(LOCK_PURCHASE_TICKETS, trainId));
-        RLock lock = redissonClient.getLock(lockKey);
-        lock.lock();
-        try {
-            List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults = trainSeatTypeSelector.select(trainDO.getTrainType(), requestParam);
-            List<TicketDO> ticketDOList = trainPurchaseTicketResults.stream()
-                    .map(each -> TicketDO.builder()
-                            .username(UserContext.getUsername())
-                            .trainId(Long.parseLong(requestParam.getTrainId()))
-                            .carriageNumber(each.getCarriageNumber())
-                            .seatNumber(each.getSeatNumber())
-                            .passengerId(each.getPassengerId())
-                            .ticketStatus(TicketStatusEnum.UNPAID.getCode())
-                            .build())
-                    .toList();
-            saveBatch(ticketDOList);
-            try {
-                List<TicketOrderItemCreateRemoteReqDTO> orderItemCreateRemoteReqDTOList = new ArrayList<>();
-                trainPurchaseTicketResults.forEach(each -> {
-                    TicketOrderItemCreateRemoteReqDTO orderItemCreateRemoteReqDTO = TicketOrderItemCreateRemoteReqDTO.builder()
-                            .amount(each.getAmount())
-                            .carriageNumber(each.getCarriageNumber())
-                            .seatNumber(each.getSeatNumber())
-                            .idCard(each.getIdCard())
-                            .idType(each.getIdType())
-                            .phone(each.getPhone())
-                            .seatType(each.getSeatType())
-                            .ticketType(each.getUserType())
-                            .realName(each.getRealName())
-                            .build();
-                    TicketOrderDetailRespDTO ticketOrderDetailRespDTO = TicketOrderDetailRespDTO.builder()
-                            .amount(each.getAmount())
-                            .carriageNumber(each.getCarriageNumber())
-                            .seatNumber(each.getSeatNumber())
-                            .idCard(each.getIdCard())
-                            .idType(each.getIdType())
-                            .seatType(each.getSeatType())
-                            .ticketType(each.getUserType())
-                            .realName(each.getRealName())
-                            .build();
-                    orderItemCreateRemoteReqDTOList.add(orderItemCreateRemoteReqDTO);
-                    ticketOrderDetailResults.add(ticketOrderDetailRespDTO);
-                });
-                LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
-                        .eq(TrainStationRelationDO::getTrainId, trainId)
-                        .eq(TrainStationRelationDO::getDeparture, requestParam.getDeparture())
-                        .eq(TrainStationRelationDO::getArrival, requestParam.getArrival());
-                TrainStationRelationDO trainStationRelationDO = trainStationRelationMapper.selectOne(queryWrapper);
-                TicketOrderCreateRemoteReqDTO orderCreateRemoteReqDTO = TicketOrderCreateRemoteReqDTO.builder()
-                        .departure(requestParam.getDeparture())
-                        .arrival(requestParam.getArrival())
-                        .orderTime(new Date())
-                        .source(SourceEnum.INTERNET.getCode())
-                        .trainNumber(trainDO.getTrainNumber())
-                        .departureTime(trainStationRelationDO.getDepartureTime())
-                        .arrivalTime(trainStationRelationDO.getArrivalTime())
-                        .ridingDate(trainStationRelationDO.getDepartureTime())
-                        .userId(UserContext.getUserId())
+        List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults = trainSeatTypeSelector.select(trainDO.getTrainType(), requestParam);
+        List<TicketDO> ticketDOList = trainPurchaseTicketResults.stream()
+                .map(each -> TicketDO.builder()
                         .username(UserContext.getUsername())
                         .trainId(Long.parseLong(requestParam.getTrainId()))
-                        .ticketOrderItems(orderItemCreateRemoteReqDTOList)
+                        .carriageNumber(each.getCarriageNumber())
+                        .seatNumber(each.getSeatNumber())
+                        .passengerId(each.getPassengerId())
+                        .ticketStatus(TicketStatusEnum.UNPAID.getCode())
+                        .build())
+                .toList();
+        saveBatch(ticketDOList);
+        Result<String> ticketOrderResult;
+        try {
+            List<TicketOrderItemCreateRemoteReqDTO> orderItemCreateRemoteReqDTOList = new ArrayList<>();
+            trainPurchaseTicketResults.forEach(each -> {
+                TicketOrderItemCreateRemoteReqDTO orderItemCreateRemoteReqDTO = TicketOrderItemCreateRemoteReqDTO.builder()
+                        .amount(each.getAmount())
+                        .carriageNumber(each.getCarriageNumber())
+                        .seatNumber(each.getSeatNumber())
+                        .idCard(each.getIdCard())
+                        .idType(each.getIdType())
+                        .phone(each.getPhone())
+                        .seatType(each.getSeatType())
+                        .ticketType(each.getUserType())
+                        .realName(each.getRealName())
                         .build();
-                ticketOrderResult = ticketOrderRemoteService.createTicketOrder(orderCreateRemoteReqDTO);
-                if (!ticketOrderResult.isSuccess() || StrUtil.isBlank(ticketOrderResult.getData())) {
-                    log.error("订单服务调用失败，返回结果：{}", ticketOrderResult.getMessage());
-                    throw new ServiceException("订单服务调用失败");
-                }
-            } catch (Throwable ex) {
-                log.error("远程调用订单服务创建错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
-                throw ex;
-            }
-            try {
-                // 发送 RocketMQ 延时消息，指定时间后取消订单
-                DelayCloseOrderEvent delayCloseOrderEvent = DelayCloseOrderEvent.builder()
-                        .trainId(requestParam.getTrainId())
-                        .departure(requestParam.getDeparture())
-                        .arrival(requestParam.getArrival())
-                        .orderSn(ticketOrderResult.getData())
-                        .trainPurchaseTicketResults(trainPurchaseTicketResults)
+                TicketOrderDetailRespDTO ticketOrderDetailRespDTO = TicketOrderDetailRespDTO.builder()
+                        .amount(each.getAmount())
+                        .carriageNumber(each.getCarriageNumber())
+                        .seatNumber(each.getSeatNumber())
+                        .idCard(each.getIdCard())
+                        .idType(each.getIdType())
+                        .seatType(each.getSeatType())
+                        .ticketType(each.getUserType())
+                        .realName(each.getRealName())
                         .build();
-                SendResult sendResult = delayCloseOrderSendProduce.sendMessage(delayCloseOrderEvent);
-                if (!Objects.equals(sendResult.getSendStatus(), SendStatus.SEND_OK)) {
-                    throw new ServiceException("投递延迟关闭订单消息队列失败");
-                }
-            } catch (Throwable ex) {
-                log.error("延迟关闭订单消息队列发送错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
-                throw ex;
+                orderItemCreateRemoteReqDTOList.add(orderItemCreateRemoteReqDTO);
+                ticketOrderDetailResults.add(ticketOrderDetailRespDTO);
+            });
+            LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
+                    .eq(TrainStationRelationDO::getTrainId, trainId)
+                    .eq(TrainStationRelationDO::getDeparture, requestParam.getDeparture())
+                    .eq(TrainStationRelationDO::getArrival, requestParam.getArrival());
+            TrainStationRelationDO trainStationRelationDO = trainStationRelationMapper.selectOne(queryWrapper);
+            TicketOrderCreateRemoteReqDTO orderCreateRemoteReqDTO = TicketOrderCreateRemoteReqDTO.builder()
+                    .departure(requestParam.getDeparture())
+                    .arrival(requestParam.getArrival())
+                    .orderTime(new Date())
+                    .source(SourceEnum.INTERNET.getCode())
+                    .trainNumber(trainDO.getTrainNumber())
+                    .departureTime(trainStationRelationDO.getDepartureTime())
+                    .arrivalTime(trainStationRelationDO.getArrivalTime())
+                    .ridingDate(trainStationRelationDO.getDepartureTime())
+                    .userId(UserContext.getUserId())
+                    .username(UserContext.getUsername())
+                    .trainId(Long.parseLong(requestParam.getTrainId()))
+                    .ticketOrderItems(orderItemCreateRemoteReqDTOList)
+                    .build();
+            ticketOrderResult = ticketOrderRemoteService.createTicketOrder(orderCreateRemoteReqDTO);
+            if (!ticketOrderResult.isSuccess() || StrUtil.isBlank(ticketOrderResult.getData())) {
+                log.error("订单服务调用失败，返回结果：{}", ticketOrderResult.getMessage());
+                throw new ServiceException("订单服务调用失败");
             }
-        } finally {
-            lock.unlock();
+        } catch (Throwable ex) {
+            log.error("远程调用订单服务创建错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
+            throw ex;
+        }
+        try {
+            // 发送 RocketMQ 延时消息，指定时间后取消订单
+            DelayCloseOrderEvent delayCloseOrderEvent = DelayCloseOrderEvent.builder()
+                    .trainId(requestParam.getTrainId())
+                    .departure(requestParam.getDeparture())
+                    .arrival(requestParam.getArrival())
+                    .orderSn(ticketOrderResult.getData())
+                    .trainPurchaseTicketResults(trainPurchaseTicketResults)
+                    .build();
+            SendResult sendResult = delayCloseOrderSendProduce.sendMessage(delayCloseOrderEvent);
+            if (!Objects.equals(sendResult.getSendStatus(), SendStatus.SEND_OK)) {
+                throw new ServiceException("投递延迟关闭订单消息队列失败");
+            }
+        } catch (Throwable ex) {
+            log.error("延迟关闭订单消息队列发送错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
+            throw ex;
         }
         return new TicketPurchaseRespDTO(ticketOrderResult.getData(), ticketOrderDetailResults);
     }

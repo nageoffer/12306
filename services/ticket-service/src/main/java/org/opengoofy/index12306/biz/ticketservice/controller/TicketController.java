@@ -59,7 +59,16 @@ public class TicketController {
     @ILog
     @PostMapping("/api/ticket-service/ticket/purchase")
     public Result<TicketPurchaseRespDTO> purchaseTickets(@RequestBody PurchaseTicketReqDTO requestParam) {
-        return Results.success(ticketService.purchaseTickets(requestParam));
+        return Results.success(ticketService.purchaseTicketsV1(requestParam));
+    }
+
+    /**
+     * 购买车票v2
+     */
+    @ILog
+    @PostMapping("/api/ticket-service/ticket/purchase/v2")
+    public Result<TicketPurchaseRespDTO> purchaseTicketsV2(@RequestBody PurchaseTicketReqDTO requestParam) {
+        return Results.success(ticketService.purchaseTicketsV2(requestParam));
     }
 
     /**

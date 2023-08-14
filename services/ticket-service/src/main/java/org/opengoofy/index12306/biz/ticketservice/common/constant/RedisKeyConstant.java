@@ -80,6 +80,11 @@ public final class RedisKeyConstant {
     public static final String QUERY_ALL_REGION_LIST = "index12306-ticket-service:query_all_region_list";
 
     /**
+     * 列车购买令牌桶，Key Prefix + 列车ID
+     */
+    public static final String TICKET_AVAILABILITY_TOKEN_BUCKET = "index12306-ticket-service:ticket_availability_token_bucket:";
+
+    /**
      * 获取全部地点集合分布式锁 Key
      */
     public static final String LOCK_QUERY_ALL_REGION_LIST = "index12306-ticket-service:lock:query_all_region_list";
@@ -98,4 +103,9 @@ public final class RedisKeyConstant {
      * 获取相邻座位余票分布式锁 Key
      */
     public static final String LOCK_SAFE_LOAD_SEAT_MARGIN_GET = "index12306-ticket-service:lock:safe_load_seat_margin_%s";
+
+    /**
+     * 列车购买令牌桶加载数据 Key
+     */
+    public static final String LOCK_TICKET_AVAILABILITY_TOKEN_BUCKET = "index12306-ticket-service:lock:ticket_availability_token_bucket:%s";
 }
