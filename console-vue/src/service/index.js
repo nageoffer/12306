@@ -48,7 +48,7 @@ const fetchPassengerList = async (params) => {
 const fetchDeletePassenger = async (body) => {
   const { data } = await http({
     method: 'POST',
-    url: '/api/user-service/passenger/remote',
+    url: '/api/user-service/passenger/remove',
     data: body
   })
   return data

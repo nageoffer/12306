@@ -107,7 +107,7 @@ public class PassengerController {
             scene = IdempotentSceneEnum.RESTAPI,
             message = "正在移除乘车人，请稍后再试..."
     )
-    @PostMapping("/api/user-service/passenger/remote")
+    @PostMapping("/api/user-service/passenger/remove")
     public Result<Void> removePassenger(@RequestBody PassengerRemoveReqDTO requestParam) {
         passengerService.removePassenger(requestParam);
         return Results.success();
