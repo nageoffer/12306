@@ -25,6 +25,7 @@ import org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.util.List;
@@ -39,6 +40,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTicket, CommandLineRunner, AbstractExecuteStrategy<SelectSeatDTO, List<TrainPurchaseTicketRespDTO>> {
 
     private DistributedCache distributedCache;
+    private String ticketAvailabilityCacheUpdateType;
 
     /**
      * 选择座位
@@ -52,7 +54,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
     public List<TrainPurchaseTicketRespDTO> executeResp(SelectSeatDTO requestParam) {
         List<TrainPurchaseTicketRespDTO> actualResult = selectSeats(requestParam);
         // 扣减车厢余票缓存，扣减站点余票缓存
-        if (CollUtil.isNotEmpty(actualResult)) {
+        if (CollUtil.isNotEmpty(actualResult) && StrUtil.equals(ticketAvailabilityCacheUpdateType, "binlog")) {
             String trainId = requestParam.getRequestParam().getTrainId();
             String departure = requestParam.getRequestParam().getDeparture();
             String arrival = requestParam.getRequestParam().getArrival();
@@ -66,5 +68,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
     @Override
     public void run(String... args) throws Exception {
         distributedCache = ApplicationContextHolder.getBean(DistributedCache.class);
+        ConfigurableEnvironment configurableEnvironment = ApplicationContextHolder.getBean(ConfigurableEnvironment.class);
+        ticketAvailabilityCacheUpdateType = configurableEnvironment.getProperty("ticket-availability.cache-update.type", "");
     }
 }
