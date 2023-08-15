@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.payservice.handler;
 
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
@@ -29,6 +30,7 @@ import com.alipay.api.response.AlipayTradePagePayResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayTradeTypeEnum;
 import org.opengoofy.index12306.biz.payservice.config.AliPayProperties;
@@ -37,6 +39,7 @@ import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayResponse;
 import org.opengoofy.index12306.biz.payservice.handler.base.AbstractPayHandler;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
+import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +55,8 @@ public final class AliPayNativeHandler extends AbstractPayHandler implements Abs
 
     private final AliPayProperties aliPayProperties;
 
+    private final static String SUCCESS_CODE = "10000";
+
     @SneakyThrows(value = AlipayApiException.class)
     @Override
     public PayResponse pay(PayRequest payRequest) {
@@ -66,14 +71,22 @@ public final class AliPayNativeHandler extends AbstractPayHandler implements Abs
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         request.setNotifyUrl(aliPayProperties.getNotifyUrl());
         request.setBizModel(model);
-        AlipayTradePagePayResponse response = alipayClient.pageExecute(request);
-        log.info("发起支付宝支付，订单号：{}，子订单号：{}，订单请求号：{}，订单金额：{} \n调用支付返回：\n\n{}\n",
-                aliPayRequest.getOrderSn(),
-                aliPayRequest.getOutOrderSn(),
-                aliPayRequest.getOrderRequestId(),
-                aliPayRequest.getTotalAmount(),
-                response.getBody());
-        return new PayResponse(StrUtil.replace(StrUtil.replace(response.getBody(), "\"", "'"), "\n", ""));
+        try {
+            AlipayTradePagePayResponse response = alipayClient.pageExecute(request);
+            log.info("发起支付宝支付，订单号：{}，子订单号：{}，订单请求号：{}，订单金额：{} \n调用支付返回：\n\n{}\n",
+                    aliPayRequest.getOrderSn(),
+                    aliPayRequest.getOutOrderSn(),
+                    aliPayRequest.getOrderRequestId(),
+                    aliPayRequest.getTotalAmount(),
+                    JSONObject.toJSONString(response));
+            if (!StringUtils.equals(SUCCESS_CODE, response.getCode())) {
+                throw new ServiceException("支付失败");
+            }
+            return new PayResponse(StrUtil.replace(StrUtil.replace(response.getBody(), "\"", "'"), "\n", ""));
+        } catch (AlipayApiException ex) {
+            throw new ServiceException("调用支付宝支付异常");
+        }
+
     }
 
     @Override

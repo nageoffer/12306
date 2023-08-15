@@ -143,7 +143,8 @@ public class PayServiceImpl implements PayService {
          * {@link AliRefundNativeHandler}
          */
         // 策略模式：通过策略模式封装退款渠道和退款场景，用户退款时动态选择对应的退款组件
-        RefundCommand refundCommand = BeanUtil.convert(payDO, RefundCommand.class);RefundRequest refundRequest = RefundRequestConvert.command2RefundRequest(refundCommand);
+        RefundCommand refundCommand = BeanUtil.convert(payDO, RefundCommand.class);
+        RefundRequest refundRequest = RefundRequestConvert.command2RefundRequest(refundCommand);
         RefundResponse result = abstractStrategyChoose.chooseAndExecuteResp(refundRequest.buildMark(), refundRequest);
         payDO.setStatus(result.getStatus());
         LambdaUpdateWrapper<PayDO> updateWrapper = Wrappers.lambdaUpdate(PayDO.class)
@@ -153,7 +154,6 @@ public class PayServiceImpl implements PayService {
             log.error("修改支付单退款结果失败，支付单信息：{}", JSON.toJSONString(payDO));
             throw new ServiceException("修改支付单退款结果失败");
         }
-
         return null;
     }
 }
