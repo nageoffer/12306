@@ -30,7 +30,6 @@ import com.alipay.api.response.AlipayTradePagePayResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayTradeTypeEnum;
 import org.opengoofy.index12306.biz.payservice.config.AliPayProperties;
@@ -79,14 +78,13 @@ public final class AliPayNativeHandler extends AbstractPayHandler implements Abs
                     aliPayRequest.getOrderRequestId(),
                     aliPayRequest.getTotalAmount(),
                     JSONObject.toJSONString(response));
-            if (!StringUtils.equals(SUCCESS_CODE, response.getCode())) {
+            if (!StrUtil.equals(SUCCESS_CODE, response.getCode())) {
                 throw new ServiceException("支付失败");
             }
             return new PayResponse(StrUtil.replace(StrUtil.replace(response.getBody(), "\"", "'"), "\n", ""));
         } catch (AlipayApiException ex) {
             throw new ServiceException("调用支付宝支付异常");
         }
-
     }
 
     @Override

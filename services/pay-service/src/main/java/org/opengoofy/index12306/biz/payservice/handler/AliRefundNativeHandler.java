@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.payservice.handler;
 
 import cn.hutool.core.text.StrBuilder;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
@@ -29,7 +30,6 @@ import com.alipay.api.response.AlipayTradeRefundResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayTradeTypeEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.TradeStatusEnum;
@@ -79,7 +79,7 @@ public final class AliRefundNativeHandler extends AbstractRefundHandler implemen
                     aliRefundRequest.getTradeNo(),
                     aliRefundRequest.getPayAmount(),
                     responseJson);
-            if (!StringUtils.equals(SUCCESS_CODE, response.getCode()) || !StringUtils.equals(FUND_CHANGE, response.getFundChange())) {
+            if (!StrUtil.equals(SUCCESS_CODE, response.getCode()) || !StrUtil.equals(FUND_CHANGE, response.getFundChange())) {
                 throw new ServiceException("退款失败");
             }
             return new RefundResponse(TradeStatusEnum.TRADE_CLOSED.tradeCode());
