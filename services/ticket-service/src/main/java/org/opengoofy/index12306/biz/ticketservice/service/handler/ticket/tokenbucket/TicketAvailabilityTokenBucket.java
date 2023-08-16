@@ -21,17 +21,14 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.opengoofy.index12306.biz.ticketservice.common.enums.SeatStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.VehicleTypeEnum;
-import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatTypeCountDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.framework.starter.bases.Singleton;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
@@ -64,9 +61,8 @@ public final class TicketAvailabilityTokenBucket {
 
     private final TrainStationService trainStationService;
     private final DistributedCache distributedCache;
-    private final SeatService seatService;
     private final RedissonClient redissonClient;
-
+    private final SeatMapper seatMapper;
     private static final String LUA_TICKET_AVAILABILITY_TOKEN_BUCKET_PATH = "lua/ticketAvailabilityTokenBucketLua.lua";
 
     /**
@@ -92,15 +88,10 @@ public final class TicketAvailabilityTokenBucket {
                     List<Integer> seatTypes = VehicleTypeEnum.HIGH_SPEED_RAIN.getSeatTypes();
                     Map<String, String> ticketAvailabilityTokenMap = new HashMap<>();
                     for (RouteDTO each : routeDTOList) {
-                        for (Integer item : seatTypes) {
-                            LambdaQueryWrapper<SeatDO> queryWrapper = Wrappers.lambdaQuery(SeatDO.class)
-                                    .eq(SeatDO::getStartStation, each.getStartStation())
-                                    .eq(SeatDO::getEndStation, each.getEndStation())
-                                    .eq(SeatDO::getSeatType, item)
-                                    .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode());
-                            String buildCacheKey = StrUtil.join("_", each.getStartStation(), each.getEndStation(), item);
-                            long count = seatService.count(queryWrapper);
-                            ticketAvailabilityTokenMap.put(buildCacheKey, String.valueOf(count));
+                        List<SeatTypeCountDTO> seatTypeCountDTOList = seatMapper.listSeatTypeCount(Long.parseLong(requestParam.getTrainId()), each.getStartStation(), each.getEndStation(), seatTypes);
+                        for (SeatTypeCountDTO eachSeatTypeCountDTO : seatTypeCountDTOList) {
+                            String buildCacheKey = StrUtil.join("_", each.getStartStation(), each.getEndStation(), eachSeatTypeCountDTO.getSeatType());
+                            ticketAvailabilityTokenMap.put(buildCacheKey, String.valueOf(eachSeatTypeCountDTO.getSeatCount()));
                         }
                     }
                     stringRedisTemplate.opsForHash().putAll(TICKET_AVAILABILITY_TOKEN_BUCKET + requestParam.getTrainId(), ticketAvailabilityTokenMap);

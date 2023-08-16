@@ -32,4 +32,19 @@
         </foreach>
         group by carriage_number
     </select>
+
+    <select id="listSeatTypeCount" resultType="org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatTypeCountDTO">
+        select seat_type as seatType, count(*) as seatCount
+        from t_seat
+        where train_id = #{trainId}
+        and start_station = #{startStation}
+        and end_station = #{endStation}
+        and seat_status = '0'
+        and seat_type in
+        <foreach collection="seatTypes" item="seatType" open="(" separator="," close=")">
+            #{seatType}
+        </foreach>
+        group by seat_type
+        having seatCount > 0
+    </select>
 </mapper>
