@@ -32,6 +32,7 @@ import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -60,6 +61,9 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DistributedCache distributedCache;
 
+    @Value("${ticket-availability.cache-update.type:}")
+    private String ticketAvailabilityCacheUpdateType;
+
     @Override
     public void onMessage(MessageWrapper<DelayCloseOrderEvent> delayCloseOrderEventMessageWrapper) {
         log.info("[延迟关闭订单] 开始消费：{}", JSON.toJSONString(delayCloseOrderEventMessageWrapper));
@@ -72,7 +76,7 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
             log.error("[延迟关闭订单] 订单号：{} 远程调用订单服务失败", orderSn, ex);
             throw ex;
         }
-        if (closedTickOrder.isSuccess() && closedTickOrder.getData()) {
+        if (closedTickOrder.isSuccess() && closedTickOrder.getData() && !StrUtil.equals(ticketAvailabilityCacheUpdateType, "binlog")) {
             String trainId = delayCloseOrderEvent.getTrainId();
             String departure = delayCloseOrderEvent.getDeparture();
             String arrival = delayCloseOrderEvent.getArrival();
