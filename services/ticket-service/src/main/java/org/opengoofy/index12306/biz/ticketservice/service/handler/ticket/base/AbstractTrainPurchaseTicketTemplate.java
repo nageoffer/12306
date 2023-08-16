@@ -54,7 +54,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
     public List<TrainPurchaseTicketRespDTO> executeResp(SelectSeatDTO requestParam) {
         List<TrainPurchaseTicketRespDTO> actualResult = selectSeats(requestParam);
         // 扣减车厢余票缓存，扣减站点余票缓存
-        if (CollUtil.isNotEmpty(actualResult) && StrUtil.equals(ticketAvailabilityCacheUpdateType, "binlog")) {
+        if (CollUtil.isNotEmpty(actualResult) && !StrUtil.equals(ticketAvailabilityCacheUpdateType, "binlog")) {
             String trainId = requestParam.getRequestParam().getTrainId();
             String departure = requestParam.getRequestParam().getDeparture();
             String arrival = requestParam.getRequestParam().getArrival();
