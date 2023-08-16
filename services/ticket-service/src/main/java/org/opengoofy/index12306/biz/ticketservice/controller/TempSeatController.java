@@ -29,6 +29,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.CarriageMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
+import org.opengoofy.index12306.framework.starter.common.toolkit.ThreadUtil;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TICKET_AVAILABILITY_TOKEN_BUCKET;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
 
 /**
@@ -64,20 +66,26 @@ public class TempSeatController {
         seatDO.setTrainId(Long.parseLong(trainId));
         seatDO.setSeatStatus(SeatStatusEnum.AVAILABLE.getCode());
         seatMapper.update(seatDO, Wrappers.lambdaUpdate());
-        List<TrainStationRelationDO> trainStationRelationDOList = trainStationRelationMapper.selectList(Wrappers.lambdaQuery(TrainStationRelationDO.class).eq(TrainStationRelationDO::getTrainId, trainId));
+        ThreadUtil.sleep(5000);
+        StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
+        List<TrainStationRelationDO> trainStationRelationDOList = trainStationRelationMapper.selectList(Wrappers.lambdaQuery(TrainStationRelationDO.class)
+                .eq(TrainStationRelationDO::getTrainId, trainId));
         for (TrainStationRelationDO each : trainStationRelationDOList) {
-            List<CarriageDO> carriageDOS = carriageMapper.selectList(Wrappers.lambdaQuery(CarriageDO.class).eq(CarriageDO::getTrainId, trainId).groupBy(CarriageDO::getCarriageType).select(CarriageDO::getCarriageType));
+            List<CarriageDO> carriageDOS = carriageMapper.selectList(Wrappers.lambdaQuery(CarriageDO.class)
+                    .eq(CarriageDO::getTrainId, trainId)
+                    .groupBy(CarriageDO::getCarriageType).select(CarriageDO::getCarriageType));
             String keySuffix = StrUtil.join("_", each.getTrainId(), each.getDeparture(), each.getArrival());
-            StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
             for (CarriageDO item : carriageDOS) {
                 QueryWrapper<CarriageDO> wrapper = new QueryWrapper<>();
                 wrapper.select("sum(seat_count) as seatCount");
                 wrapper.eq("carriage_type", item.getCarriageType());
                 wrapper.eq("train_id", trainId);
                 CarriageDO carriageDO = carriageMapper.selectOne(wrapper);
+                stringRedisTemplate.delete(TRAIN_STATION_REMAINING_TICKET + keySuffix);
                 stringRedisTemplate.opsForHash().put(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(item.getCarriageType()), String.valueOf(carriageDO.getSeatCount()));
             }
         }
+        stringRedisTemplate.delete(TICKET_AVAILABILITY_TOKEN_BUCKET + trainId);
         return Results.success();
     }
 }
