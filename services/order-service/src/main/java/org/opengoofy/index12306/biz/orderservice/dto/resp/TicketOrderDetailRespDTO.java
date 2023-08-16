@@ -37,6 +37,11 @@ public class TicketOrderDetailRespDTO {
     private String orderSn;
 
     /**
+     * 列车 ID
+     */
+    private Long trainId;
+
+    /**
      * 出发站点
      */
     private String departure;
