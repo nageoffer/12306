@@ -41,9 +41,10 @@ public class CanalBinlogEvent {
     private String database;
 
     /**
-     * 看着像时间戳，如果有懂得大佬可以提个 PR 修改下注释
+     * es 是指 Mysql Binlog 里原始的时间戳，也就是数据原始变更的时间
+     * Canal 的消费延迟 = ts - es
      */
-    private long es;
+    private Long es;
 
     /**
      * 递增 ID，从 1 开始
@@ -86,7 +87,8 @@ public class CanalBinlogEvent {
     private String table;
 
     /**
-     * 看着像时间戳，如果有懂得大佬可以提个 PR 修改下注释
+     * ts 是指 Canal 收到这个 Binlog，构造为自己协议对象的时间
+     * 应用消费的延迟 = now - ts
      */
     private Long ts;
 
