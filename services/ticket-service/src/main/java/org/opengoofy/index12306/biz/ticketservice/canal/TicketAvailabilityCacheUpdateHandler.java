@@ -15,19 +15,20 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.mq.consumer;
+package org.opengoofy.index12306.biz.ticketservice.canal;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
-import org.apache.rocketmq.spring.core.RocketMQListener;
-import org.opengoofy.index12306.biz.ticketservice.common.constant.TicketRocketMQConstant;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.CanalExecuteStrategyMarkEnum;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.SeatStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.CanalBinlogEvent;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
+import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,30 +37,33 @@ import java.util.Objects;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
 
 /**
- * 列车车票余量缓存更新消费端
+ * 列车余票缓存更新组件
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
-@RocketMQMessageListener(
-        topic = TicketRocketMQConstant.CANAL_COMMON_SYNC_TOPIC_KEY,
-        consumerGroup = TicketRocketMQConstant.CANAL_SYNC_COMMON_CG_KEY
-)
-public class TicketAvailabilityCacheUpdateConsumer implements RocketMQListener<CanalBinlogEvent> {
+public class TicketAvailabilityCacheUpdateHandler implements AbstractExecuteStrategy<CanalBinlogEvent, Void> {
 
     private final DistributedCache distributedCache;
 
     @Override
-    public void onMessage(CanalBinlogEvent message) {
-        if (message.getIsDdl() || CollUtil.isEmpty(message.getOld()) || !Objects.equals("UPDATE", message.getType())) {
+    public void execute(CanalBinlogEvent message) {
+        List<Map<String, Object>> messageDataList = new ArrayList<>();
+        List<Map<String, Object>> actualOldDataList = new ArrayList<>();
+        for (int i = 0; i < message.getOld().size(); i++) {
+            Map<String, Object> oldDataMap = message.getOld().get(i);
+            if (oldDataMap.get("seat_status") != null && StrUtil.isNotBlank(oldDataMap.get("seat_status").toString())) {
+                Map<String, Object> currentDataMap = message.getData().get(i);
+                if (StrUtil.equalsAny(currentDataMap.get("seat_status").toString(), String.valueOf(SeatStatusEnum.AVAILABLE.getCode()), String.valueOf(SeatStatusEnum.LOCKED.getCode()))) {
+                    actualOldDataList.add(oldDataMap);
+                    messageDataList.add(currentDataMap);
+                }
+            }
+        }
+        if (CollUtil.isEmpty(messageDataList) || CollUtil.isEmpty(actualOldDataList)) {
             return;
         }
-        List<Map<String, Object>> actualOldDataList = message.getOld().stream()
-                .filter(each -> each.get("seat_status") != null)
-                .toList();
-        List<Map<String, Object>> messageDataList = message.getData();
         Map<String, Map<Integer, Integer>> cacheChangeKeyMap = new HashMap<>();
         for (int i = 0; i < messageDataList.size(); i++) {
             Map<String, Object> each = messageDataList.get(i);
@@ -79,5 +83,10 @@ public class TicketAvailabilityCacheUpdateConsumer implements RocketMQListener<C
         }
         StringRedisTemplate instance = (StringRedisTemplate) distributedCache.getInstance();
         cacheChangeKeyMap.forEach((cacheKey, cacheVal) -> cacheVal.forEach((seatType, num) -> instance.opsForHash().increment(cacheKey, String.valueOf(seatType), num)));
+    }
+
+    @Override
+    public String mark() {
+        return CanalExecuteStrategyMarkEnum.T_SEAT.getActualTable();
     }
 }
