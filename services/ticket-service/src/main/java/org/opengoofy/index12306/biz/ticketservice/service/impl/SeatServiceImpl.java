@@ -62,7 +62,8 @@ public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements 
                 .eq(SeatDO::getSeatType, seatType)
                 .eq(SeatDO::getStartStation, departure)
                 .eq(SeatDO::getEndStation, arrival)
-                .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode());
+                .eq(SeatDO::getSeatStatus, SeatStatusEnum.AVAILABLE.getCode())
+                .select(SeatDO::getSeatNumber);
         List<SeatDO> seatDOList = seatMapper.selectList(queryWrapper);
         return seatDOList.stream().map(SeatDO::getSeatNumber).collect(Collectors.toList());
     }
