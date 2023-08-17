@@ -87,7 +87,8 @@ public class TrainPurchaseTicketParamVerifyChainHandler implements TrainPurchase
                 String.class,
                 () -> {
                     LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
-                            .eq(TrainStationDO::getTrainId, requestParam.getTrainId());
+                            .eq(TrainStationDO::getTrainId, requestParam.getTrainId())
+                            .select(TrainStationDO::getDeparture);
                     List<TrainStationDO> actualTrainStationList = trainStationMapper.selectList(queryWrapper);
                     return CollUtil.isNotEmpty(actualTrainStationList) ? JSON.toJSONString(actualTrainStationList) : null;
                 },
