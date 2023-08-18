@@ -72,4 +72,16 @@ public final class IdempotentSpELByRestAPIExecuteHandler extends AbstractIdempot
             }
         }
     }
+
+    @Override
+    public void exceptionProcessing() {
+        RLock lock = null;
+        try {
+            lock = (RLock) IdempotentContext.getKey(LOCK);
+        } finally {
+            if (lock != null) {
+                lock.unlock();
+            }
+        }
+    }
 }
