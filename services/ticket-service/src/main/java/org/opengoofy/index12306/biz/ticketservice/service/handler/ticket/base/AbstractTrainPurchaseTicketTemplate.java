@@ -69,6 +69,6 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
     public void run(String... args) throws Exception {
         distributedCache = ApplicationContextHolder.getBean(DistributedCache.class);
         ConfigurableEnvironment configurableEnvironment = ApplicationContextHolder.getBean(ConfigurableEnvironment.class);
-        ticketAvailabilityCacheUpdateType = configurableEnvironment.getProperty("ticket-availability.cache-update.type", "");
+        ticketAvailabilityCacheUpdateType = configurableEnvironment.getProperty("ticket.availability.cache-update.type", "");
     }
 }

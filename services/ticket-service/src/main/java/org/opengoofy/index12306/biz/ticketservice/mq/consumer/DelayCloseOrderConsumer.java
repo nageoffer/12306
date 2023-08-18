@@ -61,7 +61,7 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DistributedCache distributedCache;
 
-    @Value("${ticket-availability.cache-update.type:}")
+    @Value("${ticket.availability.cache-update.type:}")
     private String ticketAvailabilityCacheUpdateType;
 
     @Override

@@ -121,7 +121,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final ConfigurableEnvironment environment;
     private final TicketAvailabilityTokenBucket ticketAvailabilityTokenBucket;
 
-    @Value("${ticket-availability.cache-update.type:}")
+    @Value("${ticket.availability.cache-update.type:}")
     private String ticketAvailabilityCacheUpdateType;
 
     @Override
