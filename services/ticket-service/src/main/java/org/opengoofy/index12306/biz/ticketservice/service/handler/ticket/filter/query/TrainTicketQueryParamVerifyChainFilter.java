@@ -32,6 +32,8 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +59,7 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
 
     @Override
     public void handler(TicketPageQueryReqDTO requestParam) {
-        if (requestParam.getDepartureDate().after(new Date())) {
+        if (requestParam.getDepartureDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(LocalDate.now())) {
             throw new ClientException("出发日期不能小于当前日期");
         }
         // 验证出发地和目的地是否存在
