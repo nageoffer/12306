@@ -120,7 +120,8 @@ public final class TrainSeatTypeSelector {
                     .eq(TrainStationPriceDO::getTrainId, requestParam.getTrainId())
                     .eq(TrainStationPriceDO::getDeparture, requestParam.getDeparture())
                     .eq(TrainStationPriceDO::getArrival, requestParam.getArrival())
-                    .eq(TrainStationPriceDO::getSeatType, each.getSeatType());
+                    .eq(TrainStationPriceDO::getSeatType, each.getSeatType())
+                    .select(TrainStationPriceDO::getPrice);
             TrainStationPriceDO trainStationPriceDO = trainStationPriceMapper.selectOne(lambdaQueryWrapper);
             each.setAmount(trainStationPriceDO.getPrice());
         });
