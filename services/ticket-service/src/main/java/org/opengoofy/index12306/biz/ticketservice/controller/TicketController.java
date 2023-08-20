@@ -62,7 +62,9 @@ public class TicketController {
     @ILog
     @Idempotent(
             uniqueKeyPrefix = "index12306-ticket:lock_purchase-tickets:",
-            key = "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
+            key = "T(org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder).getBean('environment').getProperty('unique-name', '')"
+                    + "+'_'+"
+                    + "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
             message = "正在执行下单流程，请稍后...",
             scene = IdempotentSceneEnum.RESTAPI,
             type = IdempotentTypeEnum.SPEL
@@ -78,7 +80,9 @@ public class TicketController {
     @ILog
     @Idempotent(
             uniqueKeyPrefix = "index12306-ticket:lock_purchase-tickets:",
-            key = "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
+            key = "T(org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder).getBean('environment').getProperty('unique-name', '')"
+                    + "+'_'+"
+                    + "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
             message = "正在执行下单流程，请稍后...",
             scene = IdempotentSceneEnum.RESTAPI,
             type = IdempotentTypeEnum.SPEL
