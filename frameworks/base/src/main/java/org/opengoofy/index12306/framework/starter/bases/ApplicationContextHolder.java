@@ -40,22 +40,20 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 
     /**
      * Get ioc container bean by type.
-     *
-     * @param clazz
-     * @param <T>
-     * @return
      */
     public static <T> T getBean(Class<T> clazz) {
         return CONTEXT.getBean(clazz);
     }
 
     /**
+     * Get ioc container bean by name.
+     */
+    public static Object getBean(String name) {
+        return CONTEXT.getBean(name);
+    }
+
+    /**
      * Get ioc container bean by name and type.
-     *
-     * @param name
-     * @param clazz
-     * @param <T>
-     * @return
      */
     public static <T> T getBean(String name, Class<T> clazz) {
         return CONTEXT.getBean(name, clazz);
@@ -63,10 +61,6 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 
     /**
      * Get a set of ioc container beans by type.
-     *
-     * @param clazz
-     * @param <T>
-     * @return
      */
     public static <T> Map<String, T> getBeansOfType(Class<T> clazz) {
         return CONTEXT.getBeansOfType(clazz);
@@ -74,20 +68,13 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 
     /**
      * Find whether the bean has annotations.
-     *
-     * @param beanName
-     * @param annotationType
-     * @param <A>
-     * @return
      */
     public static <A extends Annotation> A findAnnotationOnBean(String beanName, Class<A> annotationType) {
         return CONTEXT.findAnnotationOnBean(beanName, annotationType);
     }
 
     /**
-     * Get ApplicationContext.
-     *
-     * @return
+     * Get application context.
      */
     public static ApplicationContext getInstance() {
         return CONTEXT;
