@@ -78,7 +78,7 @@ public final class AliPayNativeHandler extends AbstractPayHandler implements Abs
                     aliPayRequest.getOrderRequestId(),
                     aliPayRequest.getTotalAmount(),
                     JSONObject.toJSONString(response));
-            if (StrUtil.isBlank(response.getBody())) {
+            if (!response.isSuccess()) {
                 throw new ServiceException("调用支付宝发起支付异常");
             }
             return new PayResponse(StrUtil.replace(StrUtil.replace(response.getBody(), "\"", "'"), "\n", ""));
