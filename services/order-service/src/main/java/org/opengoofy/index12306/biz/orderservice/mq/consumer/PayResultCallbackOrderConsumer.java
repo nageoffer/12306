@@ -44,7 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @RocketMQMessageListener(
         topic = OrderRocketMQConstant.PAY_GLOBAL_TOPIC_KEY,
-        selectorExpression = OrderRocketMQConstant.PAY_RESULT_CALLBACK_ORDER_TAG_KEY,
+        selectorExpression = OrderRocketMQConstant.PAY_RESULT_CALLBACK_TAG_KEY,
         consumerGroup = OrderRocketMQConstant.PAY_RESULT_CALLBACK_ORDER_CG_KEY
 )
 public class PayResultCallbackOrderConsumer implements RocketMQListener<MessageWrapper<PayResultCallbackOrderEvent>> {
