@@ -1,7 +1,7 @@
 <script setup>
 import { Layout, ConfigProvider, Space } from 'ant-design-vue'
 import { useRoute } from 'vue-router'
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, reactive } from 'vue'
 import BreadHeader from '@/components/bread-header'
 import zhCN from 'ant-design-vue/es/locale/zh_CN'
 import Header from './components/header'
@@ -12,6 +12,8 @@ import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 dayjs.extend(duration)
 
+const state = reactive()
+
 const { Content } = Layout
 const isLogin = ref(false)
 const route = useRoute()
@@ -21,7 +23,17 @@ onMounted(() => {
   if (token) {
     axios.defaults.headers.common['Authorization'] = token
   }
+  window.addEventListener('hashchange', () => {
+    console.log(location.pathname, 'change')
+  })
 })
+
+// watch(
+//   () => location.pathname,
+//   (newValue) => {
+//     console.log('newValue:::', newValue)
+//   }
+// )
 
 watch(
   () => route.path,

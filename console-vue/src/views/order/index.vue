@@ -188,7 +188,12 @@
       </div>
     </Spin>
   </Modal>
-  <Modal :visible="state.isPayingOpen" title="网上支付提示" :footer="null">
+  <Modal
+    :visible="state.isPayingOpen"
+    title="网上支付提示"
+    :footer="null"
+    style="top: 30%"
+  >
     <Row :gutter="[24, 6]">
       <Col
         :span="6"
@@ -244,7 +249,7 @@ import {
   fetchOrderStatus
 } from '@/service'
 import { useRoute, useRouter } from 'vue-router'
-import { onMounted, reactive, computed, renderSlot, watch } from 'vue'
+import { onMounted, reactive, computed, watch, onUnmounted } from 'vue'
 import {
   TICKET_TYPE_LIST,
   ID_CARD_TYPE,
@@ -252,6 +257,7 @@ import {
   SEAT_CLASS_TYPE_LIST
 } from '@/constants'
 import { getWeekNumber } from '@/utils'
+let timer = undefined
 
 const { query } = useRoute()
 const router = useRouter()
@@ -261,6 +267,7 @@ const state = reactive({
   open: false,
   html: '',
   loading: false,
+  isInitiatePayment: false,
   isPaying: false,
   isPayingOpen: false
 })
@@ -285,12 +292,15 @@ const columns = [
 ]
 
 onMounted(() => {
-  setInterval(() => {
+  timer = setInterval(() => {
     state.count -= 1000
     getOrderStatus()
   }, 1000)
   dayjs.duration(state.count).minutes()
   getOrder()
+})
+onUnmounted(() => {
+  clearInterval(timer)
 })
 
 const getOrder = () => {
@@ -319,6 +329,9 @@ const handlePay = (channel) => {
   if (channel !== 0) {
     return message.error('该支付方式暂未对接，请稍候...')
   }
+  state.isInitiatePayment = true
+  state.open = false
+  state.isPayingOpen = true
   const body = {
     channel: 0,
     tradeType: 0,
@@ -338,13 +351,14 @@ const handlePay = (channel) => {
 }
 
 const getOrderStatus = () => {
-  fetchOrderStatus({ orderSn: query?.sn })
-    .then((res) => {
-      state.isPaying = res.data.status === 0
-    })
-    .catch((error) => {
-      console.log('error:::', error)
-    })
+  state.isInitiatePayment &&
+    fetchOrderStatus({ orderSn: query?.sn })
+      .then((res) => {
+        state.isPaying = res.data.status === 0
+      })
+      .catch((error) => {
+        console.log('error:::', error)
+      })
 }
 </script>
 
