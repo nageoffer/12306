@@ -445,21 +445,21 @@ watch(
       seatType ===
       SEAT_CLASS_TYPE_LIST.find((item) => item.label === '商务座')?.code
     ) {
-      seatPosition = ['A', 'B', 'C']
+      seatPosition = ['A', 'C', 'F']
       seatLeft = 2
     }
     if (
       seatType ===
       SEAT_CLASS_TYPE_LIST.find((item) => item.label === '一等座')?.code
     ) {
-      seatPosition = ['A', 'B', 'C', 'D']
+      seatPosition = ['A', 'C', 'D', 'F']
       seatLeft = 2
     }
     if (
       seatType ===
       SEAT_CLASS_TYPE_LIST.find((item) => item.label === '二等座')?.code
     ) {
-      seatPosition = ['A', 'B', 'C', 'D', 'E']
+      seatPosition = ['A', 'B', 'C', 'D', 'F']
       seatLeft = 3
     }
     let seatList = new Array(newValue?.length * seatPosition.length).fill('')
