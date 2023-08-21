@@ -70,7 +70,7 @@ public final class TicketAvailabilityTokenBucket {
     private final SeatMapper seatMapper;
     private final TrainMapper trainMapper;
 
-    private static final String LUA_TICKET_AVAILABILITY_TOKEN_BUCKET_PATH = "lua/ticketAvailabilityTokenBucketLua.lua";
+    private static final String LUA_TICKET_AVAILABILITY_TOKEN_BUCKET_PATH = "lua/ticket_availability_token_bucket.lua";
 
     /**
      * 获取车站间令牌桶中的令牌访问
