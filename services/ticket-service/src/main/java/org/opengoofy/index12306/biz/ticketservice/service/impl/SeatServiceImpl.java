@@ -103,7 +103,7 @@ public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements 
 
     @Override
     public void lockSeat(String trainId, String departure, String arrival, List<TrainPurchaseTicketRespDTO> trainPurchaseTicketRespList) {
-        List<RouteDTO> routeList = trainStationService.listTrainStationRoute(trainId, departure, arrival);
+        List<RouteDTO> routeList = trainStationService.listTakeoutTrainStationRoute(trainId, departure, arrival);
         trainPurchaseTicketRespList.forEach(each -> routeList.forEach(item -> {
             LambdaUpdateWrapper<SeatDO> updateWrapper = Wrappers.lambdaUpdate(SeatDO.class)
                     .eq(SeatDO::getTrainId, trainId)
@@ -120,7 +120,7 @@ public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements 
 
     @Override
     public void unlock(String trainId, String departure, String arrival, List<TrainPurchaseTicketRespDTO> trainPurchaseTicketResults) {
-        List<RouteDTO> routeList = trainStationService.listTrainStationRoute(trainId, departure, arrival);
+        List<RouteDTO> routeList = trainStationService.listTakeoutTrainStationRoute(trainId, departure, arrival);
         trainPurchaseTicketResults.forEach(each -> routeList.forEach(item -> {
             LambdaUpdateWrapper<SeatDO> updateWrapper = Wrappers.lambdaUpdate(SeatDO.class)
                     .eq(SeatDO::getTrainId, trainId)
