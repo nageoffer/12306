@@ -22,7 +22,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.RegionDO;
+import org.opengoofy.index12306.biz.ticketservice.dao.entity.StationDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.RegionMapper;
+import org.opengoofy.index12306.biz.ticketservice.dao.mapper.StationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
@@ -34,7 +36,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -52,6 +53,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryChainFilter<TicketPageQueryReqDTO> {
 
     private final RegionMapper regionMapper;
+    private final StationMapper stationMapper;
     private final DistributedCache distributedCache;
     private final RedissonClient redissonClient;
 
@@ -92,8 +94,12 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
                 return;
             }
             List<RegionDO> regionDOList = regionMapper.selectList(Wrappers.emptyWrapper());
+            List<StationDO> stationDOList = stationMapper.selectList(Wrappers.emptyWrapper());
             HashMap<Object, Object> regionValueMap = Maps.newHashMap();
             for (RegionDO each : regionDOList) {
+                regionValueMap.put(each.getCode(), each.getName());
+            }
+            for (StationDO each : stationDOList) {
                 regionValueMap.put(each.getCode(), each.getName());
             }
             hashOperations.putAll(QUERY_ALL_REGION_LIST, regionValueMap);
