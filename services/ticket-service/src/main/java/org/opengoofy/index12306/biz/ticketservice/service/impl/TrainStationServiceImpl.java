@@ -60,4 +60,14 @@ public class TrainStationServiceImpl implements TrainStationService {
         List<String> trainStationAllList = trainStationDOList.stream().map(TrainStationDO::getDeparture).collect(Collectors.toList());
         return StationCalculateUtil.throughStation(trainStationAllList, departure, arrival);
     }
+
+    @Override
+    public List<RouteDTO> listTakeoutTrainStationRoute(String trainId, String departure, String arrival) {
+        LambdaQueryWrapper<TrainStationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationDO.class)
+                .eq(TrainStationDO::getTrainId, trainId)
+                .select(TrainStationDO::getDeparture);
+        List<TrainStationDO> trainStationDOList = trainStationMapper.selectList(queryWrapper);
+        List<String> trainStationAllList = trainStationDOList.stream().map(TrainStationDO::getDeparture).collect(Collectors.toList());
+        return StationCalculateUtil.takeoutStation(trainStationAllList, departure, arrival);
+    }
 }
