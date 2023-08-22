@@ -343,6 +343,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 log.error("[取消订单] 订单号：{} 回滚列车DB座位状态失败", requestParam.getOrderSn(), ex);
                 throw ex;
             }
+            ticketAvailabilityTokenBucket.rollbackInBucket(ticketOrderDetail);
             try {
                 String keySuffix = StrUtil.join("_", trainId, departure, arrival);
                 StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();

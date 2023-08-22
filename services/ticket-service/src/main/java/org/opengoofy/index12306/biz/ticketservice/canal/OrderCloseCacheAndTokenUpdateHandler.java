@@ -18,41 +18,24 @@
 package org.opengoofy.index12306.biz.ticketservice.canal;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.CanalExecuteStrategyMarkEnum;
-import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.CanalBinlogEvent;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
-import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
-import org.opengoofy.index12306.framework.starter.bases.Singleton;
-import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
-import org.opengoofy.index12306.framework.starter.common.toolkit.Assert;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.tokenbucket.TicketAvailabilityTokenBucket;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
-import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TICKET_AVAILABILITY_TOKEN_BUCKET;
 
 /**
  * 订单关闭或取消后置处理组件
@@ -65,11 +48,8 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 public class OrderCloseCacheAndTokenUpdateHandler implements AbstractExecuteStrategy<CanalBinlogEvent, Void> {
 
     private final TicketOrderRemoteService ticketOrderRemoteService;
-    private final DistributedCache distributedCache;
-    private final TrainStationService trainStationService;
     private final SeatService seatService;
-
-    private static final String LUA_TICKET_AVAILABILITY_ROLLBACK_TOKEN_BUCKET_PATH = "lua/ticket_availability_rollback_token_bucket.lua";
+    private final TicketAvailabilityTokenBucket ticketAvailabilityTokenBucket;
 
     @Override
     public void execute(CanalBinlogEvent message) {
@@ -87,32 +67,7 @@ public class OrderCloseCacheAndTokenUpdateHandler implements AbstractExecuteStra
                 String trainId = String.valueOf(orderDetailResultData.getTrainId());
                 List<TicketOrderPassengerDetailRespDTO> passengerDetails = orderDetailResultData.getPassengerDetails();
                 seatService.unlock(trainId, orderDetailResultData.getDeparture(), orderDetailResultData.getArrival(), BeanUtil.convert(passengerDetails, TrainPurchaseTicketRespDTO.class));
-                DefaultRedisScript<Long> actual = Singleton.get(LUA_TICKET_AVAILABILITY_ROLLBACK_TOKEN_BUCKET_PATH, () -> {
-                    DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>();
-                    redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource(LUA_TICKET_AVAILABILITY_ROLLBACK_TOKEN_BUCKET_PATH)));
-                    redisScript.setResultType(Long.class);
-                    return redisScript;
-                });
-                Assert.notNull(actual);
-                Map<Integer, Long> seatTypeCountMap = passengerDetails.stream()
-                        .collect(Collectors.groupingBy(TicketOrderPassengerDetailRespDTO::getSeatType, Collectors.counting()));
-                JSONArray seatTypeCountArray = seatTypeCountMap.entrySet().stream()
-                        .map(entry -> {
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("seatType", String.valueOf(entry.getKey()));
-                            jsonObject.put("count", String.valueOf(entry.getValue()));
-                            return jsonObject;
-                        })
-                        .collect(Collectors.toCollection(JSONArray::new));
-                StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-                String actualHashKey = TICKET_AVAILABILITY_TOKEN_BUCKET + orderDetailResultData.getTrainId();
-                String luaScriptKey = StrUtil.join("_", orderDetailResultData.getDeparture(), orderDetailResultData.getArrival());
-                List<RouteDTO> takeoutRouteDTOList = trainStationService.listTakeoutTrainStationRoute(trainId, orderDetailResultData.getDeparture(), orderDetailResultData.getArrival());
-                Long result = stringRedisTemplate.execute(actual, Lists.newArrayList(actualHashKey, luaScriptKey), JSON.toJSONString(seatTypeCountArray), JSON.toJSONString(takeoutRouteDTOList));
-                if (result == null || !Objects.equals(result, 0L)) {
-                    log.error("回滚列车余票令牌失败，订单信息：{}", JSON.toJSONString(orderDetailResultData));
-                    throw new ServiceException("回滚列车余票令牌失败");
-                }
+                ticketAvailabilityTokenBucket.rollbackInBucket(orderDetailResultData);
             }
         }
     }

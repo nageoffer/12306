@@ -28,9 +28,12 @@ import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDT
 import org.opengoofy.index12306.biz.ticketservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.tokenbucket.TicketAvailabilityTokenBucket;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
+import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -60,6 +63,7 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
     private final SeatService seatService;
     private final TicketOrderRemoteService ticketOrderRemoteService;
     private final DistributedCache distributedCache;
+    private final TicketAvailabilityTokenBucket ticketAvailabilityTokenBucket;
 
     @Value("${ticket.availability.cache-update.type:}")
     private String ticketAvailabilityCacheUpdateType;
@@ -96,6 +100,7 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
                         (seatType, passengerSeatDetails) -> stringRedisTemplate.opsForHash()
                                 .increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(seatType), passengerSeatDetails.size())
                 );
+                ticketAvailabilityTokenBucket.rollbackInBucket(BeanUtil.convert(delayCloseOrderEvent, TicketOrderDetailRespDTO.class));
             } catch (Throwable ex) {
                 log.error("[延迟关闭订单] 订单号：{} 回滚列车Cache余票失败", orderSn, ex);
                 throw ex;
