@@ -313,7 +313,7 @@ const registerSubmit = () => {
     <div class="wrapper">
       <h1 class="tip-text">
         {{
-          `扫码下方二维码，回复：12306，获取拿个offer - 12306 在线购票系统人机验证码`
+          `扫码下方二维码，关注后回复：12306，获取拿个offer-12306在线购票系统人机验证码`
         }}
       </h1>
       <img
