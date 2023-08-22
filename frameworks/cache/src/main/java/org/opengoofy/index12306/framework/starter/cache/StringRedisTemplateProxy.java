@@ -80,7 +80,7 @@ public class StringRedisTemplateProxy implements DistributedCache {
             return redisScript;
         });
         Boolean result = stringRedisTemplate.execute(actual, Lists.newArrayList(keys), redisProperties.getValueTimeout().toString());
-        return result == null ? false : result;
+        return result != null && result;
     }
 
     @Override
