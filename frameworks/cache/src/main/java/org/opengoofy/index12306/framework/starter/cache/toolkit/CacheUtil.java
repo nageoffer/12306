@@ -50,7 +50,6 @@ public final class CacheUtil {
      * @return
      */
     public static boolean isNullOrBlank(Object cacheVal) {
-        boolean result = cacheVal == null || (cacheVal instanceof String && Strings.isNullOrEmpty((String) cacheVal));
-        return result;
+        return cacheVal == null || (cacheVal instanceof String && Strings.isNullOrEmpty((String) cacheVal));
     }
 }
