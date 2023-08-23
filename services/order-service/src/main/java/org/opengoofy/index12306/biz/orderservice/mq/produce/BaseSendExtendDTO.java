@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.mq.produce;
+package org.opengoofy.index12306.biz.orderservice.mq.produce;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -26,6 +26,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.client.producer.SendStatus;
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderCanalErrorCodeEnum;
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderItemStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderStatusEnum;
@@ -44,7 +46,9 @@ import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderSelfPageQuer
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderDetailSelfRespDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDetailRespDTO;
+import org.opengoofy.index12306.biz.orderservice.mq.event.DelayCloseOrderEvent;
 import org.opengoofy.index12306.biz.orderservice.mq.event.PayResultCallbackOrderEvent;
+import org.opengoofy.index12306.biz.orderservice.mq.produce.DelayCloseOrderSendProduce;
 import org.opengoofy.index12306.biz.orderservice.service.OrderItemService;
 import org.opengoofy.index12306.biz.orderservice.service.OrderPassengerRelationService;
 import org.opengoofy.index12306.biz.orderservice.service.OrderService;
@@ -79,6 +83,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderPassengerRelationService orderPassengerRelationService;
     private final OrderItemPassengerMapper orderItemPassengerMapper;
     private final RedissonClient redissonClient;
+    private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
 
     @Override
     public TicketOrderDetailRespDTO queryTicketOrderByOrderSn(String orderSn) {
@@ -159,6 +164,23 @@ public class OrderServiceImpl implements OrderService {
         });
         orderItemService.saveBatch(orderItemDOList);
         orderPassengerRelationDOList.forEach(orderItemPassengerMapper::insert);
+        try {
+            // 发送 RocketMQ 延时消息，指定时间后取消订单
+            DelayCloseOrderEvent delayCloseOrderEvent = DelayCloseOrderEvent.builder()
+                    .trainId(String.valueOf(requestParam.getTrainId()))
+                    .departure(requestParam.getDeparture())
+                    .arrival(requestParam.getArrival())
+                    .orderSn(orderSn)
+                    .trainPurchaseTicketResults(requestParam.getTicketOrderItems())
+                    .build();
+            SendResult sendResult = delayCloseOrderSendProduce.sendMessage(delayCloseOrderEvent);
+            if (!Objects.equals(sendResult.getSendStatus(), SendStatus.SEND_OK)) {
+                throw new ServiceException("投递延迟关闭订单消息队列失败");
+            }
+        } catch (Throwable ex) {
+            log.error("延迟关闭订单消息队列发送错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
+            throw ex;
+        }
         return orderSn;
     }
 

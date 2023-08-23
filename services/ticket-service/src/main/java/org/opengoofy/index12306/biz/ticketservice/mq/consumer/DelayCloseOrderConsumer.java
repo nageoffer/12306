@@ -54,8 +54,8 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 @Component
 @RequiredArgsConstructor
 @RocketMQMessageListener(
-        topic = TicketRocketMQConstant.TICKET_CREATE_TOPIC_KEY,
-        selectorExpression = TicketRocketMQConstant.TICKET_DELAY_CLOSE_TAG_KEY,
+        topic = TicketRocketMQConstant.ORDER_DELAY_CLOSE_TOPIC_KEY,
+        selectorExpression = TicketRocketMQConstant.ORDER_DELAY_CLOSE_TAG_KEY,
         consumerGroup = TicketRocketMQConstant.TICKET_DELAY_CLOSE_CG_KEY
 )
 public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWrapper<DelayCloseOrderEvent>> {

@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.mq.produce;
+package org.opengoofy.index12306.biz.orderservice.mq.produce;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.opengoofy.index12306.biz.ticketservice.common.constant.TicketRocketMQConstant;
-import org.opengoofy.index12306.biz.ticketservice.mq.domain.MessageWrapper;
-import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
+import org.opengoofy.index12306.biz.orderservice.common.constant.OrderRocketMQConstant;
+import org.opengoofy.index12306.biz.orderservice.mq.domain.MessageWrapper;
+import org.opengoofy.index12306.biz.orderservice.mq.event.DelayCloseOrderEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.messaging.Message;
@@ -53,8 +53,8 @@ public class DelayCloseOrderSendProduce extends AbstractCommonSendProduceTemplat
         return BaseSendExtendDTO.builder()
                 .eventName("延迟关闭订单")
                 .keys(messageSendEvent.getOrderSn())
-                .topic(environment.resolvePlaceholders(TicketRocketMQConstant.TICKET_CREATE_TOPIC_KEY))
-                .tag(environment.resolvePlaceholders(TicketRocketMQConstant.TICKET_DELAY_CLOSE_TAG_KEY))
+                .topic(environment.resolvePlaceholders(OrderRocketMQConstant.ORDER_DELAY_CLOSE_TOPIC_KEY))
+                .tag(environment.resolvePlaceholders(OrderRocketMQConstant.ORDER_DELAY_CLOSE_TAG_KEY))
                 .sentTimeout(2000L)
                 // RocketMQ 延迟消息级别 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
                 .delayLevel(14)

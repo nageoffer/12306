@@ -24,8 +24,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.client.producer.SendStatus;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketChainMarkEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
@@ -47,8 +45,6 @@ import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
-import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
-import org.opengoofy.index12306.biz.ticketservice.mq.produce.DelayCloseOrderSendProduce;
 import org.opengoofy.index12306.biz.ticketservice.remote.PayRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
@@ -83,7 +79,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -109,7 +104,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final TrainStationPriceMapper trainStationPriceMapper;
     private final DistributedCache distributedCache;
     private final TicketOrderRemoteService ticketOrderRemoteService;
-    private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
     private final PayRemoteService payRemoteService;
     private final StationMapper stationMapper;
     private final SeatService seatService;
@@ -300,23 +294,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             }
         } catch (Throwable ex) {
             log.error("远程调用订单服务创建错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
-            throw ex;
-        }
-        try {
-            // 发送 RocketMQ 延时消息，指定时间后取消订单
-            DelayCloseOrderEvent delayCloseOrderEvent = DelayCloseOrderEvent.builder()
-                    .trainId(requestParam.getTrainId())
-                    .departure(requestParam.getDeparture())
-                    .arrival(requestParam.getArrival())
-                    .orderSn(ticketOrderResult.getData())
-                    .trainPurchaseTicketResults(trainPurchaseTicketResults)
-                    .build();
-            SendResult sendResult = delayCloseOrderSendProduce.sendMessage(delayCloseOrderEvent);
-            if (!Objects.equals(sendResult.getSendStatus(), SendStatus.SEND_OK)) {
-                throw new ServiceException("投递延迟关闭订单消息队列失败");
-            }
-        } catch (Throwable ex) {
-            log.error("延迟关闭订单消息队列发送错误，请求参数：{}", JSON.toJSONString(requestParam), ex);
             throw ex;
         }
         return new TicketPurchaseRespDTO(ticketOrderResult.getData(), ticketOrderDetailResults);

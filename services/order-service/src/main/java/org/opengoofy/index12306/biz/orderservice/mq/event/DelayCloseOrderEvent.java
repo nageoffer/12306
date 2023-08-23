@@ -15,65 +15,49 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.orderservice.dto.req;
+package org.opengoofy.index12306.biz.orderservice.mq.event;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderItemCreateReqDTO;
+
+import java.util.List;
 
 /**
- * 车票订单详情创建请求参数
+ * 延迟关闭订单事件
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-public class TicketOrderItemCreateReqDTO {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class DelayCloseOrderEvent {
 
     /**
-     * 车厢号
+     * 车次 ID
      */
-    private String carriageNumber;
+    private String trainId;
 
     /**
-     * 座位类型
+     * 出发站点
      */
-    private Integer seatType;
+    private String departure;
 
     /**
-     * 座位号
+     * 到达站点
      */
-    private String seatNumber;
+    private String arrival;
 
     /**
-     * 乘车人 ID
+     * 订单号
      */
-    private String passengerId;
+    private String orderSn;
 
     /**
-     * 真实姓名
+     * 乘车人购票信息
      */
-    private String realName;
-
-    /**
-     * 证件类型
-     */
-    private Integer idType;
-
-    /**
-     * 证件号
-     */
-    private String idCard;
-
-    /**
-     * 手机号
-     */
-    private String phone;
-
-    /**
-     * 订单金额
-     */
-    private Integer amount;
-
-    /**
-     * 车票类型
-     */
-    private Integer ticketType;
+    private List<TicketOrderItemCreateReqDTO> trainPurchaseTicketResults;
 }
