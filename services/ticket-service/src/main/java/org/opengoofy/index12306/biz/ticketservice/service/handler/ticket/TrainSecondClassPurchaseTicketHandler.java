@@ -201,7 +201,7 @@ public class TrainSecondClassPurchaseTicketHandler extends AbstractTrainPurchase
                     if (j == 0) {
                         actualSelect = mergeArrays(actualSelects.get(j), actualSelects.get(j + 1));
                     }
-                    if (j != 0 && actualSelects.size() > 2){
+                    if (j != 0 && actualSelects.size() > 2) {
                         actualSelect = mergeArrays(actualSelect, actualSelects.get(j + 1));
                     }
                 }

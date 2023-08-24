@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_CARRIAGE_SEAT_STATUS;
 import static org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base.BitMapCheckSeatStatusFactory.TRAIN_BUSINESS;
+
 /**
  * 高铁商务座购票组件
  *
@@ -91,8 +92,7 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                 return matchSeats(requestParam, trainCarriageList, trainStationCarriageRemainingTicket);
             }
             return selectSeats(requestParam, trainCarriageList, trainStationCarriageRemainingTicket);
-        }
-        else {
+        } else {
             if (CollUtil.isNotEmpty(requestParam.getRequestParam().getChooseSeats())) {
                 return matchSeats(requestParam, trainCarriageList, trainStationCarriageRemainingTicket);
             }
@@ -356,7 +356,7 @@ public class TrainBusinessClassPurchaseTicketHandler extends AbstractTrainPurcha
                     if (j == 0) {
                         actualSelect = mergeArrays(actualSelects.get(j), actualSelects.get(j + 1));
                     }
-                    if (j != 0 && actualSelects.size() > 2){
+                    if (j != 0 && actualSelects.size() > 2) {
                         actualSelect = mergeArrays(actualSelect, actualSelects.get(j + 1));
                     }
                 }
