@@ -43,10 +43,10 @@ public final class CarriageVacantSeatCalculateUtil {
         PriorityQueue<List<Pair<Integer, Integer>>> vacantSeatQueue = new PriorityQueue<>(Comparator.comparingInt(List::size));
         for (int i = 0 ; i < n; i ++) {
             for (int j = 0; j < m; j ++ ) {
-                if(actualSeats[i][j] == 0){
+                if(actualSeats[i][j] == 0) {
                     List<Pair<Integer, Integer>> res = new ArrayList<>();
                     int k = j;
-                    for ( ; k < 3 ; k ++) {
+                    for ( ; k < m ; k ++) {
                         if (actualSeats[i][k] == 1) break;
                         res.add(new Pair<>(i, k));
                     }
