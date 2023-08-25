@@ -21,6 +21,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.retry.annotation.EnableRetry;
 
 /**
  * 12306 聚合服务应用启动器
@@ -33,6 +34,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
         "org.opengoofy.index12306.biz.orderservice",
         "org.opengoofy.index12306.biz.payservice"
 })
+@EnableRetry
 @MapperScan(value = {
         "org.opengoofy.index12306.biz.userservice.dao.mapper",
         "org.opengoofy.index12306.biz.ticketservice.dao.mapper",

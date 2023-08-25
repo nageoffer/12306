@@ -41,6 +41,8 @@ import org.opengoofy.index12306.biz.payservice.handler.base.AbstractRefundHandle
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -51,7 +53,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public final class AliRefundNativeHandler extends AbstractRefundHandler implements AbstractExecuteStrategy<RefundRequest, RefundResponse> {
+public class AliRefundNativeHandler extends AbstractRefundHandler implements AbstractExecuteStrategy<RefundRequest, RefundResponse> {
 
     private final AliPayProperties aliPayProperties;
 
@@ -59,6 +61,7 @@ public final class AliRefundNativeHandler extends AbstractRefundHandler implemen
 
     private final static String FUND_CHANGE = "Y";
 
+    @Retryable(value = {ServiceException.class}, maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 1.5))
     @SneakyThrows(value = AlipayApiException.class)
     @Override
     public RefundResponse refund(RefundRequest payRequest) {
@@ -69,7 +72,7 @@ public final class AliRefundNativeHandler extends AbstractRefundHandler implemen
         model.setOutTradeNo(aliRefundRequest.getOrderSn());
         model.setTradeNo(aliRefundRequest.getTradeNo());
         model.setRefundAmount(aliRefundRequest.getPayAmount().toString());
-        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest ();
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
         request.setBizModel(model);
         try {
             AlipayTradeRefundResponse response = alipayClient.execute(request);
