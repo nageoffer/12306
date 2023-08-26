@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.orderservice.common.enums;
 
+import cn.crane4j.annotation.ContainerEnum;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -25,39 +26,43 @@ import lombok.RequiredArgsConstructor;
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
+@ContainerEnum(namespace = "OrderItemStatusEnum", key = "status", value = "statusName")
 @RequiredArgsConstructor
 public enum OrderItemStatusEnum {
 
     /**
      * 待支付
      */
-    PENDING_PAYMENT(0),
+    PENDING_PAYMENT(0, "待支付"),
 
     /**
      * 已支付
      */
-    ALREADY_PAID(10),
+    ALREADY_PAID(10, "已支付"),
 
     /**
      * 已进站
      */
-    ALREADY_PULL_IN(20),
+    ALREADY_PULL_IN(20, "已进站"),
 
     /**
      * 已取消
      */
-    CLOSED(30),
+    CLOSED(30, "已取消"),
 
     /**
      * 已退票
      */
-    REFUNDED(40),
+    REFUNDED(40, "已退票"),
 
     /**
      * 已改签
      */
-    RESCHEDULED(50);
+    RESCHEDULED(50, "已改签");
 
     @Getter
-    private final int status;
+    private final Integer status;
+
+    @Getter
+    private final String statusName;
 }

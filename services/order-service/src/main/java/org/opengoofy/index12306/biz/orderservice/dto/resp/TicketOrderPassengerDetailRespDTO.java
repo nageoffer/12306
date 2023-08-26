@@ -17,11 +17,13 @@
 
 package org.opengoofy.index12306.biz.orderservice.dto.resp;
 
+import cn.crane4j.annotation.AssembleEnum;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.orderservice.common.enums.OrderItemStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.serialize.IdCardDesensitizationSerializer;
 
 /**
@@ -79,5 +81,11 @@ public class TicketOrderPassengerDetailRespDTO {
     /**
      * 车票状态
      */
+    @AssembleEnum(type = OrderItemStatusEnum.class, ref = "statusName")
     private Integer status;
+
+    /**
+     * 车票状态名称
+     */
+    private String statusName;
 }

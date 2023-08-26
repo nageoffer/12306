@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.orderservice.dto.resp;
 
+import cn.crane4j.annotation.Disassemble;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
@@ -83,5 +84,6 @@ public class TicketOrderDetailRespDTO {
     /**
      * 乘车人订单详情
      */
+    @Disassemble
     private List<TicketOrderPassengerDetailRespDTO> passengerDetails;
 }

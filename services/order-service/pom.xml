@@ -83,6 +83,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- 一个简单易用的数据映射框架，通过简单的注解配置快速根据外键/编码值填充相关字段，支持字典，枚举，方法等多种数据源 -->
+        <!-- https://github.com/opengoofy/crane4j -->
+        <dependency>
+            <groupId>cn.crane4j</groupId>
+            <artifactId>crane4j-spring-boot-starter</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
         <!-- NoClassDefFoundError: javax/xml/bind/JAXBException start -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
