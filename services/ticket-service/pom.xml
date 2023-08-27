@@ -94,6 +94,11 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
         <!-- openfeign 已不再提供默认负载均衡器 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

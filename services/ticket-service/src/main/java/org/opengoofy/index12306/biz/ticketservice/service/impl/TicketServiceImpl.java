@@ -22,6 +22,8 @@ import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
@@ -37,6 +39,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TicketMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatClassDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
@@ -82,10 +85,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant.ADVANCE_TICKET_DAY;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_PURCHASE_TICKETS;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_PURCHASE_TICKETS_V2;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_INFO;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
 
@@ -195,6 +200,8 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     public TicketPurchaseRespDTO purchaseTicketsV1(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
+        // v1 版本购票存在 4 个较为严重的问题，v2 版本相比较 v1 版本更具有业务特点以及性能，整体提升较大
+        // 写了详细的 v2 版本购票升级指南，欢迎查阅 https://t.zsxq.com/11gBPFUUN
         String lockKey = environment.resolvePlaceholders(String.format(LOCK_PURCHASE_TICKETS, requestParam.getTrainId()));
         RLock lock = redissonClient.getLock(lockKey);
         lock.lock();
@@ -205,6 +212,10 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         }
     }
 
+    private final Cache<String, ReentrantLock> localLockMap = Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.DAYS)
+            .build();
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public TicketPurchaseRespDTO purchaseTicketsV2(PurchaseTicketReqDTO requestParam) {
@@ -214,7 +225,45 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         if (!tokenResult) {
             throw new ServiceException("列车站点已无余票");
         }
-        return executePurchaseTickets(requestParam);
+        // v1 版本购票存在 4 个较为严重的问题，v2 版本相比较 v1 版本更具有业务特点以及性能，整体提升较大
+        // 写了详细的 v2 版本购票升级指南，欢迎查阅 https://t.zsxq.com/11gBPFUUN
+        List<ReentrantLock> localLockList = new ArrayList<>();
+        List<RLock> distributedLockList = new ArrayList<>();
+        Map<Integer, List<PurchaseTicketPassengerDetailDTO>> seatTypeMap = requestParam.getPassengers().stream()
+                .collect(Collectors.groupingBy(PurchaseTicketPassengerDetailDTO::getSeatType));
+        seatTypeMap.forEach((searType, count) -> {
+            String lockKey = environment.resolvePlaceholders(String.format(LOCK_PURCHASE_TICKETS_V2, requestParam.getTrainId(), searType));
+            ReentrantLock localLock = localLockMap.getIfPresent(lockKey);
+            if (localLock == null) {
+                synchronized (TicketService.class) {
+                    if ((localLock = localLockMap.getIfPresent(lockKey)) == null) {
+                        localLock = new ReentrantLock(true);
+                        localLockMap.put(lockKey, localLock);
+                    }
+                }
+            }
+            localLockList.add(localLock);
+            RLock distributedLock = redissonClient.getFairLock(lockKey);
+            distributedLockList.add(distributedLock);
+        });
+        try {
+            localLockList.forEach(ReentrantLock::lock);
+            distributedLockList.forEach(RLock::lock);
+            return executePurchaseTickets(requestParam);
+        } finally {
+            localLockList.forEach(localLock -> {
+                try {
+                    localLock.unlock();
+                } catch (Throwable ignored) {
+                }
+            });
+            distributedLockList.forEach(distributedLock -> {
+                try {
+                    distributedLock.unlock();
+                } catch (Throwable ignored) {
+                }
+            });
+        }
     }
 
     @Override
