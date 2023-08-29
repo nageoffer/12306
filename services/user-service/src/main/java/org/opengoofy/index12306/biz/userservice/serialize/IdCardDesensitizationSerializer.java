@@ -33,7 +33,7 @@ public class IdCardDesensitizationSerializer extends JsonSerializer<String> {
 
     @Override
     public void serialize(String idCard, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        String phoneDesensitization = DesensitizedUtil.idCardNum(idCard, 4, 4);
-        jsonGenerator.writeString(phoneDesensitization);
+        String idCardDesensitization = DesensitizedUtil.idCardNum(idCard, 4, 4);
+        jsonGenerator.writeString(idCardDesensitization);
     }
 }
