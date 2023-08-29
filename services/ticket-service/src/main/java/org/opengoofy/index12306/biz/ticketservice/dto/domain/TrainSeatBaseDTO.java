@@ -15,38 +15,46 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base;
+package org.opengoofy.index12306.biz.ticketservice.dto.domain;
 
-import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 抽象的验证座位实体类
+ * 高铁座位基础信息
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public interface BitMapCheckSeat {
+@Builder
+@Data
+@AllArgsConstructor
+public class TrainSeatBaseDTO {
 
     /**
-     * 座位是否存在检查方法
-     *
-     * @param key              缓存Key
-     * @param convert          座位统计Map
-     * @param distributedCache 分布式缓存接口
-     * @return 判断座位是否存在 true or false
+     * 高铁列车 ID
      */
-    boolean checkSeat(String key, HashMap<Integer, Integer> convert, DistributedCache distributedCache);
+    private String trainId;
 
     /**
-     * 检查座位是否存在 v2 版本
-     *
-     * @param chooseSeatList 选择座位
-     * @param actualSeats    座位状态数组
-     * @param SEAT_Y_INT     坐标转换 Map
-     * @return
+     * 列车起始站点
      */
-    boolean checkChooseSeat(List<String> chooseSeatList, int[][] actualSeats, Map<Character, Integer> SEAT_Y_INT);
+    private String departure;
+
+    /**
+     * 列车到达站点
+     */
+    private String arrival;
+
+    /**
+     * 乘客信息
+     */
+    private List<PurchaseTicketPassengerDetailDTO> passengerSeatDetails;
+
+    /**
+     * 选择座位信息
+     */
+    private List<String> chooseSeatList;
 }

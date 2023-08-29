@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.TrainSeatBaseDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder;
@@ -49,6 +50,16 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
      * @return 乘车人座位
      */
     protected abstract List<TrainPurchaseTicketRespDTO> selectSeats(SelectSeatDTO requestParam);
+
+    protected TrainSeatBaseDTO buildTrainSeatBaseDTO(SelectSeatDTO requestParam) {
+        return TrainSeatBaseDTO.builder()
+                .trainId(requestParam.getRequestParam().getTrainId())
+                .departure(requestParam.getRequestParam().getDeparture())
+                .arrival(requestParam.getRequestParam().getArrival())
+                .chooseSeatList(requestParam.getRequestParam().getChooseSeats())
+                .passengerSeatDetails(requestParam.getPassengerSeatDetails())
+                .build();
+    }
 
     @Override
     public List<TrainPurchaseTicketRespDTO> executeResp(SelectSeatDTO requestParam) {
