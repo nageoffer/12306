@@ -22,6 +22,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -67,5 +69,18 @@ public class TrainFirstCheckSeat implements TrainBitMapCheckSeat {
             }
         }
         return flag;
+    }
+
+    /**
+     * 高铁一等座选择座位是否被占用
+     *
+     * @param chooseSeatList 选择座位
+     * @param actualSeats    座位状态数组
+     * @param SEAT_Y_INT     坐标转换 Map
+     * @return
+     */
+    @Override
+    public boolean checkChooseSeat(List<String> chooseSeatList, int[][] actualSeats, Map<Character, Integer> SEAT_Y_INT) {
+        return false;
     }
 }
