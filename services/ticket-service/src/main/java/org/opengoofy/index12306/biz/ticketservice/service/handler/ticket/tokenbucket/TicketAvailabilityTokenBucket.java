@@ -104,7 +104,7 @@ public final class TicketAvailabilityTokenBucket {
             try {
                 Boolean hasKeyTwo = distributedCache.hasKey(actualHashKey);
                 if (!hasKeyTwo) {
-                    List<Integer> seatTypes = VehicleTypeEnum.HIGH_SPEED_RAIN.getSeatTypes();
+                    List<Integer> seatTypes = VehicleTypeEnum.findSeatTypesByCode(trainDO.getTrainType());
                     Map<String, String> ticketAvailabilityTokenMap = new HashMap<>();
                     for (RouteDTO each : routeDTOList) {
                         List<SeatTypeCountDTO> seatTypeCountDTOList = seatMapper.listSeatTypeCount(Long.parseLong(requestParam.getTrainId()), each.getStartStation(), each.getEndStation(), seatTypes);
