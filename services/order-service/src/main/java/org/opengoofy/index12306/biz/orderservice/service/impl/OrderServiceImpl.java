@@ -35,7 +35,6 @@ import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderDO;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemPassengerDO;
 import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemMapper;
-import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderItemPassengerMapper;
 import org.opengoofy.index12306.biz.orderservice.dao.mapper.OrderMapper;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.CancelTicketOrderReqDTO;
@@ -81,7 +80,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemMapper orderItemMapper;
     private final OrderItemService orderItemService;
     private final OrderPassengerRelationService orderPassengerRelationService;
-    private final OrderItemPassengerMapper orderItemPassengerMapper;
     private final RedissonClient redissonClient;
     private final DelayCloseOrderSendProduce delayCloseOrderSendProduce;
 
@@ -163,7 +161,7 @@ public class OrderServiceImpl implements OrderService {
             orderPassengerRelationDOList.add(orderPassengerRelationDO);
         });
         orderItemService.saveBatch(orderItemDOList);
-        orderPassengerRelationDOList.forEach(orderItemPassengerMapper::insert);
+        orderPassengerRelationService.saveBatch(orderPassengerRelationDOList);
         try {
             // 发送 RocketMQ 延时消息，指定时间后取消订单
             DelayCloseOrderEvent delayCloseOrderEvent = DelayCloseOrderEvent.builder()
