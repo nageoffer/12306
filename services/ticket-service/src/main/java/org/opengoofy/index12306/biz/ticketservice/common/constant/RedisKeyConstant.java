@@ -35,6 +35,11 @@ public final class RedisKeyConstant {
     public static final String REGION_TRAIN_STATION = "index12306-ticket-service:region_train_station:";
 
     /**
+     * 站点查询分布式锁 Key
+     */
+    public static final String LOCK_REGION_TRAIN_STATION = "index12306-ticket-service:lock:region_train_station";
+
+    /**
      * 地区以及车站查询，Key Prefix + ( 车站名称 or 查询方式 )
      */
     public static final String REGION_STATION = "index12306-ticket-service:region-station:";

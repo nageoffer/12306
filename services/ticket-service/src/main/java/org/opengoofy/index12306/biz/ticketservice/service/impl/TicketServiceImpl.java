@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
@@ -79,9 +80,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -91,6 +94,8 @@ import java.util.stream.Collectors;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant.ADVANCE_TICKET_DAY;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_PURCHASE_TICKETS;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_PURCHASE_TICKETS_V2;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_REGION_TRAIN_STATION;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.REGION_TRAIN_STATION;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_INFO;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
 
@@ -127,15 +132,32 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     public TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam) {
         // 责任链模式 验证城市名称是否存在、不存在加载缓存等等
         ticketPageQueryAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_QUERY_FILTER.name(), requestParam);
-        StationDO fromStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
-                .eq(StationDO::getCode, requestParam.getFromStation())
-        );
-        StationDO toStationDO = stationMapper.selectOne(Wrappers.lambdaQuery(StationDO.class)
-                .eq(StationDO::getCode, requestParam.getToStation())
-        );
+        StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
+        List<Object> stationDetails = stringRedisTemplate.opsForHash()
+                .multiGet(REGION_TRAIN_STATION, Lists.newArrayList(requestParam.getFromStation(), requestParam.getToStation()));
+        long count = stationDetails.stream().filter(Objects::isNull).count();
+        if (count > 0) {
+            RLock lock = redissonClient.getLock(LOCK_REGION_TRAIN_STATION);
+            lock.lock();
+            try {
+                stationDetails = stringRedisTemplate.opsForHash()
+                        .multiGet(REGION_TRAIN_STATION, Lists.newArrayList(requestParam.getFromStation(), requestParam.getToStation()));
+                count = stationDetails.stream().filter(Objects::isNull).count();
+                if (count > 0) {
+                    List<StationDO> stationDOList = stationMapper.selectList(Wrappers.emptyWrapper());
+                    Map<String, String> regionTrainStationMap = new HashMap<>();
+                    stationDOList.forEach(each -> regionTrainStationMap.put(each.getCode(), each.getRegionName()));
+                    stringRedisTemplate.opsForHash().putAll(REGION_TRAIN_STATION, regionTrainStationMap);
+                    stationDetails = stringRedisTemplate.opsForHash()
+                            .multiGet(REGION_TRAIN_STATION, Lists.newArrayList(requestParam.getFromStation(), requestParam.getToStation()));
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
         LambdaQueryWrapper<TrainStationRelationDO> queryWrapper = Wrappers.lambdaQuery(TrainStationRelationDO.class)
-                .eq(TrainStationRelationDO::getStartRegion, fromStationDO.getRegionName())
-                .eq(TrainStationRelationDO::getEndRegion, toStationDO.getRegionName());
+                .eq(TrainStationRelationDO::getStartRegion, stationDetails.get(0))
+                .eq(TrainStationRelationDO::getEndRegion, stationDetails.get(1));
         List<TrainStationRelationDO> trainStationRelationList = trainStationRelationMapper.selectList(queryWrapper);
         List<TicketListDTO> seatResults = new ArrayList<>();
         Set<Integer> trainBrandSet = new HashSet<>();
@@ -169,7 +191,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                     .eq(TrainStationPriceDO::getTrainId, each.getTrainId());
             List<TrainStationPriceDO> trainStationPriceDOList = trainStationPriceMapper.selectList(trainStationPriceQueryWrapper);
             List<SeatClassDTO> seatClassList = new ArrayList<>();
-            StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
             trainStationPriceDOList.forEach(item -> {
                 String seatType = String.valueOf(item.getSeatType());
                 String keySuffix = StrUtil.join("_", each.getTrainId(), item.getDeparture(), item.getArrival());
