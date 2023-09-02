@@ -84,7 +84,7 @@ const fetchLogout = async (body) => {
 const fetchBuyTicket = async (body) => {
   const { data } = await http({
     method: 'POST',
-    url: '/api/ticket-service/ticket/purchase',
+    url: '/api/ticket-service/ticket/purchase/v2',
     data: body
   })
 
