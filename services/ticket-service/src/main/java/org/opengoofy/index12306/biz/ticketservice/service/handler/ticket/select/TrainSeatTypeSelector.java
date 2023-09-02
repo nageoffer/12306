@@ -93,13 +93,13 @@ public final class TrainSeatTypeSelector {
             // 查询乘车人信息并赋值
             passengerRemoteResult = userRemoteService.listPassengerQueryByIds(UserContext.getUsername(), passengerIds);
             if (!passengerRemoteResult.isSuccess() || CollUtil.isEmpty(passengerRemoteResultList = passengerRemoteResult.getData())) {
-                throw new RemoteException("用户服务远程调用查询乘车人相信信息错误");
+                throw new RemoteException("用户服务远程调用查询乘车人相关信息错误");
             }
         } catch (Throwable ex) {
             if (ex instanceof RemoteException) {
-                log.error("用户服务远程调用查询乘车人相信信息错误，当前用户：{}，请求参数：{}", UserContext.getUsername(), passengerIds);
+                log.error("用户服务远程调用查询乘车人相关信息错误，当前用户：{}，请求参数：{}", UserContext.getUsername(), passengerIds);
             } else {
-                log.error("用户服务远程调用查询乘车人相信信息错误，当前用户：{}，请求参数：{}", UserContext.getUsername(), passengerIds, ex);
+                log.error("用户服务远程调用查询乘车人相关信息错误，当前用户：{}，请求参数：{}", UserContext.getUsername(), passengerIds, ex);
             }
             throw ex;
         }
