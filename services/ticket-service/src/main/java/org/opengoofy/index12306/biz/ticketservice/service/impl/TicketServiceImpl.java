@@ -103,6 +103,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.REGION_TRAIN_STATION;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.REGION_TRAIN_STATION_MAPPING;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_INFO;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_PRICE;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
 import static org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil.convertDateToLocalTime;
 
@@ -204,8 +205,8 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                         result.setSaleTime(convertDateToLocalTime(trainDO.getSaleTime(), "MM-dd HH:mm"));
                         seatResults.add(result);
                         regionTrainStationAllMap.put(CacheUtil.buildKey(String.valueOf(each.getTrainId()), each.getDeparture(), each.getArrival()), JSON.toJSONString(result));
-                        stringRedisTemplate.opsForHash().putAll(buildRegionTrainStationHashKey, regionTrainStationAllMap);
                     }
+                    stringRedisTemplate.opsForHash().putAll(buildRegionTrainStationHashKey, regionTrainStationAllMap);
                 }
             } finally {
                 lock.unlock();
@@ -216,11 +217,20 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 : seatResults;
         seatResults = seatResults.stream().sorted(new TimeStringComparator()).toList();
         for (TicketListDTO each : seatResults) {
-            LambdaQueryWrapper<TrainStationPriceDO> trainStationPriceQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
-                    .eq(TrainStationPriceDO::getDeparture, each.getDeparture())
-                    .eq(TrainStationPriceDO::getArrival, each.getArrival())
-                    .eq(TrainStationPriceDO::getTrainId, each.getTrainId());
-            List<TrainStationPriceDO> trainStationPriceDOList = trainStationPriceMapper.selectList(trainStationPriceQueryWrapper);
+            String trainStationPriceStr = distributedCache.safeGet(
+                    TRAIN_STATION_PRICE,
+                    String.class,
+                    () -> {
+                        LambdaQueryWrapper<TrainStationPriceDO> trainStationPriceQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
+                                .eq(TrainStationPriceDO::getDeparture, each.getDeparture())
+                                .eq(TrainStationPriceDO::getArrival, each.getArrival())
+                                .eq(TrainStationPriceDO::getTrainId, each.getTrainId());
+                        return JSON.toJSONString(trainStationPriceMapper.selectList(trainStationPriceQueryWrapper));
+                    },
+                    ADVANCE_TICKET_DAY,
+                    TimeUnit.DAYS
+            );
+            List<TrainStationPriceDO> trainStationPriceDOList = JSON.parseArray(trainStationPriceStr, TrainStationPriceDO.class);
             List<SeatClassDTO> seatClassList = new ArrayList<>();
             trainStationPriceDOList.forEach(item -> {
                 String seatType = String.valueOf(item.getSeatType());
