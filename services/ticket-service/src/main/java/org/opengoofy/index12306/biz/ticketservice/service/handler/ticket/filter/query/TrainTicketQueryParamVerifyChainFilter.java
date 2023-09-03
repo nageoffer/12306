@@ -44,7 +44,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.QUERY_ALL_REGION_LIST;
 
 /**
- * 购票流程过滤器之验证乘客是否重复购买
+ * 查询列车车票流程过滤器之验证数据是否正确
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
