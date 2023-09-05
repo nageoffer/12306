@@ -62,7 +62,6 @@ public final class TrainSeatTypeSelector {
     private final AbstractStrategyChoose abstractStrategyChoose;
 
     public List<TrainPurchaseTicketRespDTO> select(Integer trainType, PurchaseTicketReqDTO requestParam) {
-        // TODO 后续逻辑全部转换为 LUA 缓存原子操作
         List<PurchaseTicketPassengerDetailDTO> passengerDetails = requestParam.getPassengers();
         // 如果多个乘车人选择了不同座位，需要拆分处理
         Map<Integer, List<PurchaseTicketPassengerDetailDTO>> seatTypeMap = passengerDetails.stream()
