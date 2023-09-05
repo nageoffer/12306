@@ -220,7 +220,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         seatResults = seatResults.stream().sorted(new TimeStringComparator()).toList();
         for (TicketListDTO each : seatResults) {
             String trainStationPriceStr = distributedCache.safeGet(
-                    TRAIN_STATION_PRICE,
+                    String.format(TRAIN_STATION_PRICE, each.getTrainId(), each.getDeparture(), each.getArrival()),
                     String.class,
                     () -> {
                         LambdaQueryWrapper<TrainStationPriceDO> trainStationPriceQueryWrapper = Wrappers.lambdaQuery(TrainStationPriceDO.class)
