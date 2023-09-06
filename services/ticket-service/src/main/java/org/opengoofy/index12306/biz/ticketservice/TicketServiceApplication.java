@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.ticketservice;
 
+import cn.hippo4j.core.enable.EnableDynamicThreadPool;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,6 +29,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @SpringBootApplication
+@EnableDynamicThreadPool
 @MapperScan("org.opengoofy.index12306.biz.ticketservice.dao.mapper")
 @EnableFeignClients("org.opengoofy.index12306.biz.ticketservice.remote")
 public class TicketServiceApplication {

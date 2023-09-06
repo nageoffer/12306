@@ -18,6 +18,25 @@ spring:
         server-addr: 127.0.0.1:8848
       password: nacos
       username: nacos
+      config:
+        import-check:
+          enabled: false
+  dynamic:
+    thread-pool:
+      nacos:
+        data-id: hippo4j-nacos.yaml
+        group: DEFAULT_GROUP
+      config-file-type: yml
+      executors:
+        - thread-pool-id: 'select-seat-thread-pool-executor'
+          alarm: false
+          allow-core-thread-time-out: true
+          blocking-queue: SynchronousQueue
+          core-pool-size: 20
+          maximum-pool-size: 40
+          keep-alive-time: 9999
+          rejected-handler: CallerRunsPolicy
+
   main:
     allow-bean-definition-overriding: true
 
