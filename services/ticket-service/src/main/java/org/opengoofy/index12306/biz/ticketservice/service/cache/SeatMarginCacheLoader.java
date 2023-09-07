@@ -40,9 +40,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
-import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_SAFE_LOAD_SEAT_MARGIN_GET;
-import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_STATION_REMAINING_TICKET;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.Index12306Constant.ADVANCE_TICKET_DAY;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.*;
 
 /**
  * 座位余量缓存加载
@@ -68,7 +69,13 @@ public class SeatMarginCacheLoader {
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
             Object quantityObj = stringRedisTemplate.opsForHash().get(TRAIN_STATION_REMAINING_TICKET + keySuffix, seatType);
             if (CacheUtil.isNullOrBlank(quantityObj)) {
-                TrainDO trainDO = trainMapper.selectById(trainId);
+                TrainDO trainDO = distributedCache.safeGet(
+                        TRAIN_INFO + trainId,
+                        TrainDO.class,
+                        () -> trainMapper.selectById(trainId),
+                        ADVANCE_TICKET_DAY,
+                        TimeUnit.DAYS
+                );
                 List<RouteDTO> routeDTOList = trainStationService.listTrainStationRoute(trainId, trainDO.getStartStation(), trainDO.getEndStation());
                 if (CollUtil.isNotEmpty(routeDTOList)) {
                     switch (trainDO.getTrainType()) {
