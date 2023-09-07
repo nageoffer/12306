@@ -15,9 +15,9 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: ${nacos-addr:127.0.0.1:8848}
+        server-addr: 127.0.0.1:8848
       config:
-        server-addr: ${nacos-addr:127.0.0.1:8848}
+        server-addr: ${spring.cloud.nacos.discovery.server-addr}
         import-check:
           enabled: false
       username: nacos
