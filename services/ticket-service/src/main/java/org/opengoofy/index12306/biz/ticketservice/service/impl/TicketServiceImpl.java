@@ -43,6 +43,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationPriceMapper;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelationMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatClassDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
@@ -59,6 +60,7 @@ import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderItemCrea
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
+import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.biz.ticketservice.service.cache.SeatMarginCacheLoader;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.TrainSeatTypeSelector;
@@ -125,6 +127,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final PayRemoteService payRemoteService;
     private final StationMapper stationMapper;
     private final SeatService seatService;
+    private final TrainStationService trainStationService;
     private final TrainSeatTypeSelector trainSeatTypeSelector;
     private final SeatMarginCacheLoader seatMarginCacheLoader;
     private final AbstractChainContext<TicketPageQueryReqDTO> ticketPageQueryAbstractChainContext;
@@ -434,14 +437,17 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             }
             ticketAvailabilityTokenBucket.rollbackInBucket(ticketOrderDetail);
             try {
-                String keySuffix = StrUtil.join("_", trainId, departure, arrival);
                 StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
                 Map<Integer, List<TicketOrderPassengerDetailRespDTO>> seatTypeMap = trainPurchaseTicketResults.stream()
                         .collect(Collectors.groupingBy(TicketOrderPassengerDetailRespDTO::getSeatType));
-                seatTypeMap.forEach(
-                        (seatType, passengerSeatDetails) -> stringRedisTemplate.opsForHash()
-                                .increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(seatType), passengerSeatDetails.size())
-                );
+                List<RouteDTO> routeDTOList = trainStationService.listTakeoutTrainStationRoute(trainId, departure, arrival);
+                routeDTOList.forEach(each -> {
+                    String keySuffix = StrUtil.join("_", trainId, each.getStartStation(), each.getEndStation());
+                    seatTypeMap.forEach((seatType, ticketOrderPassengerDetailRespDTOList) -> {
+                        stringRedisTemplate.opsForHash()
+                                .increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(seatType), ticketOrderPassengerDetailRespDTOList.size());
+                    });
+                });
             } catch (Throwable ex) {
                 log.error("[取消关闭订单] 订单号：{} 回滚列车Cache余票失败", requestParam.getOrderSn(), ex);
                 throw ex;
