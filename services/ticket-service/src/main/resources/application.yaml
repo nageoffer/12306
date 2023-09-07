@@ -16,20 +16,21 @@ spring:
       idle-timeout: 300000
       maximum-pool-size: 5
       minimum-idle: 5
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 127.0.0.1:8848
-      password: nacos
-      username: nacos
-      config:
-        import-check:
-          enabled: false
   data:
     redis:
       host: 127.0.0.1
       port: 6379
       password: 123456
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacos-addr:127.0.0.1:8848}
+      config:
+        server-addr: ${nacos-addr:127.0.0.1:8848}
+        import-check:
+          enabled: false
+      username: nacos
+      password: nacos
   dynamic:
     thread-pool:
       nacos:

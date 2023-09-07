@@ -15,12 +15,13 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848
-      password: nacos
-      username: nacos
+        server-addr: ${nacos-addr:127.0.0.1:8848}
       config:
+        server-addr: ${nacos-addr:127.0.0.1:8848}
         import-check:
           enabled: false
+      username: nacos
+      password: nacos
   dynamic:
     thread-pool:
       nacos:
