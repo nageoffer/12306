@@ -54,9 +54,10 @@ public class CarriageServiceImpl implements CarriageService {
 
     @Override
     public List<String> listCarriageNumber(String trainId, Integer carriageType) {
-        final String prefixKey = TRAIN_CARRIAGE + trainId;
+        final String key = TRAIN_CARRIAGE + trainId;
         return safeGetCarriageNumber(
-                prefixKey,
+                trainId,
+                key,
                 carriageType,
                 () -> {
                     LambdaQueryWrapper<CarriageDO> queryWrapper = Wrappers.lambdaQuery(CarriageDO.class)
@@ -78,12 +79,12 @@ public class CarriageServiceImpl implements CarriageService {
         return Optional.ofNullable(hashOperations.get(key, String.valueOf(carriageType))).map(Object::toString).orElse("");
     }
 
-    private List<String> safeGetCarriageNumber(final String key, Integer carriageType, CacheLoader<String> loader) {
+    private List<String> safeGetCarriageNumber(String trainId, final String key, Integer carriageType, CacheLoader<String> loader) {
         String result = getCarriageNumber(key, carriageType);
         if (!CacheUtil.isNullOrBlank(result)) {
             return StrUtil.split(result, StrUtil.COMMA);
         }
-        RLock lock = redissonClient.getLock(String.format(LOCK_QUERY_CARRIAGE_NUMBER_LIST, key));
+        RLock lock = redissonClient.getLock(String.format(LOCK_QUERY_CARRIAGE_NUMBER_LIST, trainId));
         lock.lock();
         try {
             if (CacheUtil.isNullOrBlank(result = getCarriageNumber(key, carriageType))) {
