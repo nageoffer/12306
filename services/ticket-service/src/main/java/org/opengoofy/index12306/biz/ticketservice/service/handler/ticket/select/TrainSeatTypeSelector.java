@@ -44,8 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
@@ -71,21 +71,15 @@ public final class TrainSeatTypeSelector {
                 .collect(Collectors.groupingBy(PurchaseTicketPassengerDetailDTO::getSeatType));
         List<TrainPurchaseTicketRespDTO> actualResult = new CopyOnWriteArrayList<>();
         if (seatTypeMap.size() > 1) {
-            List<CompletableFuture<List<TrainPurchaseTicketRespDTO>>> completableFutureResults = new ArrayList<>();
+            List<Future<List<TrainPurchaseTicketRespDTO>>> futureResults = new ArrayList<>();
             seatTypeMap.forEach((seatType, passengerSeatDetails) -> {
                 // 线程池参数如何设置？详情查看：https://t.zsxq.com/11Huyqnwy
-                CompletableFuture<List<TrainPurchaseTicketRespDTO>> completableFuture = CompletableFuture.supplyAsync(
-                                () -> distributeSeats(trainType, seatType, requestParam, passengerSeatDetails),
-                                selectSeatThreadPoolExecutor)
-                        .whenComplete((actualResp, error) -> {
-                            if (!Objects.equals(actualResp.size(), passengerSeatDetails.size())) {
-                                throw new ServiceException("站点余票不足，请尝试更换座位类型或选择其它站点");
-                            }
-                        });
-                completableFutureResults.add(completableFuture);
+                Future<List<TrainPurchaseTicketRespDTO>> completableFuture = selectSeatThreadPoolExecutor
+                        .submit(() -> distributeSeats(trainType, seatType, requestParam, passengerSeatDetails));
+                futureResults.add(completableFuture);
             });
             // 并行流极端情况下有坑，详情参考：https://t.zsxq.com/11X4LkYJs
-            completableFutureResults.parallelStream().forEach(completableFuture -> {
+            futureResults.parallelStream().forEach(completableFuture -> {
                 try {
                     actualResult.addAll(completableFuture.get());
                 } catch (Exception e) {
@@ -98,7 +92,7 @@ public final class TrainSeatTypeSelector {
                 actualResult.addAll(aggregationResult);
             });
         }
-        if (CollUtil.isEmpty(actualResult)) {
+        if (CollUtil.isEmpty(actualResult) || !Objects.equals(actualResult.size(), passengerDetails.size())) {
             throw new ServiceException("站点余票不足，请尝试更换座位类型或选择其它站点");
         }
         List<String> passengerIds = actualResult.stream()
@@ -151,10 +145,6 @@ public final class TrainSeatTypeSelector {
                 .passengerSeatDetails(passengerSeatDetails)
                 .requestParam(requestParam)
                 .build();
-        List<TrainPurchaseTicketRespDTO> aggregationResult = abstractStrategyChoose.chooseAndExecuteResp(buildStrategyKey, selectSeatDTO);
-        if (!Objects.equals(aggregationResult.size(), passengerSeatDetails.size())) {
-            throw new ServiceException("站点余票不足，请尝试更换座位类型或选择其它站点");
-        }
-        return aggregationResult;
+        return abstractStrategyChoose.chooseAndExecuteResp(buildStrategyKey, selectSeatDTO);
     }
 }
