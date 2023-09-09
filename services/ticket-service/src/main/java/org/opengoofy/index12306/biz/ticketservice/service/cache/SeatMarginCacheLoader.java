@@ -63,6 +63,7 @@ public class SeatMarginCacheLoader {
     public Map<String, String> load(String trainId, String seatType, String departure, String arrival) {
         Map<String, Map<String, String>> trainStationRemainingTicketMaps = new LinkedHashMap<>();
         String keySuffix = CacheUtil.buildKey(trainId, departure, arrival);
+        // 缓存带来的分布式互斥锁还有哪些优化项？详情查看：https://t.zsxq.com/12gLg7BQn
         RLock lock = redissonClient.getLock(String.format(LOCK_SAFE_LOAD_SEAT_MARGIN_GET, keySuffix));
         lock.lock();
         try {
