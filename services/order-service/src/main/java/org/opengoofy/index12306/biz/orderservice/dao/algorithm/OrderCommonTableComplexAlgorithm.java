@@ -52,8 +52,8 @@ public class OrderCommonTableComplexAlgorithm implements ComplexKeysShardingAlgo
             if (CollUtil.isNotEmpty(customerUserIdCollection)) {
                 Comparable<?> comparable = customerUserIdCollection.stream().findFirst().get();
                 if (comparable instanceof String) {
-                    String actualOrderSn = comparable.toString();
-                    result.add(shardingValue.getLogicTableName() + "_" + hashShardingValue(actualOrderSn.substring(Math.max(actualOrderSn.length() - 6, 0))) % shardingCount);
+                    String actualUserId = comparable.toString();
+                    result.add(shardingValue.getLogicTableName() + "_" + hashShardingValue(actualUserId.substring(Math.max(actualUserId.length() - 6, 0))) % shardingCount);
                 } else {
                     String dbSuffix = String.valueOf(hashShardingValue((Long) comparable % 1000000) % shardingCount);
                     result.add(shardingValue.getLogicTableName() + "_" + dbSuffix);
