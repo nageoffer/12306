@@ -17,7 +17,7 @@ rules:
   - !SHARDING
     tables:
       t_order:
-        actualDataNodes: ds_${0..1}.t_order_${0..15}
+        actualDataNodes: ds_${0..1}.t_order_${0..31}
         databaseStrategy:
           complex:
             shardingColumns: user_id,order_sn
@@ -27,7 +27,7 @@ rules:
             shardingColumns: user_id,order_sn
             shardingAlgorithmName: order_table_complex_mod
       t_order_item:
-        actualDataNodes: ds_${0..1}.t_order_item_${0..15}
+        actualDataNodes: ds_${0..1}.t_order_item_${0..31}
         databaseStrategy:
           complex:
             shardingColumns: user_id,order_sn
@@ -37,7 +37,7 @@ rules:
             shardingColumns: user_id,order_sn
             shardingAlgorithmName: order_item_table_complex_mod
       t_order_item_passenger:
-        actualDataNodes: ds_${0..1}.t_order_item_passenger_${0..15}
+        actualDataNodes: ds_${0..1}.t_order_item_passenger_${0..31}
         databaseStrategy:
           standard:
             shardingColumn: id_card
@@ -51,34 +51,39 @@ rules:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonDataBaseComplexAlgorithm
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
           strategy: complex
       order_table_complex_mod:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
-          sharding-count: 16
+          sharding-count: 32
           strategy: complex
       order_item_database_complex_mod:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonDataBaseComplexAlgorithm
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
           strategy: complex
       order_item_table_complex_mod:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.orderservice.dao.algorithm.OrderCommonTableComplexAlgorithm
-          sharding-count: 16
+          sharding-count: 32
           strategy: complex
       order_passenger_relation_database_mod:
-        type: HASH_MOD
+        type: CLASS_BASED
         props:
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
+          strategy: standard
+          algorithmClassName: org.opengoofy.index12306.framework.starter.database.algorithm.sharding.CustomDbHashModShardingAlgorithm
       order_passenger_relation_table_mod:
         type: HASH_MOD
         props:
-          sharding-count: 16
+          sharding-count: 32
   - !ENCRYPT
     tables:
       t_order_item:

@@ -17,7 +17,7 @@ rules:
   - !SHARDING
     tables:
       t_pay:
-        actualDataNodes: ds_${0..1}.t_pay_${0..15}
+        actualDataNodes: ds_${0..1}.t_pay_${0..31}
         databaseStrategy:
           complex:
             shardingColumns: order_sn,pay_sn
@@ -31,14 +31,14 @@ rules:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.payservice.dao.algorithm.PayDataBaseComplexAlgorithm
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
           strategy: complex
       pay_table_complex_mod:
         type: CLASS_BASED
         props:
           algorithmClassName: org.opengoofy.index12306.biz.payservice.dao.algorithm.PayTableComplexAlgorithm
-          sharding-count: 16
+          sharding-count: 32
           strategy: complex
-
 props:
   sql-show: true
