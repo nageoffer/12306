@@ -1,3 +1,6 @@
+USE
+12306_ticket;
+
 INSERT INTO `t_station` (`id`, `code`, `name`, `spell`, `region`, `region_name`, `create_time`, `update_time`,
                          `del_flag`)
 VALUES (1, 'VNP', '北京南', 'beijingnan', 'BJP', '北京', '2023-06-01 20:54:00', '2023-06-01 20:54:00', 0),
