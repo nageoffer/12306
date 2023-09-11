@@ -15,26 +15,30 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice;
+package org.opengoofy.index12306.biz.payservice.remote;
 
-import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.retry.annotation.EnableRetry;
+
+import org.opengoofy.index12306.biz.payservice.remote.dto.TicketOrderDetailRespDTO;
+import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * 支付服务应用启动器
+ * 车票订单远程服务调用
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-@SpringBootApplication
-@MapperScan("org.opengoofy.index12306.biz.payservice.dao.mapper")
-@EnableFeignClients("org.opengoofy.index12306.biz.payservice.remote")
-@EnableRetry
-public class PayServiceApplication {
+@FeignClient(value = "index12306-order${unique-name:}-service", url = "${aggregation.remote-url:}")
+public interface TicketOrderRemoteService {
 
-    public static void main(String[] args) {
-        SpringApplication.run(PayServiceApplication.class, args);
-    }
+    /**
+     * 跟据订单号查询车票订单
+     *
+     * @param orderSn 列车订单号
+     * @return 列车订单记录
+     */
+    @GetMapping("/api/order-service/order/ticket/query")
+    Result<TicketOrderDetailRespDTO> queryTicketOrderByOrderSn(@RequestParam(value = "orderSn") String orderSn);
+
 }

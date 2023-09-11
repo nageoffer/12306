@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.remote.dto;
+package org.opengoofy.index12306.biz.payservice.remote.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 车票订单详情返回参数
@@ -28,63 +29,59 @@ import lombok.NoArgsConstructor;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class TicketOrderPassengerDetailRespDTO {
+public class TicketOrderDetailRespDTO {
 
     /**
-     * 用户id
+     * 订单号
      */
-    private Long userId;
+    private String orderSn;
 
     /**
-     * 用户名
+     * 列车 ID
      */
-    private String username;
+    private Long trainId;
 
     /**
-     * 席别类型
+     * 出发站点
      */
-    private Integer seatType;
+    private String departure;
 
     /**
-     * 车厢号
+     * 到达站点
      */
-    private String carriageNumber;
+    private String arrival;
 
     /**
-     * 座位号
+     * 乘车日期
      */
-    private String seatNumber;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date ridingDate;
 
     /**
-     * 真实姓名
+     * 订票日期
      */
-    private String realName;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date orderTime;
 
     /**
-     * 证件类型
+     * 列车车次
      */
-    private Integer idType;
+    private String trainNumber;
 
     /**
-     * 证件号
+     * 出发时间
      */
-    private String idCard;
+    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
+    private Date departureTime;
 
     /**
-     * 车票类型 0：成人 1：儿童 2：学生 3：残疾军人
+     * 到达时间
      */
-    private Integer ticketType;
+    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
+    private Date arrivalTime;
 
     /**
-     * 订单金额
+     * 乘车人订单详情
      */
-    private Integer amount;
-
-    /**
-     * 车票状态
-     */
-    private Integer status;
+    private List<TicketOrderPassengerDetailRespDTO> passengerDetails;
 }

@@ -32,18 +32,23 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayChannelEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.PayTradeTypeEnum;
+import org.opengoofy.index12306.biz.payservice.common.enums.RefundTypeEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.TradeStatusEnum;
 import org.opengoofy.index12306.biz.payservice.config.AliPayProperties;
 import org.opengoofy.index12306.biz.payservice.dto.base.AliRefundRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.RefundRequest;
 import org.opengoofy.index12306.biz.payservice.dto.base.RefundResponse;
 import org.opengoofy.index12306.biz.payservice.handler.base.AbstractRefundHandler;
+import org.opengoofy.index12306.biz.payservice.service.payid.PayIdGeneratorManager;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractExecuteStrategy;
+import org.opengoofy.index12306.framework.starter.distributedid.toolkit.SnowflakeIdUtil;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 /**
  * 阿里支付组件
@@ -71,7 +76,10 @@ public class AliRefundNativeHandler extends AbstractRefundHandler implements Abs
         AlipayTradeRefundModel model = new AlipayTradeRefundModel();
         model.setOutTradeNo(aliRefundRequest.getOrderSn());
         model.setTradeNo(aliRefundRequest.getTradeNo());
-        model.setRefundAmount(aliRefundRequest.getPayAmount().toString());
+        BigDecimal payAmount = aliRefundRequest.getPayAmount();
+        BigDecimal refundAmount = payAmount.divide(new BigDecimal(100));
+        model.setRefundAmount(refundAmount.toString());
+        model.setOutRequestNo(SnowflakeIdUtil.nextIdStr());
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
         request.setBizModel(model);
         try {
@@ -85,7 +93,7 @@ public class AliRefundNativeHandler extends AbstractRefundHandler implements Abs
             if (!StrUtil.equals(SUCCESS_CODE, response.getCode()) || !StrUtil.equals(FUND_CHANGE, response.getFundChange())) {
                 throw new ServiceException("退款失败");
             }
-            return new RefundResponse(TradeStatusEnum.TRADE_CLOSED.tradeCode());
+            return new RefundResponse(TradeStatusEnum.TRADE_CLOSED.tradeCode(), response.getTradeNo());
         } catch (AlipayApiException e) {
             throw new ServiceException("调用支付宝退款异常");
         }

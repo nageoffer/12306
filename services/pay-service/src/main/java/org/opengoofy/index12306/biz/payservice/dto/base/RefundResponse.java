@@ -34,7 +34,11 @@ import lombok.NoArgsConstructor;
 public final class RefundResponse {
 
     /**
-     * 支付状态
+     * 退款状态
      */
     private Integer status;
+    /**
+     * 第三方交易凭证
+     */
+    private String tradeNo;
 }

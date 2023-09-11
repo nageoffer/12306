@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.orderservice.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
+import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderItemStatusReversalDTO;
 
 /**
  * 订单明细接口层
@@ -26,4 +27,12 @@ import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 public interface OrderItemService extends IService<OrderItemDO> {
+
+    /**
+     * 子订单状态反转
+     *
+     * @param requestParam 请求参数
+     */
+    void orderItemStatusReversal(OrderItemStatusReversalDTO requestParam);
+
 }
