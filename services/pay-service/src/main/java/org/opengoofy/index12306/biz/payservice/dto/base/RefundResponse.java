@@ -37,6 +37,7 @@ public final class RefundResponse {
      * 退款状态
      */
     private Integer status;
+
     /**
      * 第三方交易凭证
      */

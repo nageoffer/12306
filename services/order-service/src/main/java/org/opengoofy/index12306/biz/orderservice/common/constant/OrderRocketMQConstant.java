@@ -58,5 +58,4 @@ public final class OrderRocketMQConstant {
      * 退款结果回调订单消费者组 Key
      */
     public static final String REFUND_RESULT_CALLBACK_ORDER_CG_KEY = "index12306_pay-service_refund-result-callback-order_cg${unique-name:}";
-
 }

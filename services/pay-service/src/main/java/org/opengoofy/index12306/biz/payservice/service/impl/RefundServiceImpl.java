@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.opengoofy.index12306.biz.payservice.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
@@ -126,17 +143,17 @@ public class RefundServiceImpl implements RefundService {
     }
 
     @Override
-    public void createRefund(RefundCreateDTO refundCreateDTO) {
-        Result<TicketOrderDetailRespDTO> queryTicketResult = ticketOrderRemoteService.queryTicketOrderByOrderSn(refundCreateDTO.getOrderSn());
+    public void createRefund(RefundCreateDTO requestParam) {
+        Result<TicketOrderDetailRespDTO> queryTicketResult = ticketOrderRemoteService.queryTicketOrderByOrderSn(requestParam.getOrderSn());
         TicketOrderDetailRespDTO orderDetailRespDTO = queryTicketResult.getData();
         List<TicketOrderPassengerDetailRespDTO> detailRespDTOList = Optional.ofNullable(orderDetailRespDTO.getPassengerDetails())
                 .filter(o -> queryTicketResult.isSuccess())
                 .filter(t -> orderDetailRespDTO != null)
                 .orElseThrow(() -> new ServiceException("车票订单详情不存在"));
-        if (refundCreateDTO.getType() == RefundTypeEnum.PARTIAL_REFUND.getCode()) {
+        if (Objects.equals(requestParam.getType(), RefundTypeEnum.PARTIAL_REFUND.getCode())) {
             // 部分退款
             detailRespDTOList = detailRespDTOList.stream()
-                    .filter(item -> refundCreateDTO.getRefundDetailReqDTOList().contains(item))
+                    .filter(item -> requestParam.getRefundDetailReqDTOList().contains(item))
                     .collect(Collectors.toList());
         }
         if (CollectionUtil.isEmpty(detailRespDTOList)) {
@@ -144,8 +161,8 @@ public class RefundServiceImpl implements RefundService {
         }
         detailRespDTOList.forEach(t -> {
             RefundDO refundDO = new RefundDO();
-            refundDO.setPaySn(refundCreateDTO.getPaySn());
-            refundDO.setOrderSn(refundCreateDTO.getOrderSn());
+            refundDO.setPaySn(requestParam.getPaySn());
+            refundDO.setOrderSn(requestParam.getOrderSn());
             refundDO.setTrainId(orderDetailRespDTO.getTrainId());
             refundDO.setTrainNumber(orderDetailRespDTO.getTrainNumber());
             refundDO.setDeparture(orderDetailRespDTO.getDeparture());

@@ -34,5 +34,4 @@ public interface OrderItemService extends IService<OrderItemDO> {
      * @param requestParam 请求参数
      */
     void orderItemStatusReversal(OrderItemStatusReversalDTO requestParam);
-
 }

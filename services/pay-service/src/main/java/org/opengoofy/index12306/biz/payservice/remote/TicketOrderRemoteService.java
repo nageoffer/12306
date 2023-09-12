@@ -17,7 +17,6 @@
 
 package org.opengoofy.index12306.biz.payservice.remote;
 
-
 import org.opengoofy.index12306.biz.payservice.remote.dto.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -40,5 +39,4 @@ public interface TicketOrderRemoteService {
      */
     @GetMapping("/api/order-service/order/ticket/query")
     Result<TicketOrderDetailRespDTO> queryTicketOrderByOrderSn(@RequestParam(value = "orderSn") String orderSn);
-
 }

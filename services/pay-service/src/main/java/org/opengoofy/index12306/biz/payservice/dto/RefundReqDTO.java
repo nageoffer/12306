@@ -29,6 +29,7 @@ public class RefundReqDTO {
      * 订单号
      */
     private String orderSn;
+
     /**
      * 退款类型
      */
