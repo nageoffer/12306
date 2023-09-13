@@ -15,28 +15,26 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.payservice.common.enums;
+package org.opengoofy.index12306.biz.ticketservice.dto.req;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Data;
+import java.util.List;
 
-@Getter
-@RequiredArgsConstructor
-public enum RefundTypeEnum {
-
-    /**
-     * 部分退款
-     */
-    PARTIAL_REFUND(11, "PARTIAL_REFUND", "部分退款"),
+@Data
+public class RefundTicketReqDTO {
 
     /**
-     * 全部退款
+     * 订单号
      */
-    FULL_REFUND(12, "FULL_REFUND", "全部退款");
+    private String orderSn;
 
-    private final Integer code;
+    /**
+     * 退款类型 0 部分退款 1 全部退款
+     */
+    private Integer type;
 
-    private final String name;
-
-    private final String value;
+    /**
+     * 部分退款子订单记录id集合
+     */
+    private List<Long> subOrderRecordIdReqList;
 }

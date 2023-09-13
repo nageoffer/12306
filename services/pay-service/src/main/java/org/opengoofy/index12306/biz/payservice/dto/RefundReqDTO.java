@@ -19,7 +19,6 @@ package org.opengoofy.index12306.biz.payservice.dto;
 
 import lombok.Data;
 import org.opengoofy.index12306.biz.payservice.remote.dto.TicketOrderPassengerDetailRespDTO;
-
 import java.util.List;
 
 @Data
@@ -31,9 +30,14 @@ public class RefundReqDTO {
     private String orderSn;
 
     /**
-     * 退款类型
+     * 退款类型 11 部分退款 12 全部退款
      */
     private Integer type;
+
+    /**
+     * 退款金额
+     */
+    private Integer refundAmount;
 
     /**
      * 部分退款车票详情集合

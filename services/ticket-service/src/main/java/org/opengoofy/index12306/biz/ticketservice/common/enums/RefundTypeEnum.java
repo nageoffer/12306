@@ -17,25 +17,28 @@
 
 package org.opengoofy.index12306.biz.ticketservice.common.enums;
 
-/**
- * 购票相关责任链 Mark 枚举
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
- */
-public enum TicketChainMarkEnum {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum RefundTypeEnum {
 
     /**
-     * 车票查询过滤器
+     * 部分退款
      */
-    TRAIN_QUERY_FILTER,
+    PARTIAL_REFUND(11, 0, "PARTIAL_REFUND", "部分退款"),
 
     /**
-     * 车票购买过滤器
+     * 全部退款
      */
-    TRAIN_PURCHASE_TICKET_FILTER,
+    FULL_REFUND(12, 1, "FULL_REFUND", "全部退款");
 
-    /**
-     * 车票退款过滤器
-     */
-    TRAIN_REFUND_TICKET_FILTER
+    private final Integer code;
+
+    private final Integer type;
+
+    private final String name;
+
+    private final String value;
 }

@@ -17,14 +17,12 @@
 
 package org.opengoofy.index12306.biz.payservice.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.opengoofy.index12306.biz.payservice.common.enums.RefundTypeEnum;
 import org.opengoofy.index12306.biz.payservice.common.enums.TradeStatusEnum;
 import org.opengoofy.index12306.biz.payservice.convert.RefundRequestConvert;
 import org.opengoofy.index12306.biz.payservice.dao.entity.PayDO;
@@ -42,7 +40,6 @@ import org.opengoofy.index12306.biz.payservice.mq.event.RefundResultCallbackOrde
 import org.opengoofy.index12306.biz.payservice.mq.produce.RefundResultCallbackOrderSendProduce;
 import org.opengoofy.index12306.biz.payservice.remote.TicketOrderRemoteService;
 import org.opengoofy.index12306.biz.payservice.remote.dto.TicketOrderDetailRespDTO;
-import org.opengoofy.index12306.biz.payservice.remote.dto.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.payservice.service.RefundService;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
@@ -50,9 +47,7 @@ import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 退款接口层实现
@@ -80,27 +75,7 @@ public class RefundServiceImpl implements RefundService {
             log.error("支付单不存在，orderSn：{}", requestParam.getOrderSn());
             throw new ServiceException("支付单不存在");
         }
-
-        Result<TicketOrderDetailRespDTO> queryTicketResult = ticketOrderRemoteService.queryTicketOrderByOrderSn(requestParam.getOrderSn());
-        TicketOrderDetailRespDTO orderDetailRespDTO = queryTicketResult.getData();
-        List<TicketOrderPassengerDetailRespDTO> detailRespDTOList = Optional.ofNullable(orderDetailRespDTO.getPassengerDetails())
-                .filter(o -> queryTicketResult.isSuccess())
-                .filter(t -> orderDetailRespDTO != null)
-                .orElseThrow(() -> new ServiceException("车票订单详情不存在"));
-        if (requestParam.getType() == RefundTypeEnum.PARTIAL_REFUND.getCode()) {
-            // 部分退款
-            detailRespDTOList = detailRespDTOList.stream()
-                    .filter(item -> requestParam.getRefundDetailReqDTOList().contains(item))
-                    .collect(Collectors.toList());
-            if (CollectionUtil.isNotEmpty(detailRespDTOList)) {
-                Integer partialRefundAmount = detailRespDTOList.stream()
-                        .mapToInt(l -> l.getAmount())
-                        .sum();
-                payDO.setPayAmount(partialRefundAmount);
-            }
-        } else if (requestParam.getType() == RefundTypeEnum.FULL_REFUND.getCode()) {
-            payDO.setPayAmount(payDO.getTotalAmount());
-        }
+        payDO.setPayAmount(requestParam.getRefundAmount());
         //创建退款单
         RefundCreateDTO refundCreateDTO = BeanUtil.convert(requestParam, new RefundCreateDTO());
         refundCreateDTO.setPaySn(payDO.getPaySn());
@@ -135,7 +110,7 @@ public class RefundServiceImpl implements RefundService {
             RefundResultCallbackOrderEvent refundResultCallbackOrderEvent = RefundResultCallbackOrderEvent.builder()
                     .orderSn(requestParam.getOrderSn())
                     .type(requestParam.getType())
-                    .partialRefundTicketDetailList(detailRespDTOList)
+                    .partialRefundTicketDetailList(requestParam.getRefundDetailReqDTOList())
                     .build();
             refundResultCallbackOrderSendProduce.sendMessage(refundResultCallbackOrderEvent);
         }
@@ -146,20 +121,7 @@ public class RefundServiceImpl implements RefundService {
     public void createRefund(RefundCreateDTO requestParam) {
         Result<TicketOrderDetailRespDTO> queryTicketResult = ticketOrderRemoteService.queryTicketOrderByOrderSn(requestParam.getOrderSn());
         TicketOrderDetailRespDTO orderDetailRespDTO = queryTicketResult.getData();
-        List<TicketOrderPassengerDetailRespDTO> detailRespDTOList = Optional.ofNullable(orderDetailRespDTO.getPassengerDetails())
-                .filter(o -> queryTicketResult.isSuccess())
-                .filter(t -> orderDetailRespDTO != null)
-                .orElseThrow(() -> new ServiceException("车票订单详情不存在"));
-        if (Objects.equals(requestParam.getType(), RefundTypeEnum.PARTIAL_REFUND.getCode())) {
-            // 部分退款
-            detailRespDTOList = detailRespDTOList.stream()
-                    .filter(item -> requestParam.getRefundDetailReqDTOList().contains(item))
-                    .collect(Collectors.toList());
-        }
-        if (CollectionUtil.isEmpty(detailRespDTOList)) {
-            throw new ServiceException("车票订单详情不存在");
-        }
-        detailRespDTOList.forEach(t -> {
+        requestParam.getRefundDetailReqDTOList().forEach(t -> {
             RefundDO refundDO = new RefundDO();
             refundDO.setPaySn(requestParam.getPaySn());
             refundDO.setOrderSn(requestParam.getOrderSn());

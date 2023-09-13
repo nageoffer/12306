@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.ticketservice.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -29,6 +30,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.RefundTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.SourceEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketChainMarkEnum;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.TicketStatusEnum;
@@ -48,7 +50,12 @@ import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatClassDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.req.RefundReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.req.RefundTicketReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketOrderItemQueryReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.RefundRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.RefundTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketOrderDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
@@ -132,6 +139,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final SeatMarginCacheLoader seatMarginCacheLoader;
     private final AbstractChainContext<TicketPageQueryReqDTO> ticketPageQueryAbstractChainContext;
     private final AbstractChainContext<PurchaseTicketReqDTO> purchaseTicketAbstractChainContext;
+    private final AbstractChainContext<RefundTicketReqDTO> refundReqDTOAbstractChainContext;
     private final RedissonClient redissonClient;
     private final ConfigurableEnvironment environment;
     private final TicketAvailabilityTokenBucket ticketAvailabilityTokenBucket;
@@ -453,6 +461,48 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 throw ex;
             }
         }
+    }
+
+    @Override
+    public RefundTicketRespDTO commonTicketRefund(RefundTicketReqDTO requestParam) {
+        // 责任链模式，验证 1：参数必填
+        refundReqDTOAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_REFUND_TICKET_FILTER.name(), requestParam);
+        Result<org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderDetailRespDTO> orderDetailRespDTOResult = ticketOrderRemoteService.queryTicketOrderByOrderSn(requestParam.getOrderSn());
+        org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderDetailRespDTO ticketOrderDetailRespDTO = orderDetailRespDTOResult.getData();
+        org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderDetailRespDTO orderDetailRespDTO = Optional.ofNullable(ticketOrderDetailRespDTO)
+                .filter(o -> orderDetailRespDTOResult.isSuccess())
+                .filter(t -> orderDetailRespDTOResult != null)
+                .orElseThrow(() -> new ServiceException("车票订单不存在"));
+        List<TicketOrderPassengerDetailRespDTO> passengerDetails = orderDetailRespDTO.getPassengerDetails();
+        if (CollectionUtil.isEmpty(passengerDetails)) {
+            throw new ServiceException("车票子订单不存在");
+        }
+        RefundReqDTO refundReqDTO = new RefundReqDTO();
+        if (requestParam.getType() == RefundTypeEnum.PARTIAL_REFUND.getType()) {
+            TicketOrderItemQueryReqDTO ticketOrderItemQueryReqDTO = new TicketOrderItemQueryReqDTO();
+            ticketOrderItemQueryReqDTO.setOrderSn(requestParam.getOrderSn());
+            ticketOrderItemQueryReqDTO.setOrderItemRecordIds(requestParam.getSubOrderRecordIdReqList());
+            Result<List<TicketOrderPassengerDetailRespDTO>> queryTicketItemOrderById = ticketOrderRemoteService.queryTicketItemOrderById(ticketOrderItemQueryReqDTO);
+            passengerDetails = passengerDetails.stream()
+                    .filter(item -> queryTicketItemOrderById.getData().contains(item))
+                    .collect(Collectors.toList());
+            refundReqDTO.setType(RefundTypeEnum.PARTIAL_REFUND.getCode());
+        } else if (requestParam.getType() == RefundTypeEnum.FULL_REFUND.getType()) {
+            refundReqDTO.setType(RefundTypeEnum.FULL_REFUND.getCode());
+        }
+        if (CollectionUtil.isNotEmpty(passengerDetails)) {
+            Integer partialRefundAmount = passengerDetails.stream()
+                    .mapToInt(l -> l.getAmount())
+                    .sum();
+            refundReqDTO.setRefundAmount(partialRefundAmount);
+        }
+        refundReqDTO.setOrderSn(requestParam.getOrderSn());
+        refundReqDTO.setRefundDetailReqDTOList(passengerDetails);
+        Result<RefundRespDTO> refundRespDTOResult = payRemoteService.commonRefund(refundReqDTO);
+        Optional.ofNullable(refundRespDTOResult)
+                .filter(o -> refundRespDTOResult.isSuccess())
+                .orElseThrow(() -> new ServiceException("车票订单退款失败"));
+        return BeanUtil.convert(refundRespDTOResult.getData(), RefundTicketRespDTO.class);
     }
 
     private List<String> buildDepartureStationList(List<TicketListDTO> seatResults) {

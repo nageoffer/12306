@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.common.enums;
+package org.opengoofy.index12306.biz.ticketservice.dto.req;
+
+import lombok.Data;
+import java.util.List;
 
 /**
- * 购票相关责任链 Mark 枚举
+ * 车票子订单查询
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
-public enum TicketChainMarkEnum {
+@Data
+public class TicketOrderItemQueryReqDTO {
 
     /**
-     * 车票查询过滤器
+     * 订单号
      */
-    TRAIN_QUERY_FILTER,
+    private String orderSn;
 
     /**
-     * 车票购买过滤器
+     * 子订单记录id
      */
-    TRAIN_PURCHASE_TICKET_FILTER,
-
-    /**
-     * 车票退款过滤器
-     */
-    TRAIN_REFUND_TICKET_FILTER
+    private List<Long> orderItemRecordIds;
 }
