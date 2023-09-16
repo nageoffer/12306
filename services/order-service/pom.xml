@@ -63,6 +63,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.opengoofy.index12306</groupId>
+            <artifactId>index12306-user-spring-boot-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
@@ -81,6 +87,22 @@
             <groupId>org.opengoofy.index12306</groupId>
             <artifactId>index12306-idempotent-spirng-boot-starter</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-okhttp</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- openfeign 已不再提供默认负载均衡器 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-loadbalancer</artifactId>
         </dependency>
 
         <!-- 一个简单易用的数据映射框架，通过简单的注解配置快速根据外键/编码值填充相关字段，支持字典，枚举，方法等多种数据源 -->

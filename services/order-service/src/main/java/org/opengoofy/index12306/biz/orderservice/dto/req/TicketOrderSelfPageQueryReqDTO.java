@@ -27,9 +27,4 @@ import org.opengoofy.index12306.framework.starter.convention.page.PageRequest;
  */
 @Data
 public class TicketOrderSelfPageQueryReqDTO extends PageRequest {
-
-    /**
-     * 证件号
-     */
-    private String idCard;
 }

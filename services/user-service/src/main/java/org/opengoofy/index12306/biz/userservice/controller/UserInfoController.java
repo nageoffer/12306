@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserDeletionReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserRegisterReqDTO;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserUpdateReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryActualRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserRegisterRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserLoginService;
@@ -53,6 +54,14 @@ public class UserInfoController {
     @GetMapping("/api/user-service/query")
     public Result<UserQueryRespDTO> queryUserByUsername(@RequestParam("username") @NotEmpty String username) {
         return Results.success(userService.queryUserByUsername(username));
+    }
+
+    /**
+     * 根据用户名查询用户无脱敏信息
+     */
+    @GetMapping("/api/user-service/actual/query")
+    public Result<UserQueryActualRespDTO> queryActualUserByUsername(@RequestParam("username") @NotEmpty String username) {
+        return Results.success(userService.queryActualUserByUsername(username));
     }
 
     /**

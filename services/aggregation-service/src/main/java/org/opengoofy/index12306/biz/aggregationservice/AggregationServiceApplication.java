@@ -44,7 +44,10 @@ import org.springframework.retry.annotation.EnableRetry;
         "org.opengoofy.index12306.biz.orderservice.dao.mapper",
         "org.opengoofy.index12306.biz.payservice.dao.mapper"
 })
-@EnableFeignClients("org.opengoofy.index12306.biz.ticketservice.remote")
+@EnableFeignClients(value = {
+        "org.opengoofy.index12306.biz.ticketservice.remote",
+        "org.opengoofy.index12306.biz.orderservice.remote"
+})
 @EnableCrane4j(enumPackages = "org.opengoofy.index12306.biz.orderservice.common.enums")
 public class AggregationServiceApplication {
 
