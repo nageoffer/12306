@@ -146,6 +146,10 @@ public final class TrainSeatTypeSelector {
                 .passengerSeatDetails(passengerSeatDetails)
                 .requestParam(requestParam)
                 .build();
-        return abstractStrategyChoose.chooseAndExecuteResp(buildStrategyKey, selectSeatDTO);
+        try {
+            return abstractStrategyChoose.chooseAndExecuteResp(buildStrategyKey, selectSeatDTO);
+        } catch (ServiceException ex) {
+            throw new ServiceException("当前车次列车类型暂未适配，请购买G35或G39车次");
+        }
     }
 }
