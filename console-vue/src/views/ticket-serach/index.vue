@@ -20,13 +20,9 @@ import {
   Tooltip,
   message
 } from 'ant-design-vue'
-import {
-  CloseSquareFilled,
-  RetweetOutlined,
-  SwapRightOutlined
-} from '@ant-design/icons-vue'
+import { RetweetOutlined, SwapRightOutlined } from '@ant-design/icons-vue'
 import dayjs from 'dayjs'
-import { getWeekNumber } from '@/utils'
+import { getWeekNumber, getTicketNumber } from '@/utils'
 import {
   fetchTicketSearch,
   fetchStationAll,
@@ -34,7 +30,6 @@ import {
 } from '@/service/index'
 import { useRouter } from 'vue-router'
 import { SEAT_CLASS_TYPE_LIST, TRAIN_BRAND_LIST } from '@/constants'
-const router = useRouter()
 
 const useForm = Form.useForm
 
@@ -81,64 +76,71 @@ const columns = [
     dataIndex: 'trainNumber',
     slots: { customRender: 'trainNumber' },
     key: 'trainNumber',
-    width: '5.5%',
+    width: 100,
     // ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     key: 'station',
     slots: { title: 'customStaionTitle', customRender: 'station' },
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'time',
     key: 'time',
     slots: { title: 'customTimeTitle', customRender: 'time' },
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '历时',
     dataIndex: 'duration',
     key: 'duration',
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrain' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '一等座',
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeat' },
     key: 'first_seat',
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '动卧',
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bed' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
     resizeble: false
   },
@@ -147,66 +149,74 @@ const columns = [
     dataIndex: 'seatClassList',
     key: 'delux_soft_bed',
     slots: { customRender: 'deluxSoftBed' },
-    width: 90,
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'scond_hard_bed',
     slots: { title: 'customScondHardSeadTitle', customRender: 'scondHardBed' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '软座',
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '硬座',
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '无座',
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '其他',
     dataIndex: 'seatClassList',
     key: 'other',
     slots: { customRender: 'other' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '备注',
     dataIndex: 'remark',
-    slots: { customRender: 'operation' }
+    slots: { customRender: 'operation' },
+    align: 'center'
   }
 ]
 
@@ -214,65 +224,73 @@ const innerColumns = [
   {
     title: '车次',
     key: 'trainNumber',
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '车站',
     key: 'station',
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '时间',
     key: 'time',
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '历时',
     key: 'duration',
-    width: '5.5%',
+    width: 100,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'seat',
     slots: { title: 'customSeatTitle', customRender: 'highSpeedTrainPrice' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '一等座',
     dataIndex: 'seatClassList',
     slots: { customRender: 'firstSeatPrice' },
     key: 'first_seat',
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'second_seat',
     slots: { title: 'customSecondSeatTitle', customRender: 'secondSeatPrice' },
 
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '动卧',
     dataIndex: 'seatClassList',
     key: 'bed',
     slots: { customRender: 'bedPrice' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '高级软卧',
@@ -281,16 +299,18 @@ const innerColumns = [
     slots: { customRender: 'deluxSoftBedPrice' },
     width: 90,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
     key: 'first_bed',
     slots: { title: 'customFirstBedSeatTitle', customRender: 'firstBed' },
 
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     dataIndex: 'seatClassList',
@@ -299,51 +319,57 @@ const innerColumns = [
       title: 'customScondHardSeadTitle',
       customRender: 'scondHardBedPrice'
     },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '软座',
     dataIndex: 'seatClassList',
     key: 'first_soft_seat',
     slots: { customRender: 'firstSoftSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '硬座',
     dataIndex: 'seatClassList',
     key: 'hard_seat',
     slots: { customRender: 'hardSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '无座',
     dataIndex: 'seatClassList',
     key: 'no_seat',
     slots: { customRender: 'noSeat' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '其他',
     dataIndex: 'other',
     key: 'other',
     slots: { customRender: 'other' },
-    width: '5.5%',
+    width: 80,
     ellipsis: true,
-    resizeble: false
+    resizeble: false,
+    align: 'center'
   },
   {
     title: '备注',
     dataIndex: 'remark',
     slots: { customRender: 'operation' },
-    fixed: 'right'
+    fixed: 'right',
+    align: 'center'
   }
 ]
 
@@ -842,6 +868,7 @@ const handleBook = (record) => {
           :data-source="state.trainList"
           :pagination="false"
         >
+          >
           <template #expandedRowRender="{ record }">
             <Table
               :show-header="false"
@@ -999,31 +1026,73 @@ const handleBook = (record) => {
             <div>{{ record.arrivalTime }}</div>
           </template>
           <template #highSpeedTrain="{ text }">
-            <div>
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 0)?.quantity ??
+                    text?.find((item) => item?.type === 12)?.quantity
+                )?.color
+              }"
+            >
               {{
-                text?.find((item) => item?.type === 0)?.quantity ??
-                text?.find((item) => item?.type === 12)?.quantity ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 0)?.quantity
+                )?.label ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 12)?.quantity
+                )?.label ??
                 '--'
               }}
             </div>
           </template>
           <template #firstSeat="{ text }">
-            <div>
-              {{ text?.find((item) => item?.type === 1)?.quantity ?? '--' }}
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 1)?.quantity
+                )?.color
+              }"
+            >
+              {{
+                getTicketNumber(
+                  text?.find((item) => item?.type === 1)?.quantity
+                )?.label ?? '--'
+              }}
             </div>
           </template>
           <template #secondSeat="{ text }">
-            <div>
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 2)?.quantity ??
+                    text?.find((item) => item?.type === 3)?.quantity
+                )?.color
+              }"
+            >
               {{
-                text?.find((item) => item?.type === 2)?.quantity ??
-                text?.find((item) => item?.type === 3)?.quantity ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 2)?.quantity
+                )?.label ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 3)?.quantity
+                )?.label ??
                 '--'
               }}
             </div>
           </template>
           <template #bed="{ text }">
-            <div>
-              {{ text?.find((item) => item?.type === 10)?.quantity ?? '--' }}
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 10)?.quantity
+                )?.color
+              }"
+            >
+              {{
+                getTicketNumber(
+                  text?.find((item) => item?.type === 10)?.quantity
+                )?.label ?? '--'
+              }}
             </div>
           </template>
           <template #deluxSoftBed="{ text }">
@@ -1032,41 +1101,105 @@ const handleBook = (record) => {
             </div>
           </template>
           <template #firstBed="{ text }">
-            <div>
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 6)?.quantity ??
+                    text?.find((item) => item?.type === 4)?.quantity
+                )?.color
+              }"
+            >
               {{
-                text?.find((item) => item?.type === 6)?.quantity ??
-                text?.find((item) => item?.type === 4)?.quantity ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 6)?.quantity
+                )?.label ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 4)?.quantity
+                )?.label ??
                 '--'
               }}
             </div>
           </template>
           <template #scondHardBed="{ text }">
-            <div>
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 7)?.quantity ??
+                    text?.find((item) => item?.type === 5)?.quantity
+                )?.color
+              }"
+            >
               {{
-                text?.find((item) => item?.type === 7)?.quantity ??
-                text?.find((item) => item?.type === 5)?.quantity ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 7)?.quantity
+                )?.label ??
+                getTicketNumber(
+                  text?.find((item) => item?.type === 5)?.quantity
+                )?.label ??
                 '--'
               }}
             </div>
           </template>
           <template #firstSoftSeat="{ text }">
-            <div>
-              {{ text?.find((item) => item?.type === 11)?.quantity ?? '--' }}
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 11)?.quantity
+                )?.color
+              }"
+            >
+              {{
+                getTicketNumber(
+                  text?.find((item) => item?.type === 11)?.quantity
+                )?.label ?? '--'
+              }}
             </div>
           </template>
           <template #hardSeat="{ text }">
-            <div>
-              {{ text?.find((item) => item?.type === 8)?.quantity ?? '--' }}
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 8)?.quantity
+                )?.color
+              }"
+            >
+              {{
+                getTicketNumber(
+                  text?.find((item) => item?.type === 8)?.quantity
+                )?.label ?? '--'
+              }}
             </div>
           </template>
           <template #noSeat="{ text }">
-            <div>
-              {{ text?.find((item) => item?.type === 13)?.quantity ?? '--' }}
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 13)?.quantity
+                )?.color
+              }"
+            >
+              <!-- {{ text?.find((item) => item?.type === 13)?.quantity ?? '--' }} -->
+              {{
+                getTicketNumber(
+                  text?.find((item) => item?.type === 13)?.quantity
+                )?.label ?? '--'
+              }}
             </div>
           </template>
           <template #other="{ text }">
-            <div>
-              {{ text?.find((item) => item?.type === 14)?.quantity ?? '--' }}
+            <div
+              :style="{
+                color: getTicketNumber(
+                  text?.find((item) => item?.type === 14)?.quantity
+                )?.color
+              }"
+            >
+              <!-- {{ text?.find((item) => item?.type === 14)?.quantity ?? '--' }} -->
+              {{
+                getTicketNumber(
+                  text?.find((item) => item?.type === 14)?.quantity
+                )?.label ?? '--'
+              }}
             </div>
           </template>
           <template #customTimeTitle>
@@ -1090,7 +1223,17 @@ const handleBook = (record) => {
             <div>一等卧</div>
           </template>
           <template #operation="{ text, record }">
-            <Button type="link" size="small" @click="() => handleBook(record)"
+            <Button
+              type="link"
+              size="small"
+              @click="
+                () => {
+                  handleBook(record)
+                }
+              "
+              :disabled="
+                !record.seatClassList.filter((item) => item.quantity)?.length
+              "
               >预定</Button
             >
           </template></Table

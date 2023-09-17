@@ -83,7 +83,7 @@ watch(
   height: 100vh;
   margin: 0;
 }
-:v-deep {
+::v-deep {
   .ant-layout-content {
     transition: all 0.2s;
   }

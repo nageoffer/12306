@@ -92,7 +92,8 @@
               <SelectOption
                 v-for="item in state.currentSeat"
                 :value="item.type"
-                >{{
+              >
+                {{
                   `${
                     SEAT_CLASS_TYPE_LIST.find((seat) => seat.code === item.type)
                       ?.label

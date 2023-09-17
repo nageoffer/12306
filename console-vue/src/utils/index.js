@@ -16,4 +16,27 @@ const getWeekNumber = (number) => {
       return '周六'
   }
 }
-export { getWeekNumber }
+
+const getTicketNumber = (number) => {
+  if (number && number > 20) {
+    return {
+      color: 'green',
+      label: '有'
+    }
+  } else if (number && number < 20) {
+    return {
+      color: 'black',
+      label: number
+    }
+  } else if (number === 0) {
+    return {
+      color: 'gray',
+      label: '无'
+    }
+  } else {
+    return {
+      color: 'gray'
+    }
+  }
+}
+export { getWeekNumber, getTicketNumber }
