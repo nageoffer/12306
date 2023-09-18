@@ -41,4 +41,5 @@ spring:
               args:
                 blackPathPre:
                   - /api/order-service/order/ticket/query
+                  - /api/order-service/order/ticket/page
                   - /api/order-service/order/ticket/self/page
