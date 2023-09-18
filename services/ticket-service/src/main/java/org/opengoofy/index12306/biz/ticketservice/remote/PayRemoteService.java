@@ -17,8 +17,8 @@
 
 package org.opengoofy.index12306.biz.ticketservice.remote;
 
-import org.opengoofy.index12306.biz.ticketservice.dto.req.RefundReqDTO;
-import org.opengoofy.index12306.biz.ticketservice.dto.resp.RefundRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.RefundReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.RefundRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.springframework.cloud.openfeign.FeignClient;

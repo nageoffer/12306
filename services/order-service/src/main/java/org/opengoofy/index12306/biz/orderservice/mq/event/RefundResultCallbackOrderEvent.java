@@ -20,6 +20,7 @@ package org.opengoofy.index12306.biz.orderservice.mq.event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.orderservice.common.enums.RefundTypeEnum;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDetailRespDTO;
 
 import java.util.List;
@@ -40,9 +41,9 @@ public final class RefundResultCallbackOrderEvent {
     private String orderSn;
 
     /**
-     * 退款类型
+     * 退款类型枚举
      */
-    private Integer type;
+    private RefundTypeEnum refundTypeEnum;
 
     /**
      * 部分退款车票详情

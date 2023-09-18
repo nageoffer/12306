@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.common.enums;
+package org.opengoofy.index12306.biz.payservice.common.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

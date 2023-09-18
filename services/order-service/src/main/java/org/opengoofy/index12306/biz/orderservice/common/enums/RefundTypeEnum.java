@@ -15,10 +15,35 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dto.resp;
+package org.opengoofy.index12306.biz.orderservice.common.enums;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Data
-public class RefundRespDTO {
+/**
+ * 退款类型枚举
+ *
+ * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ */
+@Getter
+@RequiredArgsConstructor
+public enum RefundTypeEnum {
+
+    /**
+     * 部分退款
+     */
+    PARTIAL_REFUND(11, 0, "PARTIAL_REFUND", "部分退款"),
+
+    /**
+     * 全部退款
+     */
+    FULL_REFUND(12, 1, "FULL_REFUND", "全部退款");
+
+    private final Integer code;
+
+    private final Integer type;
+
+    private final String name;
+
+    private final String value;
 }

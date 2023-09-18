@@ -21,7 +21,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.opengoofy.index12306.biz.payservice.common.enums.RefundTypeEnum;
 import org.opengoofy.index12306.biz.payservice.remote.dto.TicketOrderPassengerDetailRespDTO;
+
 import java.util.List;
 
 /**
@@ -41,11 +43,10 @@ public final class RefundResultCallbackOrderEvent {
     /**
      * 退款类型
      */
-    private Integer type;
+    private RefundTypeEnum refundTypeEnum;
 
     /**
      * 部分退款车票详情
      */
     private List<TicketOrderPassengerDetailRespDTO> partialRefundTicketDetailList;
-
 }

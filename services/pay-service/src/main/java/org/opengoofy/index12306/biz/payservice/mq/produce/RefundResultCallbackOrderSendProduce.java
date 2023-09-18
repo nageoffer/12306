@@ -21,7 +21,6 @@ import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageConst;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
-import org.opengoofy.index12306.biz.payservice.common.constant.PayRocketMQConstant;
 import org.opengoofy.index12306.biz.payservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.payservice.mq.event.RefundResultCallbackOrderEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,9 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+
+import static org.opengoofy.index12306.biz.payservice.common.constant.PayRocketMQConstant.PAY_GLOBAL_TOPIC_KEY;
+import static org.opengoofy.index12306.biz.payservice.common.constant.PayRocketMQConstant.REFUND_RESULT_CALLBACK_TAG_KEY;
 
 import java.util.UUID;
 
@@ -51,10 +53,10 @@ public class RefundResultCallbackOrderSendProduce extends AbstractCommonSendProd
     @Override
     protected BaseSendExtendDTO buildBaseSendExtendParam(RefundResultCallbackOrderEvent messageSendEvent) {
         return BaseSendExtendDTO.builder()
-                .eventName("退款结果回调订单")
+                .eventName("全部退款或部分退款结果回调订单")
                 .keys(messageSendEvent.getOrderSn())
-                .topic(environment.resolvePlaceholders(PayRocketMQConstant.PAY_GLOBAL_TOPIC_KEY))
-                .tag(environment.resolvePlaceholders(PayRocketMQConstant.REFUND_RESULT_CALLBACK_TAG_KEY))
+                .topic(environment.resolvePlaceholders(PAY_GLOBAL_TOPIC_KEY))
+                .tag(environment.resolvePlaceholders(REFUND_RESULT_CALLBACK_TAG_KEY))
                 .sentTimeout(2000L)
                 .build();
     }

@@ -47,7 +47,11 @@ import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.*;
+
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Objects;
+
 
 /**
  * 退款接口层实现
@@ -68,6 +72,7 @@ public class RefundServiceImpl implements RefundService {
     @Override
     @Transactional
     public RefundRespDTO commonRefund(RefundReqDTO requestParam) {
+        RefundRespDTO refundRespDTO = null;
         LambdaQueryWrapper<PayDO> queryWrapper = Wrappers.lambdaQuery(PayDO.class)
                 .eq(PayDO::getOrderSn, requestParam.getOrderSn());
         PayDO payDO = payMapper.selectOne(queryWrapper);
@@ -75,16 +80,17 @@ public class RefundServiceImpl implements RefundService {
             log.error("支付单不存在，orderSn：{}", requestParam.getOrderSn());
             throw new ServiceException("支付单不存在");
         }
-        payDO.setPayAmount(requestParam.getRefundAmount());
+        payDO.setPayAmount(payDO.getTotalAmount() - requestParam.getRefundAmount());
         //创建退款单
-        RefundCreateDTO refundCreateDTO = BeanUtil.convert(requestParam, new RefundCreateDTO());
+        RefundCreateDTO refundCreateDTO = BeanUtil.convert(requestParam, RefundCreateDTO.class);
         refundCreateDTO.setPaySn(payDO.getPaySn());
-        this.createRefund(refundCreateDTO);
+        createRefund(refundCreateDTO);
         /**
          * {@link AliRefundNativeHandler}
          */
         // 策略模式：通过策略模式封装退款渠道和退款场景，用户退款时动态选择对应的退款组件
         RefundCommand refundCommand = BeanUtil.convert(payDO, RefundCommand.class);
+        refundCommand.setPayAmount(new BigDecimal(requestParam.getRefundAmount()));
         RefundRequest refundRequest = RefundRequestConvert.command2RefundRequest(refundCommand);
         RefundResponse result = abstractStrategyChoose.chooseAndExecuteResp(refundRequest.buildMark(), refundRequest);
         payDO.setStatus(result.getStatus());
@@ -109,19 +115,22 @@ public class RefundServiceImpl implements RefundService {
         if (Objects.equals(result.getStatus(), TradeStatusEnum.TRADE_CLOSED.tradeCode())) {
             RefundResultCallbackOrderEvent refundResultCallbackOrderEvent = RefundResultCallbackOrderEvent.builder()
                     .orderSn(requestParam.getOrderSn())
-                    .type(requestParam.getType())
+                    .refundTypeEnum(requestParam.getRefundTypeEnum())
                     .partialRefundTicketDetailList(requestParam.getRefundDetailReqDTOList())
                     .build();
             refundResultCallbackOrderSendProduce.sendMessage(refundResultCallbackOrderEvent);
         }
-        return null;
+        //TODO 暂时返回空实体
+        return refundRespDTO;
     }
 
-    @Override
-    public void createRefund(RefundCreateDTO requestParam) {
+    private void createRefund(RefundCreateDTO requestParam) {
         Result<TicketOrderDetailRespDTO> queryTicketResult = ticketOrderRemoteService.queryTicketOrderByOrderSn(requestParam.getOrderSn());
+        if (!queryTicketResult.isSuccess() && Objects.isNull(queryTicketResult.getData())) {
+            throw new ServiceException("车票订单不存在");
+        }
         TicketOrderDetailRespDTO orderDetailRespDTO = queryTicketResult.getData();
-        requestParam.getRefundDetailReqDTOList().forEach(t -> {
+        requestParam.getRefundDetailReqDTOList().forEach(each -> {
             RefundDO refundDO = new RefundDO();
             refundDO.setPaySn(requestParam.getPaySn());
             refundDO.setOrderSn(requestParam.getOrderSn());
@@ -132,14 +141,14 @@ public class RefundServiceImpl implements RefundService {
             refundDO.setDepartureTime(orderDetailRespDTO.getDepartureTime());
             refundDO.setArrivalTime(orderDetailRespDTO.getArrivalTime());
             refundDO.setRidingDate(orderDetailRespDTO.getRidingDate());
-            refundDO.setSeatType(t.getSeatType());
-            refundDO.setIdType(t.getIdType());
-            refundDO.setIdCard(t.getIdCard());
-            refundDO.setRealName(t.getRealName());
+            refundDO.setSeatType(each.getSeatType());
+            refundDO.setIdType(each.getIdType());
+            refundDO.setIdCard(each.getIdCard());
+            refundDO.setRealName(each.getRealName());
             refundDO.setRefundTime(new Date());
-            refundDO.setAmount(t.getAmount());
-            refundDO.setUserId(t.getUserId());
-            refundDO.setUsername(t.getUsername());
+            refundDO.setAmount(each.getAmount());
+            refundDO.setUserId(each.getUserId());
+            refundDO.setUsername(each.getUsername());
             refundMapper.insert(refundDO);
         });
     }

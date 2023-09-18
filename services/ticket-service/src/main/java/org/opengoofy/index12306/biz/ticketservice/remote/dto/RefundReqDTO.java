@@ -15,12 +15,18 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.biz.ticketservice.dto.req;
+package org.opengoofy.index12306.biz.ticketservice.remote.dto;
 
 import lombok.Data;
-import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderPassengerDetailRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.common.enums.RefundTypeEnum;
+
 import java.util.List;
 
+/**
+ * 退款请求入参数实体
+ *
+ * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ */
 @Data
 public class RefundReqDTO {
 
@@ -30,9 +36,9 @@ public class RefundReqDTO {
     private String orderSn;
 
     /**
-     * 退款类型 11 部分退款 12 全部退款
+     * 退款类型枚举
      */
-    private Integer type;
+    private RefundTypeEnum refundTypeEnum;
 
     /**
      * 退款金额

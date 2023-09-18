@@ -26,12 +26,10 @@ import org.opengoofy.index12306.biz.orderservice.common.enums.OrderItemStatusEnu
 import org.opengoofy.index12306.biz.orderservice.common.enums.OrderStatusEnum;
 import org.opengoofy.index12306.biz.orderservice.dao.entity.OrderItemDO;
 import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderItemStatusReversalDTO;
-import org.opengoofy.index12306.biz.orderservice.dto.domain.OrderStatusReversalDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.resp.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.orderservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.orderservice.mq.event.RefundResultCallbackOrderEvent;
 import org.opengoofy.index12306.biz.orderservice.service.OrderItemService;
-import org.opengoofy.index12306.biz.orderservice.service.OrderService;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
 import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentSceneEnum;
@@ -70,30 +68,31 @@ public class RefundResultCallbackOrderConsumer implements RocketMQListener<Messa
     @Override
     public void onMessage(MessageWrapper<RefundResultCallbackOrderEvent> message) {
         RefundResultCallbackOrderEvent refundResultCallbackOrderEvent = message.getMessage();
+        Integer status = refundResultCallbackOrderEvent.getRefundTypeEnum().getCode();
         String orderSn = refundResultCallbackOrderEvent.getOrderSn();
         List<OrderItemDO> orderItemDOList = new ArrayList<>();
-        OrderItemStatusReversalDTO orderItemStatusReversalDTO = null;
         List<TicketOrderPassengerDetailRespDTO> partialRefundTicketDetailList = refundResultCallbackOrderEvent.getPartialRefundTicketDetailList();
         partialRefundTicketDetailList.forEach(partial -> {
             OrderItemDO orderItemDO = new OrderItemDO();
             BeanUtil.convert(partial, orderItemDO);
             orderItemDOList.add(orderItemDO);
         });
-        if (refundResultCallbackOrderEvent.getType() == OrderStatusEnum.PARTIAL_REFUND.getStatus()) {
-            orderItemStatusReversalDTO = OrderItemStatusReversalDTO.builder()
+        if (status.equals(OrderStatusEnum.PARTIAL_REFUND.getStatus())) {
+            OrderItemStatusReversalDTO partialRefundOrderItemStatusReversalDTO = OrderItemStatusReversalDTO.builder()
                     .orderSn(orderSn)
                     .orderStatus(OrderStatusEnum.PARTIAL_REFUND.getStatus())
                     .orderItemStatus(OrderItemStatusEnum.REFUNDED.getStatus())
                     .orderItemDOList(orderItemDOList)
                     .build();
-        } else if (refundResultCallbackOrderEvent.getType() == OrderStatusEnum.FULL_REFUND.getStatus()) {
-            orderItemStatusReversalDTO = OrderItemStatusReversalDTO.builder()
+            orderItemService.orderItemStatusReversal(partialRefundOrderItemStatusReversalDTO);
+        } else if (status.equals(OrderStatusEnum.FULL_REFUND.getStatus())) {
+            OrderItemStatusReversalDTO fullRefundOrderItemStatusReversalDTO = OrderItemStatusReversalDTO.builder()
                     .orderSn(orderSn)
                     .orderStatus(OrderStatusEnum.FULL_REFUND.getStatus())
                     .orderItemStatus(OrderItemStatusEnum.REFUNDED.getStatus())
                     .orderItemDOList(orderItemDOList)
                     .build();
+            orderItemService.orderItemStatusReversal(fullRefundOrderItemStatusReversalDTO);
         }
-        orderItemService.orderItemStatusReversal(orderItemStatusReversalDTO);
     }
 }

@@ -16,8 +16,6 @@
  */
 
 package org.opengoofy.index12306.biz.payservice.service;
-
-import org.opengoofy.index12306.biz.payservice.dto.RefundCreateDTO;
 import org.opengoofy.index12306.biz.payservice.dto.RefundReqDTO;
 import org.opengoofy.index12306.biz.payservice.dto.RefundRespDTO;
 
@@ -35,11 +33,4 @@ public interface RefundService {
      * @return 退款返回详情
      */
     RefundRespDTO commonRefund(RefundReqDTO requestParam);
-
-    /**
-     * 创建退款单
-     *
-     * @param requestParam 退款请求参数
-     */
-    void createRefund(RefundCreateDTO requestParam);
 }

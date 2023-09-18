@@ -17,7 +17,7 @@
 
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.filter.refund;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import org.opengoofy.index12306.biz.ticketservice.common.enums.RefundTypeEnum;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.RefundTicketReqDTO;
@@ -40,8 +40,10 @@ public class TrainRefundTicketParamNotNullChainFilter implements TrainRefundTick
         if (requestParam.getType() == null) {
             throw new ClientException("退款类型不能为空");
         }
-        if (requestParam.getType() == RefundTypeEnum.PARTIAL_REFUND.getType() && CollectionUtil.isEmpty(requestParam.getSubOrderRecordIdReqList())) {
-            throw new ClientException("部分退款子订单记录集合不能为空");
+        if (requestParam.getType().equals(RefundTypeEnum.PARTIAL_REFUND.getType())) {
+            if (CollUtil.isEmpty(requestParam.getSubOrderRecordIdReqList())) {
+                throw new ClientException("部分退款子订单记录集合不能为空");
+            }
         }
     }
 
