@@ -30,6 +30,7 @@ import org.opengoofy.index12306.biz.ticketservice.mq.domain.MessageWrapper;
 import org.opengoofy.index12306.biz.ticketservice.mq.event.DelayCloseOrderEvent;
 import org.opengoofy.index12306.biz.ticketservice.remote.TicketOrderRemoteService;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderDetailRespDTO;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.TicketOrderPassengerDetailRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
@@ -106,7 +107,9 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
                                 .increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(seatType), trainPurchaseTicketRespDTOList.size());
                     });
                 });
-                ticketAvailabilityTokenBucket.rollbackInBucket(BeanUtil.convert(delayCloseOrderEvent, TicketOrderDetailRespDTO.class));
+                TicketOrderDetailRespDTO ticketOrderDetail = BeanUtil.convert(delayCloseOrderEvent, TicketOrderDetailRespDTO.class);
+                ticketOrderDetail.setPassengerDetails(BeanUtil.convert(delayCloseOrderEvent.getTrainPurchaseTicketResults(), TicketOrderPassengerDetailRespDTO.class));
+                ticketAvailabilityTokenBucket.rollbackInBucket(ticketOrderDetail);
             } catch (Throwable ex) {
                 log.error("[延迟关闭订单] 订单号：{} 回滚列车Cache余票失败", orderSn, ex);
                 throw ex;
