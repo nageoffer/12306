@@ -816,6 +816,7 @@ const handleBook = (record) => {
                       <FormItem label="发车时间">
                         <Select
                           dropdownClassName="custom-select"
+                          :default-value="0"
                           :options="
                             carRangeTime.map((item) => ({
                               label: item.label,
@@ -894,7 +895,7 @@ const handleBook = (record) => {
                   {{
                     // console.log(text,'text')
                     handlePriceShow(
-                      text?.find((item) => item?.type === 1)?.quantity
+                      text?.find((item) => item?.type === 1)?.price
                     )
                   }}
                 </div>
@@ -969,7 +970,7 @@ const handleBook = (record) => {
                 <div :style="{ color: '#fc8302' }">
                   {{
                     handlePriceShow(
-                      text?.find((item) => item?.type === 8)?.price
+                      text?.find((item) => item?.type === 13)?.price
                     )
                   }}
                 </div>

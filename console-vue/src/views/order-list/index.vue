@@ -270,7 +270,6 @@ watch(
 watch(
   () => state.checkList,
   (val) => {
-    console.log(val, 'val:::')
     state.indeterminate = !!val.length && val.length < state.dataSource.length
     state.checkAll = val.length === state.dataSource.length
   }

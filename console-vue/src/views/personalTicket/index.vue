@@ -8,7 +8,7 @@
       <Button type="primary" html-type="submit">查询</Button>
     </Form>
   </div>
-  <div class="list-container">
+  <div v-if="!loading" class="list-container">
     <div v-for="item in state.data">
       <BadgeRibbon
         :text="item.ridingDate + getWeekNumber(dayjs(item.ridingDate).day())"
@@ -32,14 +32,26 @@
               </div>
             </div>
             <div class="d-container">
-              <div class="seat">{{ item.seatType }}</div>
-              <div class="carriage">{{ item.carriageNumber }}</div>
+              <div class="seat">
+                {{
+                  SEAT_CLASS_TYPE_LIST.find(
+                    (seat) => seat.code === item.seatType
+                  )?.label
+                }}
+              </div>
+              <div class="carriage">
+                {{ item.carriageNumber + '车' + item.seatNumber + '号' }}
+              </div>
             </div>
             <div class="flex2">
-              <span class="ticket">{{ item.ticketType }}</span>
-              <span class="amount">{{ item.amount?.toFixed(2) }}</span>
+              <span class="ticket">{{
+                DISCOUNTS_TYPE.find(
+                  (discout) => discout.value === item.ticketType
+                )?.label + '票'
+              }}</span>
+              <span class="amount">{{ (item.amount / 100)?.toFixed(2) }}</span>
             </div>
-            <div>{{ '已出站' }}</div>
+            <div>{{ '--' }}</div>
           </div>
           <Divider></Divider>
           <div class="button-container">
@@ -50,7 +62,7 @@
             <Space>
               <Button disabled>改签</Button>
               <Button disabled>变更车站</Button>
-              <Button>餐饮·特产</Button>
+              <Button disabled>餐饮·特产</Button>
               <Button disabled>打印信息单</Button>
             </Space>
           </div>
@@ -58,12 +70,20 @@
       </BadgeRibbon>
     </div>
   </div>
+  <Spin v-else :spinning="true"></Spin>
   <div style="padding: 10px 0; display: flex; justify-content: end">
     <Pagination
       :current="state.current"
       :total="state.total"
       :page-size="state.size"
-      @change="(page) => (state.current = page)"
+      @change="
+        (page, size) => {
+          state.current = page
+          state.size = size
+        }
+      "
+      :show-total="(total) => `共${total}条`"
+      :show-size-changer="true"
     ></Pagination>
   </div>
 </template>
@@ -74,68 +94,48 @@ import {
   DatePicker,
   Checkbox,
   Button,
-  List,
   BadgeRibbon,
   Tag,
   Divider,
   Space,
-  Pagination
+  Pagination,
+  Spin
 } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { SwapRightOutlined } from '@ant-design/icons-vue'
 import { getWeekNumber } from '@/utils'
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
+import { fetchMyTicket } from '@/service'
+import { SEAT_CLASS_TYPE_LIST, DISCOUNTS_TYPE } from '@/constants'
 const { RangePicker } = DatePicker
 
 const state = reactive({
-  data: [
-    {
-      departure: '上海',
-      arrival: '北京',
-      ridingDate: '2023-02-01',
-      trainNumber: 'G7677',
-      departureTime: '17:59',
-      arrivalTime: '18:21到',
-      seatType: '二等座',
-      carriageNumber: '02车 05C号',
-      seatNumber: '05',
-      realName: 'yikai',
-      ticketType: '成人票',
-      amount: 36
-    },
-    {
-      departure: '上海',
-      arrival: '北京',
-      ridingDate: '2023-02-01',
-      trainNumber: 'G7677',
-      departureTime: '17:59',
-      arrivalTime: '18:21到',
-      seatType: '二等座',
-      carriageNumber: '02车 05C号',
-      seatNumber: '05',
-      realName: 'yikai',
-      ticketType: '成人票',
-      amount: 36
-    },
-    {
-      departure: '上海',
-      arrival: '北京',
-      ridingDate: '2023-02-01',
-      trainNumber: 'G7677',
-      departureTime: '17:59',
-      arrivalTime: '18:21到',
-      seatType: '二等座',
-      carriageNumber: '02车 05C号',
-      seatNumber: '05',
-      realName: 'yikai',
-      ticketType: '成人票',
-      amount: 36
-    }
-  ],
+  data: [],
   total: 100,
   size: 10,
-  current: 1
+  current: 1,
+  loading: false
 })
+const handleFetchMyTicket = (current, size) => {
+  state.loading = true
+  fetchMyTicket({ current, size })
+    .then((res) => {
+      state.data = res.data?.records
+      state.total = res.data?.total
+      state.loading = false
+    })
+    .catch(() => (state.loading = false))
+}
+
+watch(
+  () => [state.current, state.size],
+  (newValue) => {
+    state.loading = true
+    const [current, size] = newValue
+    handleFetchMyTicket(current, size)
+  },
+  { immediate: true }
+)
 </script>
 <style lang="scss" scoped>
 .list-container {
@@ -206,7 +206,7 @@ const state = reactive({
         flex-direction: column;
         align-items: center;
         .seat {
-          font-weight: border;
+          font-weight: bolder;
           margin-bottom: 10px;
         }
       }

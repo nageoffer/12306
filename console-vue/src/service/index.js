@@ -171,6 +171,15 @@ const fetchOrderStatus = async (params) => {
   return data
 }
 
+const fetchMyTicket = async (params) => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/order-service/order/ticket/self/page',
+    params
+  })
+  return data
+}
+
 export {
   fetchLogin,
   fetchRegister,
@@ -190,5 +199,6 @@ export {
   fetchTicketList,
   fetchOrderCancel,
   fetchOrderStatus,
-  fetchUserUpdate
+  fetchUserUpdate,
+  fetchMyTicket
 }
