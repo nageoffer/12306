@@ -55,3 +55,12 @@ framework:
     redis:
       value-timeout: 16
       value-time-unit: days
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}

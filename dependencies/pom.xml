@@ -27,6 +27,7 @@
         <rocketmq-spring-boot-starter.version>2.2.3</rocketmq-spring-boot-starter.version>
         <transmittable-thread-local.version>2.14.2</transmittable-thread-local.version>
         <hippo4j-threadpool-config-mode.version>1.5.0</hippo4j-threadpool-config-mode.version>
+        <micrometer-registry-prometheus.version>1.10.6</micrometer-registry-prometheus.version>
     </properties>
 
     <dependencyManagement>
@@ -137,6 +138,12 @@
                 <groupId>cn.hippo4j</groupId>
                 <artifactId>hippo4j-config-spring-boot-starter</artifactId>
                 <version>${hippo4j-threadpool-config-mode.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer-registry-prometheus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

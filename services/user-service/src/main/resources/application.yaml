@@ -38,3 +38,12 @@ framework:
       bloom-filter:
         user-register:
           name: user_register_cache_penetration_bloom_filter${unique-name:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}

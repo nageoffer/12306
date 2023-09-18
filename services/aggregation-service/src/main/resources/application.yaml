@@ -55,7 +55,7 @@ pay:
     app-id: 2021000122637271
     charset: UTF8
     format: json
-    notify-url: http://ems8b7.natappfree.cc/api/pay-service/callback/alipay
+    notify-url: http://u8t2v6.natappfree.cc/api/pay-service/callback/alipay
     private-key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDFSeH+uvbBUeWRxRwnJRSQeBnvhtMuY7Z220W7VdEAhTA0/QYOttlXf22vk9fW4kTYXwpP9/fQW+MVaErRrt3j8/9e5bbTfUz1jvO57Bp0fX/lrfpMU8VrfYumOiaAz40kH8/NDP1a+PYHHTssvdao9mnrlc30y7hv0FQb7zBr1yaYxwvLyacyaH68QpZHAAKn2EJDBSbCK0RPcg9DPbYAURIM5rtfOJEnBihXGksgm1wH7x/k5bn34JDgcs+2QXKbtkbmKB2INUKe96QoyNUYXZ2kcRWTBupIdsV4ph9FkGbK/7aEa4fJt7b19S6GSMgzBBA9PDphoN/o29oz8k+JAgMBAAECggEAKWRk7ALh/pFmLv1B+NyIwf7QwjZxXExDXhCHQtSwcwF+qb9kY/XtB7SOmMXWBRmYBCV8jmaiMa71p+onuHKNz2PD8m8Tuq+RU/vYGuv0aPhjuxaTaywwQWsnv4p3xZLGNAwQlx7gkROm2rtBTRPPU8fPVUQq3+9WFO+KlgnLCPTOcERmcNARECKrrfigtOhSBmVTu3t7vKeW4OqceZ0PzT1DEXdccgK2bnHycUJ3PsRA7T+cBvXDvMieIRl+tWx7U8wY1HFjoRuL7gSdacDmSxxrc1+UCmkkvjdsVcXsB6tF10WdKERV7EAdlY/dAR8d317ql0zReE6xbYZXchX74QKBgQDxxzAc75eGem1tJnQk9f6zYmXpE2slp1F6ywtK94qDj2fPdCpwNHvBqoVixqGbQKrOPZPKFyEYZ3H5V1dA8RvD7NTTWH7xpFlspAUsPOTrZdoIJKCySE6q3jdJdJzxcN7IMQk/uJWBp9PW37cEnZZuLt1ehbRQu+J5GlzmTm/TpQKBgQDQ5MAtgaClzDR9mI5iK30tfAwYThzeEBoaYpmuIsktaJZw1KQN7MEyNzL37DR16XtD2Sq3zJ4doCOePk6JsFjeTaFIDR3n9jHCESE/dtm/GUXo/K+E4RhoYw7q/r5WbRP4Sy5F+0jbfF+wd7NfjFkm6zmveox6edbL3K/wDZ+3FQKBgFIZXz8UJJHnlKzRt/KtDZYAPbbNfz7D+CkINYd5UzGlSozpV1fOmo+CxdRquomrhdSOmFaxT+2ngs42WEyXEuSO0R4LGOAY/LylXZROATXl2gmV1nNzljLzTjbFQF3EBAJalFds6Gekg4ydXtpUYLZ9d3IXWMlpY1fYGd+iltp5AoGBAIhQHZAUfM50ePRUbuVk16Ssw//ASVonS8FYAkz96iW1kCZEvGFR06h/GMVr37fqCkP2HMgfwDY438VNh1aWOwelxM8NsCxEHag0IWwWlHT9ev9UlPyzHohPy9ZRMceYGmX2OVX1ak+/03mGQwjgvvSEnvoBkFYD18TkV/LgEQ8ZAoGAVqGhHIzYtcV08tBU/d9WTm44ir84caJUrygejQbM08nKEm3oDKs+jJcrkRpXokNO3kRaOefztXZwA6pCcZR5438SO9sD0BLx7VumXF959buLV0X/fES7gaNGbK57rKgj5gyuhdaVvRtcXvBcQ+bOctcrCjLNdS45FMbPa5c+5yk=
     server-url: https://openapi-sandbox.dl.alipaydev.com/gateway.do
     sign-type: RSA2
@@ -81,3 +81,12 @@ framework:
       bloom-filter:
         user-register:
           name: user_register_cache_penetration_bloom_filter${unique-name:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}
