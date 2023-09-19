@@ -110,7 +110,7 @@ public class RegionStationImpl implements RegionStationService {
 
     @Override
     public List<StationQueryRespDTO> listAllStation() {
-        return distributedCache.get(
+        return distributedCache.safeGet(
                 STATION_ALL,
                 List.class,
                 () -> BeanUtil.convert(stationMapper.selectList(Wrappers.emptyWrapper()), StationQueryRespDTO.class),
