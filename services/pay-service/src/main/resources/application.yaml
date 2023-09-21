@@ -13,6 +13,10 @@ spring:
         server-addr: 127.0.0.1:8848
       password: nacos
       username: nacos
+    sentinel:
+      transport:
+        dashboard: localhost:8686
+        port: 8719
   data:
     redis:
       host: 127.0.0.1

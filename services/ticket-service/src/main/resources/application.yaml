@@ -31,6 +31,10 @@ spring:
           enabled: false
       username: nacos
       password: nacos
+    sentinel:
+      transport:
+        dashboard: localhost:8686
+        port: 8719
   dynamic:
     thread-pool:
       nacos:
