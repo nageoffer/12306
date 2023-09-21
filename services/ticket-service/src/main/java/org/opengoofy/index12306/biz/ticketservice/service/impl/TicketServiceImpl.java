@@ -74,6 +74,7 @@ import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.tokenbucket.TicketAvailabilityTokenBucket;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil;
 import org.opengoofy.index12306.biz.ticketservice.toolkit.TimeStringComparator;
+import org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.cache.toolkit.CacheUtil;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
@@ -84,6 +85,7 @@ import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -124,7 +126,7 @@ import static org.opengoofy.index12306.biz.ticketservice.toolkit.DateUtil.conver
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> implements TicketService {
+public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> implements TicketService, CommandLineRunner {
 
     private final TrainMapper trainMapper;
     private final TrainStationRelationMapper trainStationRelationMapper;
@@ -143,6 +145,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     private final RedissonClient redissonClient;
     private final ConfigurableEnvironment environment;
     private final TicketAvailabilityTokenBucket ticketAvailabilityTokenBucket;
+    private TicketService ticketService;
 
     @Value("${ticket.availability.cache-update.type:}")
     private String ticketAvailabilityCacheUpdateType;
@@ -270,7 +273,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
     }
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
     public TicketPurchaseRespDTO purchaseTicketsV1(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
@@ -280,7 +282,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         RLock lock = redissonClient.getLock(lockKey);
         lock.lock();
         try {
-            return executePurchaseTickets(requestParam);
+            return ticketService.executePurchaseTickets(requestParam);
         } finally {
             lock.unlock();
         }
@@ -291,7 +293,6 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             .build();
 
     @Override
-    @Transactional(rollbackFor = Throwable.class)
     public TicketPurchaseRespDTO purchaseTicketsV2(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
@@ -323,7 +324,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         try {
             localLockList.forEach(ReentrantLock::lock);
             distributedLockList.forEach(RLock::lock);
-            return executePurchaseTickets(requestParam);
+            return ticketService.executePurchaseTickets(requestParam);
         } finally {
             localLockList.forEach(localLock -> {
                 try {
@@ -534,5 +535,10 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             }
         }
         return trainBrandSet.stream().toList();
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        ticketService = ApplicationContextHolder.getBean(TicketService.class);
     }
 }
