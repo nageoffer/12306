@@ -37,7 +37,7 @@ public class Hippo4jThreadPoolConfiguration {
 
     /**
      * 分配一个用户购买不同类型车票的线程池
-     * <a href="https://t.zsxq.com/11Huyqnwy">线程池参数如何设置</>
+     * <a href="https://nageoffer.com/12306/question">线程池参数如何设置</>
      */
     @Bean
     @DynamicThreadPool

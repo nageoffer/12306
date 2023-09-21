@@ -73,12 +73,12 @@ public final class TrainSeatTypeSelector {
         if (seatTypeMap.size() > 1) {
             List<Future<List<TrainPurchaseTicketRespDTO>>> futureResults = new ArrayList<>();
             seatTypeMap.forEach((seatType, passengerSeatDetails) -> {
-                // 线程池参数如何设置？详情查看：https://t.zsxq.com/11Huyqnwy
+                // 线程池参数如何设置？详情查看：https://nageoffer.com/12306/question
                 Future<List<TrainPurchaseTicketRespDTO>> completableFuture = selectSeatThreadPoolExecutor
                         .submit(() -> distributeSeats(trainType, seatType, requestParam, passengerSeatDetails));
                 futureResults.add(completableFuture);
             });
-            // 并行流极端情况下有坑，详情参考：https://t.zsxq.com/11X4LkYJs
+            // 并行流极端情况下有坑，详情参考：https://nageoffer.com/12306/question
             futureResults.parallelStream().forEach(completableFuture -> {
                 try {
                     actualResult.addAll(completableFuture.get());
@@ -134,7 +134,7 @@ public final class TrainSeatTypeSelector {
             TrainStationPriceDO trainStationPriceDO = trainStationPriceMapper.selectOne(lambdaQueryWrapper);
             each.setAmount(trainStationPriceDO.getPrice());
         });
-        // 购买列车中间站点余票如何更新？详细查看：https://t.zsxq.com/1204jCAPf
+        // 购买列车中间站点余票如何更新？详细查看：https://nageoffer.com/12306/question
         seatService.lockSeat(requestParam.getTrainId(), requestParam.getDeparture(), requestParam.getArrival(), actualResult);
         return actualResult;
     }

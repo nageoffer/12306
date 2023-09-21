@@ -53,7 +53,7 @@ public class CanalCommonSyncBinlogConsumer implements RocketMQListener<CanalBinl
 
     @Override
     public void onMessage(CanalBinlogEvent message) {
-        // 余票 Binlog 更新延迟问题如何解决？详情查看：https://t.zsxq.com/1209Da4xW
+        // 余票 Binlog 更新延迟问题如何解决？详情查看：https://nageoffer.com/12306/question
         if (message.getIsDdl()
                 || CollUtil.isEmpty(message.getOld())
                 || !Objects.equals("UPDATE", message.getType())
