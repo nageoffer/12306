@@ -400,7 +400,7 @@ CREATE TABLE `t_user_mail_0`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -413,7 +413,7 @@ CREATE TABLE `t_user_mail_1`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -426,7 +426,7 @@ CREATE TABLE `t_user_mail_10`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -439,7 +439,7 @@ CREATE TABLE `t_user_mail_11`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -452,7 +452,7 @@ CREATE TABLE `t_user_mail_12`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -465,7 +465,7 @@ CREATE TABLE `t_user_mail_13`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -478,7 +478,7 @@ CREATE TABLE `t_user_mail_14`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -491,7 +491,7 @@ CREATE TABLE `t_user_mail_15`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -504,7 +504,7 @@ CREATE TABLE `t_user_mail_2`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -517,7 +517,7 @@ CREATE TABLE `t_user_mail_3`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -530,7 +530,7 @@ CREATE TABLE `t_user_mail_4`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -543,7 +543,7 @@ CREATE TABLE `t_user_mail_5`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -556,7 +556,7 @@ CREATE TABLE `t_user_mail_6`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -569,7 +569,7 @@ CREATE TABLE `t_user_mail_7`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -582,7 +582,7 @@ CREATE TABLE `t_user_mail_8`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -595,7 +595,7 @@ CREATE TABLE `t_user_mail_9`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1159,7 +1159,7 @@ CREATE TABLE `t_user_mail_16`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1223,7 +1223,7 @@ CREATE TABLE `t_user_mail_17`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1287,7 +1287,7 @@ CREATE TABLE `t_user_mail_18`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1351,7 +1351,7 @@ CREATE TABLE `t_user_mail_19`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1415,7 +1415,7 @@ CREATE TABLE `t_user_mail_20`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1479,7 +1479,7 @@ CREATE TABLE `t_user_mail_21`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1543,7 +1543,7 @@ CREATE TABLE `t_user_mail_22`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1607,7 +1607,7 @@ CREATE TABLE `t_user_mail_23`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1671,7 +1671,7 @@ CREATE TABLE `t_user_mail_24`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1735,7 +1735,7 @@ CREATE TABLE `t_user_mail_25`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1799,7 +1799,7 @@ CREATE TABLE `t_user_mail_26`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1863,7 +1863,7 @@ CREATE TABLE `t_user_mail_27`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1927,7 +1927,7 @@ CREATE TABLE `t_user_mail_28`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -1991,7 +1991,7 @@ CREATE TABLE `t_user_mail_29`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -2055,7 +2055,7 @@ CREATE TABLE `t_user_mail_30`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
@@ -2119,7 +2119,7 @@ CREATE TABLE `t_user_mail_31`
 (
     `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `username`      varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '用户名',
-    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '手机号',
+    `mail`          varchar(256) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '邮箱',
     `deletion_time` bigint(20) DEFAULT '0' COMMENT '注销时间戳',
     `create_time`   datetime                                DEFAULT NULL COMMENT '创建时间',
     `update_time`   datetime                                DEFAULT NULL COMMENT '修改时间',
