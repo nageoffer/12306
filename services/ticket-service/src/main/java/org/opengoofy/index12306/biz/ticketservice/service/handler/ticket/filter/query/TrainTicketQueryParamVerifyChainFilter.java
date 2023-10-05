@@ -104,11 +104,15 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
             }
             hashOperations.putAll(QUERY_ALL_REGION_LIST, regionValueMap);
             FLAG = true;
-            actualExistList = hashOperations.multiGet(
-                    QUERY_ALL_REGION_LIST,
-                    ListUtil.toList(requestParam.getFromStation(), requestParam.getToStation())
-            );
-            emptyCount = actualExistList.stream().filter(Objects::nonNull).count();
+            //actualExistList = hashOperations.multiGet(
+            //        QUERY_ALL_REGION_LIST,
+            //        ListUtil.toList(requestParam.getFromStation(), requestParam.getToStation())
+            //);
+            //emptyCount = actualExistList.stream().filter(Objects::nonNull).count();
+            emptyCount = regionValueMap.values().stream()
+                    .filter(item -> item.equals(requestParam.getToStation())
+                            || item.equals(requestParam.getFromStation()))
+                    .count();
             if (emptyCount != 2L) {
                 throw new ClientException("出发地或目的地不存在");
             }
