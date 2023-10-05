@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.filter.query;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,6 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -57,14 +56,13 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
     private final DistributedCache distributedCache;
     private final RedissonClient redissonClient;
 
-    private static boolean FLAG = false;
+    /**
+     * 缓存数据为空并且已经加载过标识
+     */
+    private static boolean CACHE_DATA_ISNULL_AND_LOAD_FLAG = false;
 
     @Override
     public void handler(TicketPageQueryReqDTO requestParam) {
-        if (requestParam.getDepartureDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(LocalDate.now())) {
-            throw new ClientException("出发日期不能小于当前日期");
-        }
-        // 验证出发地和目的地是否存在
         StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
         HashOperations<String, Object, Object> hashOperations = stringRedisTemplate.opsForHash();
         List<Object> actualExistList = hashOperations.multiGet(
@@ -75,7 +73,7 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
         if (emptyCount == 0L) {
             return;
         }
-        if ((emptyCount == 2L && FLAG && !distributedCache.hasKey(QUERY_ALL_REGION_LIST))
+        if ((emptyCount == 2L && CACHE_DATA_ISNULL_AND_LOAD_FLAG && distributedCache.hasKey(QUERY_ALL_REGION_LIST))
                 || emptyCount == 1L) {
             throw new ClientException("出发地或目的地不存在");
         }
@@ -103,15 +101,9 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
                 regionValueMap.put(each.getCode(), each.getName());
             }
             hashOperations.putAll(QUERY_ALL_REGION_LIST, regionValueMap);
-            FLAG = true;
-            //actualExistList = hashOperations.multiGet(
-            //        QUERY_ALL_REGION_LIST,
-            //        ListUtil.toList(requestParam.getFromStation(), requestParam.getToStation())
-            //);
-            //emptyCount = actualExistList.stream().filter(Objects::nonNull).count();
-            emptyCount = regionValueMap.values().stream()
-                    .filter(item -> item.equals(requestParam.getToStation())
-                            || item.equals(requestParam.getFromStation()))
+            CACHE_DATA_ISNULL_AND_LOAD_FLAG = true;
+            emptyCount = regionValueMap.keySet().stream()
+                    .filter(each -> StrUtil.equalsAny(each.toString(), requestParam.getFromStation(), requestParam.getToStation()))
                     .count();
             if (emptyCount != 2L) {
                 throw new ClientException("出发地或目的地不存在");
@@ -123,6 +115,6 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
 
     @Override
     public int getOrder() {
-        return 10;
+        return 20;
     }
 }
