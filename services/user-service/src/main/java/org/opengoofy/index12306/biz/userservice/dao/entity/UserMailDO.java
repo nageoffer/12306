@@ -47,7 +47,7 @@ public class UserMailDO extends BaseDO {
     private String username;
 
     /**
-     * 手机号
+     * 用户邮箱
      */
     private String mail;
 
