@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 public class UserLoginReqDTO {
 
     /**
-     * 用户名
+     * 用户名：两种注册方式 邮箱 or 电话
      */
     private String usernameOrMailOrPhone;
 

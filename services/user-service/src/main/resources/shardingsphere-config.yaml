@@ -1,26 +1,32 @@
+# 数据源集合
 dataSources:
   ds_0:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/12306_user_0?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
     username: root
-    password: root
+    password: 654321
 
   ds_1:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/12306_user_1?useUnicode=true&characterEncoding=UTF-8&rewriteBatchedStatements=true&allowMultiQueries=true&serverTimezone=Asia/Shanghai
     username: root
-    password: root
+    password: 654321
 
 rules:
   - !SHARDING
     tables:
       t_user:
+        # 真实数据节点，比如数据库源以及数据库在数据库中真
         actualDataNodes: ds_${0..1}.t_user_${0..31}
+        # 分库策略
         databaseStrategy:
+          # 用于单分片键的标准分片场景
           standard:
+            # 分片键
             shardingColumn: username
+            # 分片算法，对应 rules[0].shardingAlgorithms
             shardingAlgorithmName: user_database_hash_mod
         tableStrategy:
           standard:
@@ -56,7 +62,9 @@ rules:
           standard:
             shardingColumn: phone
             shardingAlgorithmName: t_user_phone_table_hash_mod
+    # 分片算法
     shardingAlgorithms:
+      # 数据库分片算法
       user_database_hash_mod:
         type: CLASS_BASED
         props:
@@ -85,8 +93,11 @@ rules:
           table-sharding-count: 16
           strategy: standard
           algorithmClassName: org.opengoofy.index12306.framework.starter.database.algorithm.sharding.CustomDbHashModShardingAlgorithm
+      # 数据表分片算法
       passenger_table_hash_mod:
+        # 根据分片键Hash分片
         type: HASH_MOD
+        # 分片数量
         props:
           sharding-count: 32
       t_user_mail_table_hash_mod:
@@ -127,9 +138,12 @@ rules:
             encryptorName: common_encryptor
         queryWithCipherColumn: true
     encryptors:
+      # 敏感数据加密
       common_encryptor:
+        # 采用AES算法进行加密
         type: AES
         props:
           aes-key-value: d6oadClrrb9A3GWo
+# 展现逻辑SQL & 真实SQL
 props:
   sql-show: true
