@@ -94,17 +94,21 @@
 
 ### 2. 提交订单页，选择乘车人下单
 
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716114814135.png)
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20231006135057984.png)
 
 ### 3. 高铁在线选座页面
 
-![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20230716115005469.png)
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20231006123150513.png)
+
+### 4. 订单确认页
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/image-20231006123458176.png)
 
 ## 12306 购票误区
 
 说些大家对于 12306 购票时没有考虑到的一些业务点，或者存在误区的地方。
 
-背景：假设，有一站列车，途径北京南、济南西、南京南、杭州东。
+背景：假设，有一站列车，途径北京南、济南西、南京南、杭州东、宁波。
 
 查询站点对应的列车车次信息。
 
@@ -122,6 +126,8 @@
 - 实际上：每个站数之间的数量都有规则。虽然放票时间都是一致的，但是优先大站之间的票量，避免因为大量用户购买了中间站的车票导致始发站和终点站的购票困难。该问题通过动态放票解决，比如刚开始放票时对小站之间仅开放少量票，大站之间放出来多数票。如果后续接近发车时间，再开放小站间的车票。
 
 当然，业务以及技术上的难点和亮点并不止于这些，更多的信息可以通过代码以及 12306 的使用上进行发掘。
+
+![](https://images-machen.oss-cn-beijing.aliyuncs.com/1692630338302-112a230f-c0df-4764-a12b-ac5cab805f1f.png)
 
 ## 常见问题答疑
 
