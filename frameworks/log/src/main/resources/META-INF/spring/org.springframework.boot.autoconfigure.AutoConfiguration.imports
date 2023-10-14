@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-org.opengoofy.index12306.framework.starter.log.confog.LogAutoConfiguration
+org.opengoofy.index12306.framework.starter.log.config.LogAutoConfiguration
