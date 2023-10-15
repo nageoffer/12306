@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.opengoofy.index12306.framework.starter.log.confog;
+package org.opengoofy.index12306.framework.starter.log.config;
 
 import org.opengoofy.index12306.framework.starter.log.core.ILogPrintAspect;
 import org.opengoofy.index12306.framework.starter.log.annotation.ILog;
