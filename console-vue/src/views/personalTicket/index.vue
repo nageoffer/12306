@@ -51,7 +51,13 @@
               }}</span>
               <span class="amount">{{ (item.amount / 100)?.toFixed(2) }}</span>
             </div>
-            <div>{{ '--' }}</div>
+            <div style="font-weight: bolder">
+              {{
+                moment(item?.ridingDate ?? new Date()).isAfter(moment())
+                  ? '未出战'
+                  : '已出站'
+              }}
+            </div>
           </div>
           <Divider></Divider>
           <div class="button-container">
@@ -107,6 +113,7 @@ import { getWeekNumber } from '@/utils'
 import { reactive, watch } from 'vue'
 import { fetchMyTicket } from '@/service'
 import { SEAT_CLASS_TYPE_LIST, DISCOUNTS_TYPE } from '@/constants'
+import moment from 'moment'
 const { RangePicker } = DatePicker
 
 const state = reactive({

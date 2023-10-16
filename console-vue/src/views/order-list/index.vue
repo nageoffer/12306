@@ -45,23 +45,21 @@
                 "
               ></Checkbox>
             </div>
-            <div :style="{}">
-              <div>
-                <span :style="{ marginRight: '5px', width: '60%' }">{{
-                  record?.realName
-                }}</span>
-                <a
-                  v-if="state.activeKey !== 0"
-                  :style="{ textDecoration: 'underline' }"
-                  >打印信息单</a
-                >
-              </div>
-              <div>
-                {{
-                  ID_CARD_TYPE.find((item) => item.value === record?.idType)
-                    ?.label
-                }}
-              </div>
+            <div>
+              <span :style="{ marginRight: '5px', width: '60%' }">{{
+                record?.realName
+              }}</span>
+              <a
+                v-if="state.activeKey !== 0"
+                :style="{ textDecoration: 'underline' }"
+                >打印信息单</a
+              >
+            </div>
+            <div>
+              {{
+                ID_CARD_TYPE.find((item) => item.value === record?.idType)
+                  ?.label
+              }}
             </div>
           </div>
         </template>
@@ -96,6 +94,17 @@
               TICKET_STATUS_LIST.find((item) => item.value === record?.status)
                 ?.label ?? '--'
             }}
+          </div>
+          <div v-if="record?.status === 10">
+            <a
+              @click="
+                () => {
+                  state.visible = true
+                  state.currentOrder = record?.orderSn
+                }
+              "
+              >退票</a
+            >
           </div>
         </template>
         <template #summary v-if="state.activeKey !== 0">
@@ -144,6 +153,36 @@
       </p>
     </div>
   </Card>
+  <Modal
+    width="40%"
+    :visible="state.visible"
+    title="退票申请"
+    class="custom-modal"
+    @cancel="state.visible = false"
+    :footer="null"
+  >
+    <Alert
+      message="您确认要退款吗"
+      type="warning"
+      description="如有定餐饮或特产，请按规定到网站自行办理退订"
+      show-icon
+      style="background-color: #fff; border: none"
+    >
+      <template #icon><QuestionCircleFilled /></template>
+    </Alert>
+    <Divider :dashed="true" />
+    <span
+      >共计退款：<a>{{
+        '¥' +
+        state.dataSource
+          ?.find((item) => item.orderSn === state.currentOrder)
+          ?.passengerDetails?.map((item) => item.amount)
+          ?.reduce((after, pre) => after + pre, 0) /
+          100
+      }}</a></span
+    >
+    <Divider :dashed="true" />
+  </Modal>
 </template>
 
 <script setup>
@@ -158,11 +197,16 @@ import {
   Checkbox,
   TableSummary,
   TableSummaryCell,
-  TableSummaryRow
+  TableSummaryRow,
+  Modal,
+  Alert,
+  Divider
 } from 'ant-design-vue'
+import { QuestionCircleFilled } from '@ant-design/icons-vue'
 
 import CarInfo from './components/show-card-info'
 import EditContent from './components/edit-content'
+import RefundTicket from './components/refund-ticket'
 import { fetchTicketList, fetchOrderCancel } from '@/service'
 import { reactive, watch, h } from 'vue'
 import {
@@ -183,7 +227,9 @@ const state = reactive({
   loading: false,
   columns: [],
   checkList: [],
-  checkedAll: false
+  checkedAll: false,
+  visible: false,
+  currentOrder: undefined
 })
 const userId = Cookie.get('userId')
 const router = useRouter()
@@ -232,7 +278,21 @@ const columns = [
     title: '车票状态',
     dataIndex: 'status',
     key: 'status',
-    slots: { customRender: 'status' }
+    slots: { customRender: 'status' },
+    customRender: ({ text, record }) => {
+      return {
+        children: h(RefundTicket, {
+          status: record?.status,
+          refundClick: () => {
+            state.visible = true
+            state.currentOrder = record?.orderSn
+          }
+        }),
+        props: {
+          rowSpan: record?.rowSpan
+        }
+      }
+    }
   }
 ]
 
@@ -387,12 +447,17 @@ const onCheckAllChange = (e) => {
   .ant-tabs-top > .ant-tabs-nav {
     margin: 0;
   }
-
   .ant-tabs-content-holder {
     padding: 12px;
     background-color: #fff;
     box-sizing: border-box;
     background-image: none;
+  }
+  .custom-modal {
+    .ant-alert-warning {
+      background-color: #fff !important;
+      border: none !important;
+    }
   }
 }
 </style>
