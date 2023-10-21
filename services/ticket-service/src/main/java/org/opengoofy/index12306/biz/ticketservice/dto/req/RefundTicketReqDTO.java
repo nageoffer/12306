@@ -42,5 +42,5 @@ public class RefundTicketReqDTO {
     /**
      * 部分退款子订单记录id集合
      */
-    private List<Long> subOrderRecordIdReqList;
+    private List<String> subOrderRecordIdReqList;
 }
