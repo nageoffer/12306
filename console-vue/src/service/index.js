@@ -180,6 +180,14 @@ const fetchMyTicket = async (params) => {
   return data
 }
 
+const fetchRefundTicket = async (body) => {
+  const { data } = await http({
+    method: 'POST',
+    url: '/api/ticket-service/ticket/refund',
+    data: body
+  })
+}
+
 export {
   fetchLogin,
   fetchRegister,
@@ -200,5 +208,6 @@ export {
   fetchOrderCancel,
   fetchOrderStatus,
   fetchUserUpdate,
-  fetchMyTicket
+  fetchMyTicket,
+  fetchRefundTicket
 }

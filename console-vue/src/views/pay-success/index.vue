@@ -8,11 +8,13 @@
         <div class="top">
           <span class="success-text">交易已完成</span>
           <span class="thank-text">感谢你选择铁路出行！您的订单号是：</span>
-          <span class="order-text">E99909093</span>
+          <span class="order-text">{{ state?.orderDetail?.orderSn }}</span>
         </div>
         <div>
           <span class="tip-text"
-            >machen
+            >{{
+              state.userInfo?.realName
+            }}
             先生/女士可持购票时所使用的中国居民身份证原件于购票后、列车开车前到车站直接检票乘车</span
           >
         </div>
@@ -21,16 +23,31 @@
     <div class="custom">
       <Card title="订单信息">
         <div class="ticket-info">
-          <span class="main-text">2023-02-01（周四）C2647</span>
+          <span class="main-text"
+            >{{ state.orderDetail?.ridingDate }}（{{
+              getWeekNumber(dayjs(state.orderDetail?.ridingDate).day())
+            }}）{{ state.orderDetail?.trainNumber }}</span
+          >
           <span class="small-text">次</span>
-          <span class="main-text">北京南</span>
+          <span class="main-text">{{ state.orderDetail?.departure }}</span>
           <span class="small-text">站</span>
-          <span class="main-text">（21:22开）-天津西</span>
-          <span class="small-text">站（21:57到）</span>
+          <span class="main-text"
+            >（{{ state.orderDetail?.departureTime }}开）-{{
+              state.orderDetail?.arrival
+            }}</span
+          >
+          <span class="small-text"
+            >站（{{ state.orderDetail?.arrivalTime }}到）</span
+          >
         </div>
-        <Table :columns="column" size="small"></Table>
+        <Table
+          :columns="column"
+          size="small"
+          :data-source="state.orderDetail?.passengerDetails"
+          :pagination="false"
+        ></Table>
         <Divider></Divider>
-        <Space>
+        <Space style="justify-content: center; width: 100%">
           <Button>餐饮·特产</Button>
           <Button>继续购票</Button>
           <Button>查询订单详情</Button>
@@ -43,19 +60,37 @@
 <script setup scoped>
 import { Card, Space, Table, Divider, Button } from 'ant-design-vue'
 import IconFont from '@/components/icon-font'
+import { fetchOrderBySn, fechUserInfo } from '@/service'
+import { h, onMounted, reactive, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import Cookie from 'js-cookie'
+import dayjs from 'dayjs'
+import {
+  ID_CARD_TYPE,
+  TICKET_TYPE_LIST,
+  SEAT_CLASS_TYPE_LIST,
+  TICKET_STATUS_LIST
+} from '@/constants'
+import { getWeekNumber } from '@/utils'
 
 const column = [
   {
     title: '序号',
-    dataIndex: 'id'
+    dataIndex: 'id',
+    customRender: ({ text, record, index }) =>
+      h('div', { innerHTML: index + 1 })
   },
   {
     title: '姓名',
-    dataIndex: 'name'
+    dataIndex: 'realName'
   },
   {
     title: '证件类型',
-    dataIndex: 'type'
+    dataIndex: 'idType',
+    customRender: ({ text }) =>
+      h('div', {
+        innerHTML: ID_CARD_TYPE.find((item) => item.value === text)?.label
+      })
   },
   {
     title: '证件号码',
@@ -63,15 +98,28 @@ const column = [
   },
   {
     title: '票种',
-    dataIndex: 'ticketType'
+    dataIndex: 'ticketType',
+    customRender: ({ text }) =>
+      h('div', {
+        innerHTML: TICKET_TYPE_LIST.find((item) => item.value === text)?.label
+      })
   },
   {
     title: '席别',
-    dataIndex: 'seat'
+    dataIndex: 'seatType',
+    customRender: ({ text }) =>
+      h('div', {
+        innerHTML: SEAT_CLASS_TYPE_LIST.find((item) => item.code === text)
+          ?.label
+      })
   },
   {
     title: '车厢',
-    dataIndex: 'carriage'
+    dataIndex: 'carriageNumber',
+    customRender: ({ text }) =>
+      h('div', {
+        innerHTML: text + '车'
+      })
   },
   {
     title: '席位号',
@@ -79,13 +127,36 @@ const column = [
   },
   {
     title: '票价（元）',
-    dataIndex: 'prise'
+    dataIndex: 'amount',
+    customRender: ({ text }) =>
+      h('a', {
+        innerHTML: text / 100 + '¥'
+      })
   },
   {
     title: '订单状态',
-    dataIndex: 'status'
+    dataIndex: 'status',
+    customRender: ({ text }) =>
+      h('div', {
+        innerHTML: TICKET_STATUS_LIST.find((item) => item.value === text)?.label
+      })
   }
 ]
+
+const { query } = useRoute()
+const state = reactive({
+  orderDetail: null,
+  userInfo: null
+})
+
+onMounted(() => {
+  fetchOrderBySn({ orderSn: query?.orderSn }).then((res) => {
+    state.orderDetail = res?.data
+  })
+  fechUserInfo({ username: Cookie.get('username') }).then((res) => {
+    state.userInfo = res?.data
+  })
+})
 </script>
 
 <style lang="scss" scoped>
