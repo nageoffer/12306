@@ -73,8 +73,7 @@ public class TrainTicketQueryParamVerifyChainFilter implements TrainTicketQueryC
         if (emptyCount == 0L) {
             return;
         }
-        if ((emptyCount == 2L && CACHE_DATA_ISNULL_AND_LOAD_FLAG && distributedCache.hasKey(QUERY_ALL_REGION_LIST))
-                || emptyCount == 1L) {
+        if (emptyCount == 1L || (emptyCount == 2L && CACHE_DATA_ISNULL_AND_LOAD_FLAG && distributedCache.hasKey(QUERY_ALL_REGION_LIST))) {
             throw new ClientException("出发地或目的地不存在");
         }
         RLock lock = redissonClient.getLock(LOCK_QUERY_ALL_REGION_LIST);
