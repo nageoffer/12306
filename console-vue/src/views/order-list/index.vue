@@ -487,6 +487,7 @@ const handleRefund = () => {
     subOrderRecordIdReqList: state.refundOrder
   }).then((res) => {
     state.visible = false
+    message.success('退款成功')
     getTicketList(state.current, state.size, state.activeKey)
   })
 }

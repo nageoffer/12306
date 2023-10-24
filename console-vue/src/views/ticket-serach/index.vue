@@ -28,8 +28,7 @@ import {
   fetchStationAll,
   fetchTrainStation
 } from '@/service/index'
-import { useRouter } from 'vue-router'
-import { SEAT_CLASS_TYPE_LIST, TRAIN_BRAND_LIST } from '@/constants'
+import { SEAT_CLASS_TYPE_LIST, TRAIN_BRAND_LIST, TRAIN_TAG } from '@/constants'
 
 const useForm = Form.useForm
 
@@ -61,6 +60,48 @@ const state = reactive({
   stationList: [],
   trainStationList: [],
   loading: false
+})
+
+const rowState = reactive({
+  rawTrainList: []
+})
+
+watch(headSearch, (newValue) => {
+  state.trainList = rowState.rawTrainList
+  if (newValue?.car_type?.length) {
+    state.trainList = state.trainList.filter((item) => {
+      const list = item.trainBrand?.split(',')
+      let hasInculude = false
+      for (let i of list) {
+        if (newValue?.car_type?.includes(i * 1)) {
+          hasInculude = true
+        }
+      }
+      return hasInculude
+    })
+  }
+  if (newValue?.departure?.length) {
+    state.trainList = state.trainList.filter((item) => {
+      return newValue?.departure?.includes(item.departure)
+    })
+  }
+  if (newValue?.arrival?.length) {
+    state.trainList = state.trainList.filter((item) => {
+      return newValue?.arrival?.includes(item.arrival)
+    })
+  }
+  if (newValue?.seat?.length) {
+    state.trainList = state.trainList.filter((item) => {
+      const list =
+        item.seatClassList?.filter(
+          (item) => newValue.seat.includes(item.type) && item.quantity
+        ) ?? []
+      console.log('newValue.seat:::', newValue.seat)
+      console.log('item.seatClassList:::', item.seatClassList)
+      console.log('list:::', list)
+      return list.length
+    })
+  }
 })
 
 const currCityStations = ref([])
@@ -411,7 +452,6 @@ const handSubmit = () => {
   validate().then(() => {
     const { fromStation, toStation, departure, arrival, departureDate } =
       toRaw(headSearch)
-
     fetchTicketSearch({
       fromStation,
       toStation,
@@ -422,6 +462,10 @@ const handSubmit = () => {
       if (!res.success) return message.error(res.message)
       if (res.data.trainList) {
         state.trainList = res.data.trainList?.map((item) => ({
+          ...item,
+          key: item.trainId
+        }))
+        rowState.rawTrainList = res.data.trainList?.map((item) => ({
           ...item,
           key: item.trainId
         }))
@@ -466,6 +510,10 @@ onMounted(() => {
     if (!res.success) return message.error(res.message)
     if (res.data.trainList) {
       state.trainList = res.data.trainList?.map((item) => ({
+        ...item,
+        key: item.trainId
+      }))
+      rowState.rawTrainList = res.data.trainList?.map((item) => ({
         ...item,
         key: item.trainId
       }))
@@ -893,7 +941,6 @@ const handleBook = (record) => {
               <template #firstSeatPrice="{ text }">
                 <div :style="{ color: '#fc8302' }">
                   {{
-                    // console.log(text,'text')
                     handlePriceShow(
                       text?.find((item) => item?.type === 1)?.price
                     )
@@ -1003,7 +1050,37 @@ const handleBook = (record) => {
                 :get-popup-container="(node) => node.parentNode"
                 placement="rightTop"
                 trigger="click"
-                >{{ text }}
+              >
+                <div>
+                  {{ text }}
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    font-size: 10px;
+                    font-weight: bold;
+                    width: 100%;
+                    line-height: unset;
+                    /* justify-content: space-between; */
+                  "
+                >
+                  <div
+                    v-for="tag in record?.trainTags"
+                    :style="{
+                      color: TRAIN_TAG.find((item) => item.value === tag)
+                        ?.color,
+                      border: `1px solid ${
+                        TRAIN_TAG.find((item) => item.value === tag)?.color
+                      }`,
+                      padding: '2px',
+                      aspectRatio: '1 / 1',
+                      borderRadius: '2px',
+                      marginRight: '4px'
+                    }"
+                  >
+                    {{ TRAIN_TAG.find((item) => item.value === tag)?.label }}
+                  </div>
+                </div>
                 <template #title>
                   <Table
                     :columns="cardInfoColumns"
@@ -1015,15 +1092,45 @@ const handleBook = (record) => {
             </h1>
           </template>
           <template #station="{ _, record }">
-            <div>{{ record.departure }}</div>
-            <div>{{ record.arrival }}</div>
+            <div>
+              <span
+                :style="{
+                  display: 'inline-block',
+                  padding: '2px 4px',
+                  backgroundColor: record.departureFlag ? '#cca567' : '#7597d5',
+                  color: '#fff',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 'bolder',
+                  marginRight: '2px'
+                }"
+                >{{ record.departureFlag ? '始' : '过' }}</span
+              >{{ record.departure }}
+            </div>
+            <div>
+              <span
+                :style="{
+                  display: 'inline-block',
+                  padding: '2px 4px',
+                  backgroundColor: record.arrivalFlag ? '#6da77f' : '#7597d5',
+                  color: '#fff',
+                  borderRadius: '4px',
+                  fontSize: '10px',
+                  fontWeight: 'bolder',
+                  marginRight: '2px'
+                }"
+                >{{ record.arrivalFlag ? '终' : '过' }}</span
+              >{{ record.arrival }}
+            </div>
           </template>
           <template #customStaionTitle>
             <div>出发站</div>
             <div>到达站</div>
           </template>
           <template #time="{ _, record }">
-            <div>{{ record.departureTime }}</div>
+            <div>
+              {{ record.departureTime }}
+            </div>
             <div>{{ record.arrivalTime }}</div>
           </template>
           <template #highSpeedTrain="{ text }">

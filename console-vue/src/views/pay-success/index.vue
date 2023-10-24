@@ -48,9 +48,9 @@
         ></Table>
         <Divider></Divider>
         <Space style="justify-content: center; width: 100%">
-          <Button>餐饮·特产</Button>
-          <Button>继续购票</Button>
-          <Button>查询订单详情</Button>
+          <Button :disabled="true">餐饮·特产</Button>
+          <Button @click="router.push('/ticketSearch')">继续购票</Button>
+          <Button @click="router.push('/ticketList')">查询订单详情</Button>
         </Space>
       </Card>
     </div>
@@ -62,7 +62,7 @@ import { Card, Space, Table, Divider, Button } from 'ant-design-vue'
 import IconFont from '@/components/icon-font'
 import { fetchOrderBySn, fechUserInfo } from '@/service'
 import { h, onMounted, reactive, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Cookie from 'js-cookie'
 import dayjs from 'dayjs'
 import {
@@ -144,6 +144,7 @@ const column = [
 ]
 
 const { query } = useRoute()
+const router = useRouter()
 const state = reactive({
   orderDetail: null,
   userInfo: null

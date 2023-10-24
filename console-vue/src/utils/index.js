@@ -39,4 +39,5 @@ const getTicketNumber = (number) => {
     }
   }
 }
+
 export { getWeekNumber, getTicketNumber }
