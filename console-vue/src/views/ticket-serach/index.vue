@@ -128,7 +128,7 @@ const columns = [
     width: 100,
     ellipsis: true,
     resizeble: false,
-    align: 'center'
+    align: 'left'
   },
   {
     dataIndex: 'time',
@@ -1061,7 +1061,7 @@ const handleBook = (record) => {
                     font-weight: bold;
                     width: 100%;
                     line-height: unset;
-                    /* justify-content: space-between; */
+                    justify-content: center;
                   "
                 >
                   <div
