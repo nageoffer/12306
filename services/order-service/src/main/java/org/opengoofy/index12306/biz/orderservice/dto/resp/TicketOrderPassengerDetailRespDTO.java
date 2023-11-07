@@ -38,6 +38,21 @@ import org.opengoofy.index12306.biz.orderservice.serialize.IdCardDesensitization
 public class TicketOrderPassengerDetailRespDTO {
 
     /**
+     * ID
+     */
+    private String id;
+
+    /**
+     * 用户id
+     */
+    private String userId;
+
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
      * 席别类型
      */
     private Integer seatType;

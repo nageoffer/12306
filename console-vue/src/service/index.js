@@ -84,7 +84,7 @@ const fetchLogout = async (body) => {
 const fetchBuyTicket = async (body) => {
   const { data } = await http({
     method: 'POST',
-    url: '/api/ticket-service/ticket/purchase',
+    url: '/api/ticket-service/ticket/purchase/v2',
     data: body
   })
 
@@ -171,6 +171,23 @@ const fetchOrderStatus = async (params) => {
   return data
 }
 
+const fetchMyTicket = async (params) => {
+  const { data } = await http({
+    method: 'GET',
+    url: '/api/order-service/order/ticket/self/page',
+    params
+  })
+  return data
+}
+
+const fetchRefundTicket = async (body) => {
+  const { data } = await http({
+    method: 'POST',
+    url: '/api/ticket-service/ticket/refund',
+    data: body
+  })
+}
+
 export {
   fetchLogin,
   fetchRegister,
@@ -190,5 +207,7 @@ export {
   fetchTicketList,
   fetchOrderCancel,
   fetchOrderStatus,
-  fetchUserUpdate
+  fetchUserUpdate,
+  fetchMyTicket,
+  fetchRefundTicket
 }

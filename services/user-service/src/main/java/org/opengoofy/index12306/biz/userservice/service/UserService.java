@@ -19,6 +19,7 @@ package org.opengoofy.index12306.biz.userservice.service;
 
 import jakarta.validation.constraints.NotEmpty;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserUpdateReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryActualRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 
 /**
@@ -43,6 +44,14 @@ public interface UserService {
      * @return 用户详细信息
      */
     UserQueryRespDTO queryUserByUsername(@NotEmpty String username);
+
+    /**
+     * 根据用户名查询用户无脱敏信息
+     *
+     * @param username 用户名
+     * @return 用户详细信息
+     */
+    UserQueryActualRespDTO queryActualUserByUsername(@NotEmpty String username);
 
     /**
      * 根据证件类型和证件号查询注销次数

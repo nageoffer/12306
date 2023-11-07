@@ -1,3 +1,6 @@
+USE
+12306_ticket;
+
 CREATE TABLE `t_carriage`
 (
     `id`              bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',

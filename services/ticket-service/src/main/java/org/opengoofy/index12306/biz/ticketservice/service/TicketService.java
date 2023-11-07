@@ -21,7 +21,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.TicketDO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.req.RefundTicketReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.TicketPageQueryReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.resp.RefundTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPageQueryRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.resp.TicketPurchaseRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
@@ -40,7 +42,15 @@ public interface TicketService extends IService<TicketDO> {
      * @param requestParam 分页查询车票请求参数
      * @return 查询车票返回结果
      */
-    TicketPageQueryRespDTO pageListTicketQuery(TicketPageQueryReqDTO requestParam);
+    TicketPageQueryRespDTO pageListTicketQueryV1(TicketPageQueryReqDTO requestParam);
+
+    /**
+     * 根据条件分页查询车票V2高性能版本
+     *
+     * @param requestParam 分页查询车票请求参数
+     * @return 查询车票返回结果
+     */
+    TicketPageQueryRespDTO pageListTicketQueryV2(TicketPageQueryReqDTO requestParam);
 
     /**
      * 购买车票
@@ -51,7 +61,7 @@ public interface TicketService extends IService<TicketDO> {
     TicketPurchaseRespDTO purchaseTicketsV1(@RequestBody PurchaseTicketReqDTO requestParam);
 
     /**
-     * 购买车票
+     * 购买车票V2高性能版本
      *
      * @param requestParam 车票购买请求参数
      * @return 订单号
@@ -81,4 +91,12 @@ public interface TicketService extends IService<TicketDO> {
      * @param requestParam 取消车票订单入参
      */
     void cancelTicketOrder(CancelTicketOrderReqDTO requestParam);
+
+    /**
+     * 公共退款接口
+     *
+     * @param requestParam 退款请求参数
+     * @return 退款返回详情
+     */
+    RefundTicketRespDTO commonTicketRefund(RefundTicketReqDTO requestParam);
 }

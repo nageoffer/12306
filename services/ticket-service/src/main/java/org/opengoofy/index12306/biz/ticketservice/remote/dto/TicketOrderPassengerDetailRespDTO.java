@@ -34,6 +34,16 @@ import lombok.NoArgsConstructor;
 public class TicketOrderPassengerDetailRespDTO {
 
     /**
+     * 用户id
+     */
+    private Long userId;
+
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
      * 席别类型
      */
     private Integer seatType;

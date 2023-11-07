@@ -24,7 +24,6 @@ const props = defineProps({
   ridingDate: String,
   departureTime: String
 })
-console.log(props, 'props')
 </script>
 
 <style lang="scss" scoped>

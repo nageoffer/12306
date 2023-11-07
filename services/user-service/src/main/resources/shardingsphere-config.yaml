@@ -17,7 +17,7 @@ rules:
   - !SHARDING
     tables:
       t_user:
-        actualDataNodes: ds_${0..1}.t_user_${0..15}
+        actualDataNodes: ds_${0..1}.t_user_${0..31}
         databaseStrategy:
           standard:
             shardingColumn: username
@@ -27,7 +27,7 @@ rules:
             shardingColumn: username
             shardingAlgorithmName: user_table_hash_mod
       t_passenger:
-        actualDataNodes: ds_${0..1}.t_passenger_${0..15}
+        actualDataNodes: ds_${0..1}.t_passenger_${0..31}
         databaseStrategy:
           standard:
             shardingColumn: username
@@ -37,7 +37,7 @@ rules:
             shardingColumn: username
             shardingAlgorithmName: passenger_table_hash_mod
       t_user_mail:
-        actualDataNodes: ds_${0..1}.t_user_mail_${0..15}
+        actualDataNodes: ds_${0..1}.t_user_mail_${0..31}
         databaseStrategy:
           standard:
             shardingColumn: mail
@@ -47,7 +47,7 @@ rules:
             shardingColumn: mail
             shardingAlgorithmName: t_user_mail_table_hash_mod
       t_user_phone:
-        actualDataNodes: ds_${0..1}.t_user_phone_${0..15}
+        actualDataNodes: ds_${0..1}.t_user_phone_${0..31}
         databaseStrategy:
           standard:
             shardingColumn: phone
@@ -58,37 +58,49 @@ rules:
             shardingAlgorithmName: t_user_phone_table_hash_mod
     shardingAlgorithms:
       user_database_hash_mod:
-        type: HASH_MOD
+        type: CLASS_BASED
         props:
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
+          strategy: standard
+          algorithmClassName: org.opengoofy.index12306.framework.starter.database.algorithm.sharding.CustomDbHashModShardingAlgorithm
+      passenger_database_hash_mod:
+        type: CLASS_BASED
+        props:
+          sharding-count: 32
+          table-sharding-count: 16
+          strategy: standard
+          algorithmClassName: org.opengoofy.index12306.framework.starter.database.algorithm.sharding.CustomDbHashModShardingAlgorithm
       t_user_mail_database_hash_mod:
-        type: HASH_MOD
+        type: CLASS_BASED
         props:
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
+          strategy: standard
+          algorithmClassName: org.opengoofy.index12306.framework.starter.database.algorithm.sharding.CustomDbHashModShardingAlgorithm
       t_user_phone_database_hash_mod:
-        type: HASH_MOD
+        type: CLASS_BASED
         props:
-          sharding-count: 2
+          sharding-count: 32
+          table-sharding-count: 16
+          strategy: standard
+          algorithmClassName: org.opengoofy.index12306.framework.starter.database.algorithm.sharding.CustomDbHashModShardingAlgorithm
       passenger_table_hash_mod:
         type: HASH_MOD
         props:
-          sharding-count: 16
+          sharding-count: 32
       t_user_mail_table_hash_mod:
         type: HASH_MOD
         props:
-          sharding-count: 16
+          sharding-count: 32
       t_user_phone_table_hash_mod:
         type: HASH_MOD
         props:
-          sharding-count: 16
-      passenger_database_hash_mod:
-        type: HASH_MOD
-        props:
-          sharding-count: 2
+          sharding-count: 32
       user_table_hash_mod:
         type: HASH_MOD
         props:
-          sharding-count: 16
+          sharding-count: 32
   - !ENCRYPT
     tables:
       t_user:

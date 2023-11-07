@@ -54,19 +54,27 @@
           <span>乘车人</span>
         </div>
         <div class="check-wrapper">
-          <CheckboxGroup v-model:value="currPassenger">
+          <CheckboxGroup
+            v-if="state.currPassengerList?.length"
+            v-model:value="currPassenger"
+          >
             <Checkbox
               v-for="item in state.currPassengerList"
               :value="item.id"
               >{{ item.realName }}</Checkbox
             >
           </CheckboxGroup>
+          <Button v-else @click="router.push('/passenger')" type="link"
+            >去添加乘车人</Button
+          >
         </div>
         <Divider></Divider>
         <Table
           :columns="columns"
           :data-source="
-            state.dataSource.filter((item) => currPassenger?.includes(item.id))
+            (state.dataSource ?? []).filter((item) =>
+              currPassenger?.includes(item.id)
+            )
           "
           :locale="{ emptyText: '请先选择乘车人' }"
           :pagination="false"
@@ -92,7 +100,8 @@
               <SelectOption
                 v-for="item in state.currentSeat"
                 :value="item.type"
-                >{{
+              >
+                {{
                   `${
                     SEAT_CLASS_TYPE_LIST.find((seat) => seat.code === item.type)
                       ?.label
@@ -375,11 +384,7 @@ import {
 } from '@/service'
 import { onMounted, reactive, toRaw, watch, ref } from 'vue'
 import { getWeekNumber } from '@/utils'
-import {
-  UserOutlined,
-  CloseCircleOutlined,
-  ConsoleSqlOutlined
-} from '@ant-design/icons-vue'
+import { UserOutlined, CloseCircleOutlined } from '@ant-design/icons-vue'
 import { TICKET_TYPE_LIST, ID_CARD_TYPE } from '@/constants'
 import IconFont from '@/components/icon-font'
 import dayjs from 'dayjs'
@@ -422,12 +427,12 @@ onMounted(() => {
   })
   fetchPassengerList({ username }).then((res) => {
     if (res.success) {
-      state.currPassengerList = res.data
-      state.dataSource = res.data.map((item, index) => ({
+      state.currPassengerList = res.data ?? []
+      state.dataSource = res.data?.map((item, index) => ({
         ...item,
         keyNumber: index + 1
       }))
-      state.rawDataSource = res.data.map((item, index) => ({
+      state.rawDataSource = res.data?.map((item, index) => ({
         ...item,
         keyNumber: index + 1
       }))
@@ -462,20 +467,24 @@ watch(
       seatPosition = ['A', 'B', 'C', 'D', 'F']
       seatLeft = 3
     }
-    let seatList = new Array(newValue?.length * seatPosition.length).fill('')
+    console.log('newValue.length:::', newValue?.length)
+    console.log('seatPosition?.length :::', seatPosition?.length)
+    let seatList = new Array(
+      (newValue?.length ?? 1) * (seatPosition?.length ?? 1)
+    ).fill('')
 
     seatList = seatList?.map((item, index) => {
-      if (index < seatPosition.length - 1) {
+      if (index < seatPosition?.length - 1) {
         return `${seatPosition[index]}0`
       } else {
         return `${seatPosition[index % seatPosition.length]}${Math.floor(
-          index / seatPosition.length
+          index / seatPosition?.length
         )}`
       }
     })
     state.seatPosition = seatList
     state.seatLeft = seatLeft
-    state.seatNumber = seatPosition.length
+    state.seatNumber = seatPosition?.length
   },
   {
     deep: true
@@ -544,7 +553,7 @@ const columns = [
 ]
 
 const handleDelete = (id) => {
-  state.dataSource = state.dataSource.filter((item) => {
+  state.dataSource = (state.dataSource ?? []).filter((item) => {
     return item.id !== id
   })
   currPassenger.value = currPassenger.value.filter((item) => {

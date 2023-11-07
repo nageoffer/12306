@@ -30,9 +30,34 @@ public final class RedisKeyConstant {
     public static final String TRAIN_INFO = "index12306-ticket-service:train_info:";
 
     /**
+     * 地区与站点映射查询
+     */
+    public static final String REGION_TRAIN_STATION_MAPPING = "index12306-ticket-service:region_train_station_mapping";
+
+    /**
+     * 站点查询分布式锁 Key
+     */
+    public static final String LOCK_REGION_TRAIN_STATION_MAPPING = "index12306-ticket-service:lock:region_train_station_mapping";
+
+    /**
      * 站点查询，Key Prefix + 起始城市_终点城市_日期
      */
-    public static final String REGION_TRAIN_STATION = "index12306-ticket-service:region_train_station:";
+    public static final String REGION_TRAIN_STATION = "index12306-ticket-service:region_train_station:%s_%s";
+
+    /**
+     * 站点查询分布式锁 Key
+     */
+    public static final String LOCK_REGION_TRAIN_STATION = "index12306-ticket-service:lock:region_train_station";
+
+    /**
+     * 列车站点座位价格查询，Key Prefix + 列车ID_起始城市_终点城市
+     */
+    public static final String TRAIN_STATION_PRICE = "index12306-ticket-service:train_station_price:%s_%s_%s";
+
+    /**
+     * 列车站点座位价格查询分布式锁 Key
+     */
+    public static final String LOCK_TRAIN_STATION_PRICE = "index12306-ticket-service:lock:train_station_price";
 
     /**
      * 地区以及车站查询，Key Prefix + ( 车站名称 or 查询方式 )

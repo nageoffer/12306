@@ -1,21 +1,30 @@
 .ant-card-bordered {
-    border: 1px solid #1890ff;
+  border: 1px solid #1890ff;
 }
 .ant-card-head {
-    background-color: #1e71bd;
-.ant-card-head-title {
+  background-color: #1e71bd;
+  .ant-card-head-title {
     color: #fff;
-}
+  }
 }
 .ant-table-thead {
-.ant-table-cell {
-    background: url(https://kyfw.12306.cn/otn/resources/images/bg_tlisthd.png) top repeat-x;
+  .ant-table-cell {
+    background: url(https://kyfw.12306.cn/otn/resources/images/bg_tlisthd.png)
+      top repeat-x;
     background-size: cover;
-}
+  }
 }
 .ant-modal-header {
-    background-color: #1e71bd;
-    .ant-modal-title {
-        color:#fff;
-    }
+  background-color: #1e71bd;
+  .ant-modal-title {
+    color: #fff;
+  }
+}
+
+.amount {
+  color: rgb(254, 154, 94);
+  &::before {
+    content: '¥';
+    color: rgb(254, 154, 94);
+  }
 }

@@ -23,45 +23,50 @@
         :loading="state.loading"
         :bordered="true"
       >
-        <template #idType="{ text, record }">
+        <template #id="{ text, record }">
           <div
             :style="{
               display: 'flex',
               alignItems: 'center'
             }"
           >
-            <div
+            <!-- <div
               v-if="state.activeKey !== 0"
               :style="{ marginRight: '20px', width: '30px' }"
             >
               <Checkbox
-                :value="String(record.idCard) + String(record.orderSn)"
+                :value="text"
                 @change="
-                  () =>
-                    console.log(
-                      String(record.idCard) + String(record.orderSn),
-                      'value'
-                    )
+                  (e) => {
+                    if (e.target.value) {
+                      state.refundOrder = [
+                        ...state.refundOrder,
+                        { orderSN: record.orderSN, refundList }
+                      ]
+                    } else {
+                      state.refundOrder = state.refundOrder.filter(
+                        (item) => item !== text
+                      )
+                    }
+                  }
                 "
               ></Checkbox>
+            </div> -->
+            <div>
+              <span :style="{ marginRight: '5px', width: '60%' }">{{
+                record?.realName
+              }}</span>
+              <a
+                v-if="state.activeKey !== 0"
+                :style="{ textDecoration: 'underline' }"
+                >打印信息单</a
+              >
             </div>
-            <div :style="{}">
-              <div>
-                <span :style="{ marginRight: '5px', width: '60%' }">{{
-                  record?.realName
-                }}</span>
-                <a
-                  v-if="state.activeKey !== 0"
-                  :style="{ textDecoration: 'underline' }"
-                  >打印信息单</a
-                >
-              </div>
-              <div>
-                {{
-                  ID_CARD_TYPE.find((item) => item.value === record?.idType)
-                    ?.label
-                }}
-              </div>
+            <div>
+              {{
+                ID_CARD_TYPE.find((item) => item.value === record?.idType)
+                  ?.label
+              }}
             </div>
           </div>
         </template>
@@ -97,8 +102,20 @@
                 ?.label ?? '--'
             }}
           </div>
+          <div v-if="record?.status === 10">
+            <Button
+              type="link"
+              @click="
+                () => {
+                  state.visible = true
+                  state.currentOrder = record?.orderSn
+                }
+              "
+              >退票</Button
+            >
+          </div>
         </template>
-        <template #summary v-if="state.activeKey !== 0">
+        <!-- <template #summary v-if="state.activeKey !== 0">
           <TableSummary :fixed="fixedTop ? 'top' : 'bottom'">
             <TableSummaryRow>
               <TableSummaryCell :index="0" :col-span="24">
@@ -113,7 +130,7 @@
               </TableSummaryCell>
             </TableSummaryRow>
           </TableSummary>
-        </template>
+        </template> -->
       </Table>
     </CheckboxGroup>
     <div
@@ -144,6 +161,106 @@
       </p>
     </div>
   </Card>
+  <Modal
+    width="40%"
+    :visible="state.visible"
+    title="退票申请"
+    class="custom-modal"
+    @cancel="state.visible = false"
+    :footer="null"
+  >
+    <Alert
+      message="您确认要退款吗？"
+      type="warning"
+      description="如有定餐饮或特产，请按规定到网站自行办理退订"
+      show-icon
+      style="background-color: #fff; border: none"
+    >
+      <template #icon><QuestionCircleFilled /></template>
+    </Alert>
+    <Divider :dashed="true" />
+    <div style="padding: 0 30px">
+      请选择要退票的订单：
+      <CheckboxGroup
+        v-model:value="state.refundOrder"
+        @change="(value) => console.log(value, 'value')"
+        :options="
+          state.dataSource
+            ?.find((item) => item.orderSn === state.currentOrder)
+            .passengerDetails.map((item) => ({
+              label: item.realName,
+              value: item.id
+            }))
+        "
+      ></CheckboxGroup>
+    </div>
+
+    <Divider :dashed="true" />
+    <div style="padding: 0 30px">
+      共计退款：<a>{{
+        '¥' +
+        state.dataSource
+          ?.find((item) => item.orderSn === state.currentOrder)
+          ?.passengerDetails?.filter((item) =>
+            state.refundOrder.includes(item.id)
+          )
+          ?.map((item) => item.amount)
+          ?.reduce((after, pre) => after + pre, 0) /
+          100
+      }}</a>
+    </div>
+    <Divider :dashed="true" />
+    <div style="padding: 0 30px">
+      <div style="margin-bottom: 20px">
+        车票票价：<a>{{
+          '¥' +
+          state.dataSource
+            ?.find((item) => item.orderSn === state.currentOrder)
+            ?.passengerDetails?.filter((item) =>
+              state.refundOrder.includes(item.id)
+            )
+            ?.map((item) => item.amount)
+            ?.reduce((after, pre) => after + pre, 0) /
+            100
+        }}</a>
+      </div>
+      <div>
+        应退票款：<a>{{
+          '¥' +
+          state.dataSource
+            ?.find((item) => item.orderSn === state.currentOrder)
+            ?.passengerDetails?.filter((item) =>
+              state.refundOrder.includes(item.id)
+            )
+            ?.map((item) => item.amount)
+            ?.reduce((after, pre) => after + pre, 0) /
+            100
+        }}</a>
+      </div>
+    </div>
+    <Divider :dashed="true" />
+    <div style="color: #999999; padding: 0 30px">
+      <QuestionCircleFilled />
+      <span style="margin-left: 20px"
+        >实际核收退票费及应退票款将按最终交易时间计算。</span
+      >
+    </div>
+    <div style="color: #999999; padding: 0 30px">
+      <QuestionCircleFilled />
+      <span style="margin-left: 20px"
+        >如你需要办理该次列车前续、后续退票业务，请于退票车次票面开车时间前办理。</span
+      >
+    </div>
+    <Space style="width: 100%; justify-content: center; margin-top: 20px">
+      <Button @click="state.visible = false">取消</Button>
+      <Button
+        @click="handleRefund"
+        type="primary"
+        :disabled="!state.refundOrder.length"
+        >确定</Button
+      >
+    </Space>
+  </Modal>
 </template>
 
 <script setup>
@@ -154,16 +271,24 @@ import {
   Card,
   Pagination,
   message,
+  // CheckboxGroup,
+  // Checkbox,
+  // TableSummary,
+  // TableSummaryCell,
+  // TableSummaryRow,
   CheckboxGroup,
-  Checkbox,
-  TableSummary,
-  TableSummaryCell,
-  TableSummaryRow
+  Modal,
+  Alert,
+  Divider,
+  Space,
+  Button
 } from 'ant-design-vue'
+import { QuestionCircleFilled } from '@ant-design/icons-vue'
 
 import CarInfo from './components/show-card-info'
 import EditContent from './components/edit-content'
-import { fetchTicketList, fetchOrderCancel } from '@/service'
+import RefundTicket from './components/refund-ticket'
+import { fetchTicketList, fetchOrderCancel, fetchRefundTicket } from '@/service'
 import { reactive, watch, h } from 'vue'
 import {
   ID_CARD_TYPE,
@@ -183,7 +308,10 @@ const state = reactive({
   loading: false,
   columns: [],
   checkList: [],
-  checkedAll: false
+  checkedAll: false,
+  visible: false,
+  currentOrder: undefined,
+  refundOrder: []
 })
 const userId = Cookie.get('userId')
 const router = useRouter()
@@ -212,9 +340,9 @@ const columns = [
   },
   {
     title: '旅客信息',
-    dataIndex: 'idType',
-    key: 'idType',
-    slots: { customRender: 'idType' }
+    dataIndex: 'id',
+    key: 'id',
+    slots: { customRender: 'id' }
   },
   {
     title: '席位信息',
@@ -232,7 +360,21 @@ const columns = [
     title: '车票状态',
     dataIndex: 'status',
     key: 'status',
-    slots: { customRender: 'status' }
+    slots: { customRender: 'status' },
+    customRender: ({ text, record }) => {
+      return {
+        children: h(RefundTicket, {
+          status: record?.status,
+          refundClick: () => {
+            state.visible = true
+            state.currentOrder = record?.orderSn
+          }
+        }),
+        props: {
+          rowSpan: record?.rowSpan
+        }
+      }
+    }
   }
 ]
 
@@ -270,7 +412,6 @@ watch(
 watch(
   () => state.checkList,
   (val) => {
-    console.log(val, 'val:::')
     state.indeterminate = !!val.length && val.length < state.dataSource.length
     state.checkAll = val.length === state.dataSource.length
   }
@@ -339,6 +480,17 @@ const onCheckAllChange = (e) => {
     indeterminate: false
   })
 }
+const handleRefund = () => {
+  fetchRefundTicket({
+    orderSn: state.currentOrder,
+    type: 0,
+    subOrderRecordIdReqList: state.refundOrder
+  }).then((res) => {
+    state.visible = false
+    message.success('退款成功')
+    getTicketList(state.current, state.size, state.activeKey)
+  })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -388,12 +540,17 @@ const onCheckAllChange = (e) => {
   .ant-tabs-top > .ant-tabs-nav {
     margin: 0;
   }
-
   .ant-tabs-content-holder {
     padding: 12px;
     background-color: #fff;
     box-sizing: border-box;
     background-image: none;
+  }
+  .custom-modal {
+    .ant-alert-warning {
+      background-color: #fff !important;
+      border: none !important;
+    }
   }
 }
 </style>

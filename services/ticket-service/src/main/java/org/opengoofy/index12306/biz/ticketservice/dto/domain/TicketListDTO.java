@@ -17,10 +17,8 @@
 
 package org.opengoofy.index12306.biz.ticketservice.dto.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,14 +42,12 @@ public class TicketListDTO {
     /**
      * 出发时间
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date departureTime;
+    private String departureTime;
 
     /**
      * 到达时间
      */
-    @JsonFormat(pattern = "HH:mm", timezone = "GMT+8")
-    private Date arrivalTime;
+    private String arrivalTime;
 
     /**
      * 历时
@@ -91,8 +87,7 @@ public class TicketListDTO {
     /**
      * 可售时间
      */
-    @JsonFormat(pattern = "MM-dd HH:mm", timezone = "GMT+8")
-    private Date saleTime;
+    private String saleTime;
 
     /**
      * 销售状态 0：可售 1：不可售 2：未知
@@ -103,6 +98,11 @@ public class TicketListDTO {
      * 列车标签集合 0：复兴号 1：智能动车组 2：静音车厢 3：支持选铺
      */
     private List<String> trainTags;
+
+    /**
+     * 列车品牌类型 0：GC-高铁/城际 1：D-动车 2：Z-直达 3：T-特快 4：K-快速 5：其他 6：复兴号 7：智能动车组
+     */
+    private String trainBrand;
 
     /**
      * 席别实体集合

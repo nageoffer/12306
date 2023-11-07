@@ -74,7 +74,9 @@ public class PayController {
 
     /**
      * 公共退款接口
+     * 后续为了方便开发系列退款相关接口，已迁移 {@link RefundController#commonRefund(RefundReqDTO)}
      */
+    @Deprecated
     @PostMapping("/api/pay-service/refund")
     public Result<RefundRespDTO> refund(@RequestBody RefundReqDTO requestParam) {
         return Results.success(payService.commonRefund(requestParam));

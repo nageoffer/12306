@@ -17,10 +17,14 @@
 
 package org.opengoofy.index12306.biz.ticketservice.remote;
 
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.RefundReqDTO;
+import org.opengoofy.index12306.biz.ticketservice.remote.dto.RefundRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.remote.dto.PayInfoRespDTO;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -36,4 +40,10 @@ public interface PayRemoteService {
      */
     @GetMapping("/api/pay-service/pay/query")
     Result<PayInfoRespDTO> getPayInfo(@RequestParam(value = "orderSn") String orderSn);
+
+    /**
+     * 公共退款接口
+     */
+    @PostMapping("/api/pay-service/common/refund")
+    Result<RefundRespDTO> commonRefund(@RequestBody RefundReqDTO requestParam);
 }

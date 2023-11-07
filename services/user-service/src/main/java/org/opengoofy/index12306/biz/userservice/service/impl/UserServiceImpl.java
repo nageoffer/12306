@@ -29,6 +29,7 @@ import org.opengoofy.index12306.biz.userservice.dao.mapper.UserDeletionMapper;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMailMapper;
 import org.opengoofy.index12306.biz.userservice.dao.mapper.UserMapper;
 import org.opengoofy.index12306.biz.userservice.dto.req.UserUpdateReqDTO;
+import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryActualRespDTO;
 import org.opengoofy.index12306.biz.userservice.dto.resp.UserQueryRespDTO;
 import org.opengoofy.index12306.biz.userservice.service.UserService;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
@@ -71,6 +72,11 @@ public class UserServiceImpl implements UserService {
             throw new ClientException("用户不存在，请检查用户名是否正确");
         }
         return BeanUtil.convert(userDO, UserQueryRespDTO.class);
+    }
+
+    @Override
+    public UserQueryActualRespDTO queryActualUserByUsername(String username) {
+        return BeanUtil.convert(queryUserByUsername(username), UserQueryActualRespDTO.class);
     }
 
     @Override

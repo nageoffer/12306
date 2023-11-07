@@ -28,6 +28,29 @@ const DISCOUNTS_TYPE = [
   }
 ]
 
+const TRAIN_TAG = [
+  {
+    label: '复',
+    value: '0',
+    color: '#f29c58'
+  },
+  {
+    label: '智',
+    value: '1',
+    color: '#7db08d'
+  },
+  {
+    label: '静',
+    value: '2',
+    color: '#64a0f6'
+  },
+  {
+    label: '铺',
+    value: '3',
+    color: '#5d9bf6'
+  }
+]
+
 const TICKET_STATUS_LIST = [
   {
     label: '待支付',
@@ -196,5 +219,6 @@ export {
   TICKET_STATUS_LIST,
   DISCOUNTS_TYPE,
   REGIN_MAP,
-  CHECK_STATUS
+  CHECK_STATUS,
+  TRAIN_TAG
 }

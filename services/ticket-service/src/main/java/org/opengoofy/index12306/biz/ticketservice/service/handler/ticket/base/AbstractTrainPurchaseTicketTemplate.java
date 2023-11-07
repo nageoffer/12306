@@ -19,7 +19,9 @@ package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.base;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TrainSeatBaseDTO;
+import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.SelectSeatDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder;
@@ -42,6 +44,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
 
     private DistributedCache distributedCache;
     private String ticketAvailabilityCacheUpdateType;
+    private TrainStationService trainStationService;
 
     /**
      * 选择座位
@@ -69,9 +72,12 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
             String trainId = requestParam.getRequestParam().getTrainId();
             String departure = requestParam.getRequestParam().getDeparture();
             String arrival = requestParam.getRequestParam().getArrival();
-            String keySuffix = StrUtil.join("_", trainId, departure, arrival);
             StringRedisTemplate stringRedisTemplate = (StringRedisTemplate) distributedCache.getInstance();
-            stringRedisTemplate.opsForHash().increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(requestParam.getSeatType()), -actualResult.size());
+            List<RouteDTO> routeDTOList = trainStationService.listTakeoutTrainStationRoute(trainId, departure, arrival);
+            routeDTOList.forEach(each -> {
+                String keySuffix = StrUtil.join("_", trainId, each.getStartStation(), each.getEndStation());
+                stringRedisTemplate.opsForHash().increment(TRAIN_STATION_REMAINING_TICKET + keySuffix, String.valueOf(requestParam.getSeatType()), -actualResult.size());
+            });
         }
         return actualResult;
     }
@@ -79,6 +85,7 @@ public abstract class AbstractTrainPurchaseTicketTemplate implements IPurchaseTi
     @Override
     public void run(String... args) throws Exception {
         distributedCache = ApplicationContextHolder.getBean(DistributedCache.class);
+        trainStationService = ApplicationContextHolder.getBean(TrainStationService.class);
         ConfigurableEnvironment configurableEnvironment = ApplicationContextHolder.getBean(ConfigurableEnvironment.class);
         ticketAvailabilityCacheUpdateType = configurableEnvironment.getProperty("ticket.availability.cache-update.type", "");
     }

@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.framework.starter.idempotent.core.param;
 
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.fastjson2.JSON;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import org.opengoofy.index12306.framework.starter.convention.exception.ClientExc
 import org.opengoofy.index12306.framework.starter.idempotent.core.AbstractIdempotentExecuteHandler;
 import org.opengoofy.index12306.framework.starter.idempotent.core.IdempotentContext;
 import org.opengoofy.index12306.framework.starter.idempotent.core.IdempotentParamWrapper;
+import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -60,7 +62,11 @@ public final class IdempotentParamExecuteHandler extends AbstractIdempotentExecu
      * @return 当前操作用户 ID
      */
     private String getCurrentUserId() {
-        return null;
+        String userId = UserContext.getUserId();
+        if(StrUtil.isBlank(userId)){
+            throw new ClientException("用户ID获取失败，请登录");
+        }
+        return userId;
     }
 
     /**

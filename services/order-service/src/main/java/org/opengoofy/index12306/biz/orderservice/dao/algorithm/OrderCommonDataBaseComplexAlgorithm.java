@@ -18,10 +18,11 @@
 package org.opengoofy.index12306.biz.orderservice.dao.algorithm;
 
 import cn.hutool.core.collection.CollUtil;
-import com.google.common.base.Preconditions;
 import lombok.Getter;
+import org.apache.shardingsphere.infra.util.exception.ShardingSpherePreconditions;
 import org.apache.shardingsphere.sharding.api.sharding.complex.ComplexKeysShardingAlgorithm;
 import org.apache.shardingsphere.sharding.api.sharding.complex.ComplexKeysShardingValue;
+import org.apache.shardingsphere.sharding.exception.algorithm.sharding.ShardingAlgorithmInitializationException;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -39,8 +40,10 @@ public class OrderCommonDataBaseComplexAlgorithm implements ComplexKeysShardingA
     private Properties props;
 
     private int shardingCount;
+    private int tableShardingCount;
 
     private static final String SHARDING_COUNT_KEY = "sharding-count";
+    private static final String TABLE_SHARDING_COUNT_KEY = "table-sharding-count";
 
     @Override
     public Collection<String> doSharding(Collection availableTargetNames, ComplexKeysShardingValue shardingValue) {
@@ -50,24 +53,27 @@ public class OrderCommonDataBaseComplexAlgorithm implements ComplexKeysShardingA
             String userId = "user_id";
             Collection<Comparable<Long>> customerUserIdCollection = columnNameAndShardingValuesMap.get(userId);
             if (CollUtil.isNotEmpty(customerUserIdCollection)) {
+                String dbSuffix;
                 Comparable<?> comparable = customerUserIdCollection.stream().findFirst().get();
                 if (comparable instanceof String) {
-                    String actualOrderSn = comparable.toString();
-                    result.add("ds_" + hashShardingValue(actualOrderSn.substring(Math.max(actualOrderSn.length() - 6, 0))) % shardingCount);
+                    String actualUserId = comparable.toString();
+                    dbSuffix = String.valueOf(hashShardingValue(actualUserId.substring(Math.max(actualUserId.length() - 6, 0))) % shardingCount / tableShardingCount);
                 } else {
-                    String dbSuffix = String.valueOf(hashShardingValue((Long) comparable % 1000000) % shardingCount);
-                    result.add("ds_" + dbSuffix);
+                    dbSuffix = String.valueOf(hashShardingValue((Long) comparable % 1000000) % shardingCount / tableShardingCount);
                 }
+                result.add("ds_" + dbSuffix);
             } else {
                 String orderSn = "order_sn";
+                String dbSuffix;
                 Collection<Comparable<Long>> orderSnCollection = columnNameAndShardingValuesMap.get(orderSn);
                 Comparable<?> comparable = orderSnCollection.stream().findFirst().get();
                 if (comparable instanceof String) {
                     String actualOrderSn = comparable.toString();
-                    result.add("ds_" + hashShardingValue(actualOrderSn.substring(Math.max(actualOrderSn.length() - 6, 0))) % shardingCount);
+                    dbSuffix = String.valueOf(hashShardingValue(actualOrderSn.substring(Math.max(actualOrderSn.length() - 6, 0))) % shardingCount / tableShardingCount);
                 } else {
-                    result.add("ds_" + hashShardingValue((Long) comparable % 1000000) % shardingCount);
+                    dbSuffix = String.valueOf(hashShardingValue((Long) comparable % 1000000) % shardingCount / tableShardingCount);
                 }
+                result.add("ds_" + dbSuffix);
             }
         }
         return result;
@@ -77,14 +83,25 @@ public class OrderCommonDataBaseComplexAlgorithm implements ComplexKeysShardingA
     public void init(Properties props) {
         this.props = props;
         shardingCount = getShardingCount(props);
+        tableShardingCount = getTableShardingCount(props);
     }
 
     private int getShardingCount(final Properties props) {
-        Preconditions.checkArgument(props.containsKey(SHARDING_COUNT_KEY), "Sharding count cannot be null.");
+        ShardingSpherePreconditions.checkState(props.containsKey(SHARDING_COUNT_KEY), () -> new ShardingAlgorithmInitializationException(getType(), "Sharding count cannot be null."));
         return Integer.parseInt(props.getProperty(SHARDING_COUNT_KEY));
+    }
+
+    private int getTableShardingCount(final Properties props) {
+        ShardingSpherePreconditions.checkState(props.containsKey(TABLE_SHARDING_COUNT_KEY), () -> new ShardingAlgorithmInitializationException(getType(), "Table sharding count cannot be null."));
+        return Integer.parseInt(props.getProperty(TABLE_SHARDING_COUNT_KEY));
     }
 
     private long hashShardingValue(final Comparable<?> shardingValue) {
         return Math.abs((long) shardingValue.hashCode());
+    }
+
+    @Override
+    public String getType() {
+        return "CLASS_BASED";
     }
 }

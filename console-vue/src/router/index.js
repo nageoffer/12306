@@ -11,6 +11,8 @@ import CheckOrder from '../views/check-order'
 import BuyTicket from '../views/buy-ticket'
 import AliPay from '../views/ali-pay'
 import TikectList from '../views/order-list'
+import PersonalTicket from '../views/personalTicket'
+import PaySuccess from '../views/pay-success'
 import Cookies from 'js-cookie'
 const routes = [
   {
@@ -109,6 +111,22 @@ const routes = [
     component: TikectList,
     icon: 'icon-zhifubao0',
     meta: { requiresAuth: true }
+  },
+  {
+    label: '本人车票',
+    path: '/personalTicket',
+    name: 'personalTicket',
+    component: PersonalTicket,
+    icon: 'icon-dingdan',
+    meta: { requiresAuth: false }
+  },
+  {
+    label: '支付成功',
+    path: '/paySuccess',
+    name: 'paySuccess',
+    component: PaySuccess,
+    icon: 'icon-zhifuchenggong',
+    meta: { requiresAuth: false }
   }
 ]
 
@@ -118,10 +136,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from) => {
-  console.log(Cookies.get('username'))
-  console.log(to, 'to')
-  console.log(from, 'from')
-
+  // console.log(Cookies.get('username'))
+  // console.log(to, 'to')
+  // console.log(from, 'from')
   if (
     to.meta?.requiresAuth &&
     to.name !== 'login' &&

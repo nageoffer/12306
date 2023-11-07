@@ -355,6 +355,8 @@ const getOrderStatus = () => {
     fetchOrderStatus({ orderSn: query?.sn })
       .then((res) => {
         state.isPaying = res.data.status === 0
+        res.data.status === 20 &&
+          router.push(`/paySuccess?orderSn=${res.data.orderSn}`)
       })
       .catch((error) => {
         console.log('error:::', error)

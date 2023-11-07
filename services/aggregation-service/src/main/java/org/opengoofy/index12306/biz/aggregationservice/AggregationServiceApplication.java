@@ -18,6 +18,7 @@
 package org.opengoofy.index12306.biz.aggregationservice;
 
 import cn.crane4j.spring.boot.annotation.EnableCrane4j;
+import cn.hippo4j.core.enable.EnableDynamicThreadPool;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,6 +30,7 @@ import org.springframework.retry.annotation.EnableRetry;
  *
  * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
+@EnableDynamicThreadPool
 @SpringBootApplication(scanBasePackages = {
         "org.opengoofy.index12306.biz.userservice",
         "org.opengoofy.index12306.biz.ticketservice",
@@ -42,7 +44,10 @@ import org.springframework.retry.annotation.EnableRetry;
         "org.opengoofy.index12306.biz.orderservice.dao.mapper",
         "org.opengoofy.index12306.biz.payservice.dao.mapper"
 })
-@EnableFeignClients("org.opengoofy.index12306.biz.ticketservice.remote")
+@EnableFeignClients(value = {
+        "org.opengoofy.index12306.biz.ticketservice.remote",
+        "org.opengoofy.index12306.biz.orderservice.remote"
+})
 @EnableCrane4j(enumPackages = "org.opengoofy.index12306.biz.orderservice.common.enums")
 public class AggregationServiceApplication {
 
