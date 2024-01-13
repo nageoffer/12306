@@ -24,19 +24,13 @@
 
 ![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306-base-biz-20230801.png)
 
-## 拿个offer 组织项目
+## 大话面试
 
-组织简介：拿个offer - 开源&项目实战，🚀 助力你在校招或社招上拿个offer。
+屏幕前的你是否遇到过网上面经过于杂乱，不知道如何筛选？八股文内容太多太杂，无法总结有效回答 Battle 面试官？
 
-目前组织下已有业务、基础架构以及中间件等多种类型项目，代码完全开源！项目列表如下：
+大话面试小程序提供八股回答、实战项目以及面试真题，助力你在面试中脱颖而出。面对任何技术面试官都信心十足！
 
-| Project                                            | Gitee                                                        | GitHub                                                       | Intro                                            |
-| -------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------ |
-| [Hippo4j](https://github.com/opengoofy/hippo4j)    | [![star](https://gitee.com/opengoofy/hippo4j/badge/star.svg?theme=white)](https://gitee.com/opengoofy/hippo4j/stargazers) | [![](https://img.shields.io/github/stars/opengoofy/hippo4j?color=green&style=social)](https://github.com/opengoofy/hippo4j) | 异步线程池框架，支持线程池动态变更&监控&报警     |
-| [12306](https://gitee.com/nageoffer/12306)         | [![star](https://gitee.com/nageoffer/12306/badge/star.svg?theme=white)](https://gitee.com/nageoffer/12306/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/12306?color=green&style=social)](https://github.com/nageoffer/12306) | 完成高仿铁路 12306系统，帮助学生主打就业的项目   |
-| [CongoMall](https://gitee.com/nageoffer/congomall) | [![star](https://gitee.com/nageoffer/congomall/badge/star.svg?theme=white)](https://gitee.com/nageoffer/congomall/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/congomall?color=green&style=social)](https://github.com/nageoffer/congomall) | 企业级 TOC 商城，基于 DDD 领域驱动模型开发       |
-| [Seraph](https://gitee.com/nageoffer/seraph)       | [![star](https://gitee.com/nageoffer/seraph/badge/star.svg?theme=white)](https://gitee.com/nageoffer/seraph/stargazers) | [![](https://img.shields.io/github/stars/nageoffer/seraph?color=green&style=social)](https://github.com/nageoffer/seraph) | 幂等基础组件，接口幂等和消息队列重复消费解决方案 |
-
+![](https://oss.open8gu.com/xiaochengxu.png)
 
 ## 技术架构
 
