@@ -39,7 +39,7 @@ public final class UserRegisterBloomFilterProperties {
     /**
      * 每个元素的预期插入量
      */
-    private Long expectedInsertions = 64000L;
+    private Long expectedInsertions = 64L;
 
     /**
      * 预期错误概率
