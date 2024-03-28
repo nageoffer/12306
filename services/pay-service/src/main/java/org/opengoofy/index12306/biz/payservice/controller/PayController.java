@@ -27,6 +27,8 @@ import org.opengoofy.index12306.biz.payservice.dto.RefundRespDTO;
 import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 import org.opengoofy.index12306.biz.payservice.service.PayService;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentTypeEnum;
 import org.opengoofy.index12306.framework.starter.web.Results;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +51,11 @@ public class PayController {
      * 公共支付接口
      * 对接常用支付方式，比如：支付宝、微信以及银行卡等
      */
+    @Idempotent(
+            type = IdempotentTypeEnum.SPEL,
+            uniqueKeyPrefix = "index12306-pay:lock_create_pay:",
+            key = "#requestParam.getOutOrderSn()"
+    )
     @PostMapping("/api/pay-service/pay/create")
     public Result<PayRespDTO> pay(@RequestBody PayCommand requestParam) {
         PayRequest payRequest = PayRequestConvert.command2PayRequest(requestParam);

@@ -43,6 +43,7 @@ import org.opengoofy.index12306.biz.payservice.mq.event.PayResultCallbackOrderEv
 import org.opengoofy.index12306.biz.payservice.mq.produce.PayResultCallbackOrderSendProduce;
 import org.opengoofy.index12306.biz.payservice.service.PayService;
 import org.opengoofy.index12306.biz.payservice.service.payid.PayIdGeneratorManager;
+import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
@@ -51,6 +52,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import static org.opengoofy.index12306.biz.payservice.common.constant.RedisKeyConstant.ORDER_PAY_RESULT_INFO;
 
 /**
  * 支付接口层实现
@@ -65,10 +69,15 @@ public class PayServiceImpl implements PayService {
     private final PayMapper payMapper;
     private final AbstractStrategyChoose abstractStrategyChoose;
     private final PayResultCallbackOrderSendProduce payResultCallbackOrderSendProduce;
+    private final DistributedCache distributedCache;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public PayRespDTO commonPay(PayRequest requestParam) {
+        PayRespDTO cacheResult = distributedCache.get(ORDER_PAY_RESULT_INFO + requestParam.getOrderSn(), PayRespDTO.class);
+        if (cacheResult != null) {
+            return cacheResult;
+        }
         /**
          * {@link AliPayNativeHandler}
          */
@@ -84,6 +93,7 @@ public class PayServiceImpl implements PayService {
             log.error("支付单创建失败，支付聚合根：{}", JSON.toJSONString(requestParam));
             throw new ServiceException("支付单创建失败");
         }
+        distributedCache.put(ORDER_PAY_RESULT_INFO + requestParam.getOrderSn(), JSON.toJSONString(result), 10, TimeUnit.MINUTES);
         return BeanUtil.convert(result, PayRespDTO.class);
     }
 
