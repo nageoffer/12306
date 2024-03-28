@@ -24,14 +24,6 @@
 
 ![](https://images-machen.oss-cn-beijing.aliyuncs.com/12306-base-biz-20230801.png)
 
-## 大话面试
-
-屏幕前的你是否遇到过网上面经杂乱，不知道如何筛选？八股文内容太多太杂，无法总结有效回答 Battle 面试官？
-
-大话面试小程序提供八股回答、实战项目以及面试真题，助力你在面试中脱颖而出。面对任何面试官都信心十足！
-
-![](https://oss.open8gu.com/xiaochengxu.png)
-
 ## 技术架构
 
 在系统设计中，采用最新 JDK17 + SpringBoot3&SpringCloud 微服务架构，构建高并发、大数据量下仍然能提供高效可靠的 12306 购票服务。
