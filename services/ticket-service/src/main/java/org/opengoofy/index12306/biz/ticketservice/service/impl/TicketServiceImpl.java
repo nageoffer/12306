@@ -309,7 +309,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 trainStationRemainingKeyList.add(trainStationRemainingKey);
             }
         }
-        List<Object> TrainStationRemainingObjs = stringRedisTemplate.executePipelined((RedisCallback<String>) connection -> {
+        List<Object> trainStationRemainingObjs = stringRedisTemplate.executePipelined((RedisCallback<String>) connection -> {
             for (int i = 0; i < trainStationRemainingKeyList.size(); i++) {
                 connection.hashCommands().hGet(trainStationRemainingKeyList.get(i).getBytes(), trainStationPriceDOList.get(i).getSeatType().toString().getBytes());
             }
@@ -317,9 +317,9 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         });
         for (TicketListDTO each : seatResults) {
             List<Integer> seatTypesByCode = VehicleTypeEnum.findSeatTypesByCode(each.getTrainType());
-            List<Object> remainingTicket = new ArrayList<>(TrainStationRemainingObjs.subList(0, seatTypesByCode.size()));
+            List<Object> remainingTicket = new ArrayList<>(trainStationRemainingObjs.subList(0, seatTypesByCode.size()));
             List<TrainStationPriceDO> trainStationPriceDOSub = new ArrayList<>(trainStationPriceDOList.subList(0, seatTypesByCode.size()));
-            TrainStationRemainingObjs.subList(0, seatTypesByCode.size()).clear();
+            trainStationRemainingObjs.subList(0, seatTypesByCode.size()).clear();
             trainStationPriceDOList.subList(0, seatTypesByCode.size()).clear();
             List<SeatClassDTO> seatClassList = new ArrayList<>();
             for (int i = 0; i < trainStationPriceDOSub.size(); i++) {
