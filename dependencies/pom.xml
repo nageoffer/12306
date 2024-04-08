@@ -19,7 +19,7 @@
         <fastjson2.version>2.0.36</fastjson2.version>
         <mybatis-plus.version>3.5.3.1</mybatis-plus.version>
         <dozer-core.version>6.5.2</dozer-core.version>
-        <hutool-all.version>5.8.20</hutool-all.version>
+        <hutool-all.version>5.8.27</hutool-all.version>
         <redisson.version>3.21.3</redisson.version>
         <guava.version>30.0-jre</guava.version>
         <xxl-job.version>2.3.1</xxl-job.version>
