@@ -28,6 +28,7 @@ import org.opengoofy.index12306.biz.ticketservice.common.enums.SeatStatusEnum;
 import org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO;
 import org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatTypeCountDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
@@ -99,6 +100,11 @@ public class SeatServiceImpl extends ServiceImpl<SeatMapper, SeatDO> implements 
                 .select(SeatDO::getCarriageNumber);
         List<SeatDO> seatDOList = seatMapper.selectList(queryWrapper);
         return seatDOList.stream().map(SeatDO::getCarriageNumber).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SeatTypeCountDTO> listSeatTypeCount(Long trainId, String startStation, String endStation, List<Integer> seatTypes) {
+        return seatMapper.listSeatTypeCount(trainId, startStation, endStation, seatTypes);
     }
 
     @Override

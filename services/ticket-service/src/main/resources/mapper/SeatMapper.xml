@@ -19,7 +19,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.opengoofy.index12306.biz.ticketservice.dao.mapper.SeatMapper">
 
-    <select id="listSeatRemainingTicket" parameterType="org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO" resultType="Integer">
+    <!-- 获取列车车厢余票集合 -->
+    <select id="listSeatRemainingTicket" parameterType="org.opengoofy.index12306.biz.ticketservice.dao.entity.SeatDO"
+            resultType="Integer">
         select count(*) as count
         from t_seat
         where train_id = #{seatDO.trainId}
