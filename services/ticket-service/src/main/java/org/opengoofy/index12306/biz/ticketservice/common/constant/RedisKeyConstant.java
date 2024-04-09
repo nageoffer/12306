@@ -55,11 +55,6 @@ public final class RedisKeyConstant {
     public static final String TRAIN_STATION_PRICE = "index12306-ticket-service:train_station_price:%s_%s_%s";
 
     /**
-     * 列车站点座位价格查询分布式锁 Key
-     */
-    public static final String LOCK_TRAIN_STATION_PRICE = "index12306-ticket-service:lock:train_station_price";
-
-    /**
      * 地区以及车站查询，Key Prefix + ( 车站名称 or 查询方式 )
      */
     public static final String REGION_STATION = "index12306-ticket-service:region-station:";
@@ -143,4 +138,9 @@ public final class RedisKeyConstant {
      * 列车购买令牌桶加载数据 Key
      */
     public static final String LOCK_TICKET_AVAILABILITY_TOKEN_BUCKET = "index12306-ticket-service:lock:ticket_availability_token_bucket:%s";
+
+    /**
+     * 令牌获取失败分布式锁 Key
+     */
+    public static final String LOCK_TOKEN_BUCKET_ISNULL = "index12306-ticket-service:lock:token-bucket-isnull:%s";
 }

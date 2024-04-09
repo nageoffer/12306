@@ -1,4 +1,3 @@
-
 local inputString = KEYS[2]
 local actualKey = inputString
 local colonIndex = string.find(actualKey, ":")
@@ -9,14 +8,25 @@ end
 local jsonArrayStr = ARGV[1]
 local jsonArray = cjson.decode(jsonArrayStr)
 
+local result = {}
+local tokenIsNull = false
+local tokenIsNullSeatTypeCounts = {}
+
 for index, jsonObj in ipairs(jsonArray) do
     local seatType = tonumber(jsonObj.seatType)
     local count = tonumber(jsonObj.count)
     local actualInnerHashKey = actualKey .. "_" .. seatType
     local ticketSeatAvailabilityTokenValue = tonumber(redis.call('hget', KEYS[1], tostring(actualInnerHashKey)))
     if ticketSeatAvailabilityTokenValue < count then
-        return 1
+        tokenIsNull = true
+        table.insert(tokenIsNullSeatTypeCounts, seatType .. "_" .. count)
     end
+end
+
+result['tokenIsNull'] = tokenIsNull
+if tokenIsNull then
+    result['tokenIsNullSeatTypeCounts'] = tokenIsNullSeatTypeCounts
+    return cjson.encode(result)
 end
 
 local alongJsonArrayStr = ARGV[2]
@@ -33,4 +43,4 @@ for index, jsonObj in ipairs(jsonArray) do
     end
 end
 
-return 0
+return cjson.encode(result)

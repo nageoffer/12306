@@ -48,6 +48,7 @@ import org.opengoofy.index12306.biz.ticketservice.dao.mapper.TrainStationRelatio
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.PurchaseTicketPassengerDetailDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.RouteDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatClassDTO;
+import org.opengoofy.index12306.biz.ticketservice.dto.domain.SeatTypeCountDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.domain.TicketListDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.ticketservice.dto.req.PurchaseTicketReqDTO;
@@ -70,6 +71,7 @@ import org.opengoofy.index12306.biz.ticketservice.service.SeatService;
 import org.opengoofy.index12306.biz.ticketservice.service.TicketService;
 import org.opengoofy.index12306.biz.ticketservice.service.TrainStationService;
 import org.opengoofy.index12306.biz.ticketservice.service.cache.SeatMarginCacheLoader;
+import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TokenResultDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.dto.TrainPurchaseTicketRespDTO;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.select.TrainSeatTypeSelector;
 import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.tokenbucket.TicketAvailabilityTokenBucket;
@@ -104,6 +106,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -113,6 +117,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_PURCHASE_TICKETS_V2;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_REGION_TRAIN_STATION;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_REGION_TRAIN_STATION_MAPPING;
+import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.LOCK_TOKEN_BUCKET_ISNULL;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.REGION_TRAIN_STATION;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.REGION_TRAIN_STATION_MAPPING;
 import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKeyConstant.TRAIN_INFO;
@@ -363,12 +368,27 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             .expireAfterWrite(1, TimeUnit.DAYS)
             .build();
 
+    private final Cache<String, Object> tokenTicketsRefreshMap = Caffeine.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build();
+
     @Override
     public TicketPurchaseRespDTO purchaseTicketsV2(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
         purchaseTicketAbstractChainContext.handler(TicketChainMarkEnum.TRAIN_PURCHASE_TICKET_FILTER.name(), requestParam);
-        boolean tokenResult = ticketAvailabilityTokenBucket.takeTokenFromBucket(requestParam);
-        if (!tokenResult) {
+        // 为什么需要令牌限流？余票缓存限流不可以么？详情查看：https://nageoffer.com/12306/question
+        TokenResultDTO tokenResult = ticketAvailabilityTokenBucket.takeTokenFromBucket(requestParam);
+        if (tokenResult.getTokenIsNull()) {
+            Object ifPresentObj = tokenTicketsRefreshMap.getIfPresent(requestParam.getTrainId());
+            if (ifPresentObj == null) {
+                synchronized (TicketService.class) {
+                    if (tokenTicketsRefreshMap.getIfPresent(requestParam.getTrainId()) == null) {
+                        ifPresentObj = new Object();
+                        tokenTicketsRefreshMap.put(requestParam.getTrainId(), ifPresentObj);
+                        tokenIsNullRefreshToken(requestParam, tokenResult);
+                    }
+                }
+            }
             throw new ServiceException("列车站点已无余票");
         }
         // v1 版本购票存在 4 个较为严重的问题，v2 版本相比较 v1 版本更具有业务特点以及性能，整体提升较大
@@ -604,6 +624,38 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             }
         }
         return trainBrandSet.stream().toList();
+    }
+
+    private final ScheduledExecutorService tokenIsNullRefreshExecutor = Executors.newScheduledThreadPool(1);
+
+    private void tokenIsNullRefreshToken(PurchaseTicketReqDTO requestParam, TokenResultDTO tokenResult) {
+        RLock lock = redissonClient.getLock(String.format(LOCK_TOKEN_BUCKET_ISNULL, requestParam.getTrainId()));
+        if (!lock.tryLock()) {
+            return;
+        }
+        tokenIsNullRefreshExecutor.schedule(() -> {
+            try {
+                List<Integer> seatTypes = new ArrayList<>();
+                Map<Integer, Integer> tokenCountMap = new HashMap<>();
+                tokenResult.getTokenIsNullSeatTypeCounts().stream()
+                        .map(each -> each.split("_"))
+                        .forEach(split -> {
+                            int seatType = Integer.parseInt(split[0]);
+                            seatTypes.add(seatType);
+                            tokenCountMap.put(seatType, Integer.parseInt(split[1]));
+                        });
+                List<SeatTypeCountDTO> seatTypeCountDTOList = seatService.listSeatTypeCount(Long.parseLong(requestParam.getTrainId()), requestParam.getDeparture(), requestParam.getArrival(), seatTypes);
+                for (SeatTypeCountDTO each : seatTypeCountDTOList) {
+                    Integer tokenCount = tokenCountMap.get(each.getSeatType());
+                    if (tokenCount < each.getSeatCount()) {
+                        ticketAvailabilityTokenBucket.delTokenInBucket(requestParam);
+                        break;
+                    }
+                }
+            } finally {
+                lock.unlock();
+            }
+        }, 10, TimeUnit.SECONDS);
     }
 
     @Override
