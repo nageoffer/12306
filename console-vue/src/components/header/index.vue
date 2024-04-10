@@ -2,12 +2,7 @@
   <Header :class="{ isLogin }">
     <div class="header-wrapper">
       <div>
-        <img
-          @click="router.push('/ticketSearch')"
-          class="logo"
-          src="../../assets/logo.png"
-          alt="logo"
-        />
+        <div class="logo">拿个offer-12306铁路购票@马丁</div>
       </div>
       <div>
         <ul class="nav-list-wrapper">
@@ -99,11 +94,6 @@ const logout = () => {
 </script>
 
 <style lang="scss" scoped>
-.logo {
-  height: 40px;
-  cursor: pointer;
-}
-
 .ant-layout-header {
   position: fixed;
   width: 100%;
@@ -126,6 +116,19 @@ const logout = () => {
   justify-content: space-between;
   flex-wrap: nowrap;
   color: rgba(255, 255, 255, 0.8);
+}
+
+.logo {
+  font-size: 16px;
+  font-weight: 600;
+  color: #e8e8e8;
+  font-family: Helvetica, Tahoma, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Heiti SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei';
+  cursor: pointer;
+  margin-left: -30px;
+}
+
+.logo:hover {
+  color: #fff;
 }
 
 .nav-list-wrapper {
