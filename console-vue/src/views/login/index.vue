@@ -336,7 +336,7 @@ const registerSubmit = () => {
   width: 100%;
   height: 100%;
   // background-color: #fff;
-  background: url('https://nacos.io/img/black_dot.png');
+  background: url('../../assets/black_dot.png');
   background-clip: border-box;
   .login-reg-panel {
     position: relative;
