@@ -149,6 +149,9 @@ const onSubmit = () => {
               `乘车人${query.type === 'edit' ? '修改' : '创建'}成功`
             )
             router.push('/passenger')
+          } else {
+            message.error(res.message)
+            loading.value = false
           }
         })
       }
@@ -160,6 +163,9 @@ const onSubmit = () => {
               `乘车人${query.type === 'edit' ? '修改' : '创建'}成功`
             )
             router.push('/passenger')
+          } else {
+            message.error(res.message)
+            loading.value = false
           }
         })
         .catch((error) => console.log(error))
