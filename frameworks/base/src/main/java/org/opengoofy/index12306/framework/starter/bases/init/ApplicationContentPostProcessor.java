@@ -26,8 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 应用初始化后置处理器，防止Spring事件被多次执行
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @RequiredArgsConstructor
 public class ApplicationContentPostProcessor implements ApplicationListener<ApplicationReadyEvent> {

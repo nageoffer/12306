@@ -25,8 +25,7 @@ import java.util.Optional;
 
 /**
  * 抽象项目中三类异常体系，客户端异常、服务端异常以及远程服务调用异常
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  * @see ClientException
  * @see ServiceException
  * @see RemoteException

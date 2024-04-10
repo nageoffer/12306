@@ -33,8 +33,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * 用户信息传输过滤器
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 public class UserTransmitFilter implements Filter {
 

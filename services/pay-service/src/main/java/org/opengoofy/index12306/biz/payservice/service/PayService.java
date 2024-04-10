@@ -26,8 +26,7 @@ import org.opengoofy.index12306.biz.payservice.dto.base.PayRequest;
 
 /**
  * 支付接口层
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 public interface PayService {
 

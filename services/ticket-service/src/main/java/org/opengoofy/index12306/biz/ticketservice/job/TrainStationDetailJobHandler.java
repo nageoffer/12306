@@ -46,8 +46,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 /**
  * 站点详细信息定时任务
  * 已通过运行时判断缓存不存在实时读取数据库获取完成，该定时任务不在主流程中
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Deprecated
 @RestController

@@ -45,8 +45,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
 /**
  * 购票流程过滤器之验证参数是否有效
  * 验证参数有效这个流程会大量交互缓存，为了优化性能需要使用 Lua。为了方便大家理解流程，这里使用多次调用缓存
- *
- * @公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
+ * 公众号：马丁玩编程，回复：加群，添加马哥微信（备注：12306）获取项目资料
  */
 @Component
 @RequiredArgsConstructor
