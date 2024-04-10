@@ -18,6 +18,8 @@
 package org.opengoofy.index12306.biz.userservice.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdcardUtil;
+import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -100,6 +102,7 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public void savePassenger(PassengerReqDTO requestParam) {
+        verifyPassenger(requestParam);
         String username = UserContext.getUsername();
         try {
             PassengerDO passengerDO = BeanUtil.convert(requestParam, PassengerDO.class);
@@ -123,6 +126,7 @@ public class PassengerServiceImpl implements PassengerService {
 
     @Override
     public void updatePassenger(PassengerReqDTO requestParam) {
+        verifyPassenger(requestParam);
         String username = UserContext.getUsername();
         try {
             PassengerDO passengerDO = BeanUtil.convert(requestParam, PassengerDO.class);
@@ -181,5 +185,18 @@ public class PassengerServiceImpl implements PassengerService {
 
     private void delUserPassengerCache(String username) {
         distributedCache.delete(USER_PASSENGER_LIST + username);
+    }
+
+    private void verifyPassenger(PassengerReqDTO requestParam) {
+        int length = requestParam.getRealName().length();
+        if (!(length >= 2 && length <= 16)) {
+            throw new ClientException("乘车人名称请设置2-16位的长度");
+        }
+        if (!IdcardUtil.isValidCard(requestParam.getIdCard())) {
+            throw new ClientException("乘车人证件号错误");
+        }
+        if (!PhoneUtil.isMobile(requestParam.getPhone())) {
+            throw new ClientException("乘车人手机号错误");
+        }
     }
 }
