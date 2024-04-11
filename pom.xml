@@ -11,6 +11,21 @@
         🔥热门推荐🔥大学春招、秋招、应届项目，SpringBoot3+Java17+SpringCloudAlibaba+RocketMQ等技术架构，完成铁路12306用户+购票+订单+支付服务，帮助学生主打就业的项目。
     </description>
 
+    <developers>
+        <developer>
+            <name>马丁</name>
+            <email>machen@apache.org</email>
+            <url>https://github.com/magestacks</url>
+            <organization>Apache and openGoofy</organization>
+        </developer>
+
+        <developer>
+            <name>懒洋洋</name>
+            <email>2084276225@qq.com</email>
+            <url>https://github.com/2084276225</url>
+        </developer>
+    </developers>
+
     <properties>
         <java.version>17</java.version>
         <spotless-maven-plugin.version>2.22.1</spotless-maven-plugin.version>
