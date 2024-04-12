@@ -38,6 +38,9 @@ import org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.tokenbu
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
+import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentSceneEnum;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentTypeEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -60,7 +63,7 @@ import static org.opengoofy.index12306.biz.ticketservice.common.constant.RedisKe
         selectorExpression = TicketRocketMQConstant.ORDER_DELAY_CLOSE_TAG_KEY,
         consumerGroup = TicketRocketMQConstant.TICKET_DELAY_CLOSE_CG_KEY
 )
-public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWrapper<DelayCloseOrderEvent>> {
+public class DelayCloseOrderConsumer implements RocketMQListener<MessageWrapper<DelayCloseOrderEvent>> {
 
     private final SeatService seatService;
     private final TicketOrderRemoteService ticketOrderRemoteService;
@@ -71,6 +74,13 @@ public final class DelayCloseOrderConsumer implements RocketMQListener<MessageWr
     @Value("${ticket.availability.cache-update.type:}")
     private String ticketAvailabilityCacheUpdateType;
 
+    @Idempotent(
+            uniqueKeyPrefix = "index12306-ticket:delay_close_order:",
+            key = "#delayCloseOrderEventMessageWrapper.getKeys()+'_'+#delayCloseOrderEventMessageWrapper.hashCode()",
+            type = IdempotentTypeEnum.SPEL,
+            scene = IdempotentSceneEnum.MQ,
+            keyTimeout = 7200L
+    )
     @Override
     public void onMessage(MessageWrapper<DelayCloseOrderEvent> delayCloseOrderEventMessageWrapper) {
         log.info("[延迟关闭订单] 开始消费：{}", JSON.toJSONString(delayCloseOrderEventMessageWrapper));
