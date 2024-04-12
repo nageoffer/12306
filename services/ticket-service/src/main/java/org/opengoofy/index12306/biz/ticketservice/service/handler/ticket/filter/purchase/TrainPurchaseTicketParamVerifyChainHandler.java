@@ -18,7 +18,7 @@
 package org.opengoofy.index12306.biz.ticketservice.service.handler.ticket.filter.purchase;
 
 import cn.hutool.core.collection.CollUtil;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
