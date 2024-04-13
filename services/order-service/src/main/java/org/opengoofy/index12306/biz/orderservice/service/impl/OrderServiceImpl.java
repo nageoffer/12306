@@ -187,6 +187,7 @@ public class OrderServiceImpl implements OrderService {
         return orderSn;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean closeTickOrder(CancelTicketOrderReqDTO requestParam) {
         String orderSn = requestParam.getOrderSn();
@@ -201,6 +202,7 @@ public class OrderServiceImpl implements OrderService {
         return cancelTickOrder(requestParam);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean cancelTickOrder(CancelTicketOrderReqDTO requestParam) {
         String orderSn = requestParam.getOrderSn();
