@@ -72,8 +72,7 @@ public final class IdempotentParamExecuteHandler extends AbstractIdempotentExecu
      * @return joinPoint md5
      */
     private String calcArgsMD5(ProceedingJoinPoint joinPoint) {
-        String md5 = DigestUtil.md5Hex(JSON.toJSONBytes(joinPoint.getArgs()));
-        return md5;
+        return DigestUtil.md5Hex(JSON.toJSONBytes(joinPoint.getArgs()));
     }
 
     @Override
@@ -96,5 +95,10 @@ public final class IdempotentParamExecuteHandler extends AbstractIdempotentExecu
                 lock.unlock();
             }
         }
+    }
+
+    @Override
+    public void exceptionProcessing() {
+        postProcessing();
     }
 }
