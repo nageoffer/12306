@@ -46,11 +46,11 @@ public class OrderCommonDataBaseComplexAlgorithm implements ComplexKeysShardingA
 
     @Override
     public Collection<String> doSharding(Collection availableTargetNames, ComplexKeysShardingValue shardingValue) {
-        Map<String, Collection<Comparable<Long>>> columnNameAndShardingValuesMap = shardingValue.getColumnNameAndShardingValuesMap();
+        Map<String, Collection<Comparable<?>>> columnNameAndShardingValuesMap = shardingValue.getColumnNameAndShardingValuesMap();
         Collection<String> result = new LinkedHashSet<>(availableTargetNames.size());
         if (CollUtil.isNotEmpty(columnNameAndShardingValuesMap)) {
             String userId = "user_id";
-            Collection<Comparable<Long>> customerUserIdCollection = columnNameAndShardingValuesMap.get(userId);
+            Collection<Comparable<?>> customerUserIdCollection = columnNameAndShardingValuesMap.get(userId);
             if (CollUtil.isNotEmpty(customerUserIdCollection)) {
                 String dbSuffix;
                 Comparable<?> comparable = customerUserIdCollection.stream().findFirst().get();
@@ -64,7 +64,7 @@ public class OrderCommonDataBaseComplexAlgorithm implements ComplexKeysShardingA
             } else {
                 String orderSn = "order_sn";
                 String dbSuffix;
-                Collection<Comparable<Long>> orderSnCollection = columnNameAndShardingValuesMap.get(orderSn);
+                Collection<Comparable<?>> orderSnCollection = columnNameAndShardingValuesMap.get(orderSn);
                 Comparable<?> comparable = orderSnCollection.stream().findFirst().get();
                 if (comparable instanceof String) {
                     String actualOrderSn = comparable.toString();
