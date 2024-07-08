@@ -113,7 +113,7 @@
                         </eclipse>-->
                         <licenseHeader>
                             <!-- ${maven.multiModuleProjectDirectory} 爆红属于正常，并不影响编译或者运行，忽略就好 -->
-                            <file>${maven.multiModuleProjectDirectory}/format/license-header</file>
+                            <file>${maven.multiModuleProjectDirectory}/format/copyright.txt</file>
                         </licenseHeader>
                     </java>
                 </configuration>
