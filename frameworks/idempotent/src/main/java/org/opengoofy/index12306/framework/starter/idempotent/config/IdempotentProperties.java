@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 @ConfigurationProperties(prefix = IdempotentProperties.PREFIX)
 public class IdempotentProperties {
 
-    public static final String PREFIX = "congomall.idempotent.token";
+    public static final String PREFIX = "framework.idempotent.token";
 
     /**
      * Token 幂等 Key 前缀
