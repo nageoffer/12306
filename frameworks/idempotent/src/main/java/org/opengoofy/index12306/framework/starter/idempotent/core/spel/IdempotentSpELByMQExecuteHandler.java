@@ -23,16 +23,17 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
-import org.opengoofy.index12306.framework.starter.idempotent.core.AbstractIdempotentExecuteHandler;
-import org.opengoofy.index12306.framework.starter.idempotent.core.IdempotentAspect;
-import org.opengoofy.index12306.framework.starter.idempotent.core.IdempotentContext;
-import org.opengoofy.index12306.framework.starter.idempotent.core.IdempotentParamWrapper;
-import org.opengoofy.index12306.framework.starter.idempotent.core.RepeatConsumptionException;
+import org.opengoofy.index12306.framework.starter.idempotent.core.*;
 import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentMQConsumeStatusEnum;
 import org.opengoofy.index12306.framework.starter.idempotent.toolkit.LogUtil;
 import org.opengoofy.index12306.framework.starter.idempotent.toolkit.SpELUtil;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,10 +43,13 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public final class IdempotentSpELByMQExecuteHandler extends AbstractIdempotentExecuteHandler implements IdempotentSpELService {
 
-    private final DistributedCache distributedCache;
-
     private final static int TIMEOUT = 600;
+
     private final static String WRAPPER = "wrapper:spEL:MQ";
+
+    private final static String LUA_SCRIPT_SET_IF_ABSENT_AND_GET_PATH = "lua/set_if_absent_and_get.lua";
+
+    private final DistributedCache distributedCache;
 
     @SneakyThrows
     @Override
@@ -58,16 +62,24 @@ public final class IdempotentSpELByMQExecuteHandler extends AbstractIdempotentEx
     @Override
     public void handler(IdempotentParamWrapper wrapper) {
         String uniqueKey = wrapper.getIdempotent().uniqueKeyPrefix() + wrapper.getLockKey();
-        Boolean setIfAbsent = ((StringRedisTemplate) distributedCache.getInstance())
-                .opsForValue()
-                .setIfAbsent(uniqueKey, IdempotentMQConsumeStatusEnum.CONSUMING.getCode(), TIMEOUT, TimeUnit.SECONDS);
-        if (setIfAbsent != null && !setIfAbsent) {
-            String consumeStatus = distributedCache.get(uniqueKey, String.class);
-            boolean error = IdempotentMQConsumeStatusEnum.isError(consumeStatus);
+        String absentAndGet = this.setIfAbsentAndGet(uniqueKey, IdempotentMQConsumeStatusEnum.CONSUMING.getCode(), TIMEOUT, TimeUnit.SECONDS);
+
+        if (Objects.nonNull(absentAndGet)) {
+            boolean error = IdempotentMQConsumeStatusEnum.isError(absentAndGet);
             LogUtil.getLog(wrapper.getJoinPoint()).warn("[{}] MQ repeated consumption, {}.", uniqueKey, error ? "Wait for the client to delay consumption" : "Status is completed");
             throw new RepeatConsumptionException(error);
         }
         IdempotentContext.put(WRAPPER, wrapper);
+    }
+
+    public String setIfAbsentAndGet(String key, String value, long timeout, TimeUnit timeUnit) {
+        DefaultRedisScript<String> redisScript = new DefaultRedisScript<>();
+        ClassPathResource resource = new ClassPathResource(LUA_SCRIPT_SET_IF_ABSENT_AND_GET_PATH);
+        redisScript.setScriptSource(new ResourceScriptSource(resource));
+        redisScript.setResultType(String.class);
+
+        long millis = timeUnit.toMillis(timeout);
+        return ((StringRedisTemplate) distributedCache.getInstance()).execute(redisScript, List.of(key), value, millis);
     }
 
     @Override
