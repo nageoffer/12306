@@ -140,7 +140,7 @@ A：我觉得有必要，已经工作的同学虽然没办法把这个项目应�
 - 入门准备
 
     - [什么是 12306](https://nageoffer.com/12306)
-    - [为什么 12306 更适合学生](https://nageoffer.com/12306/scene)
+    - [为什么 12306 更适合学生](https://nageoffer.com/12306/suitable)
     - [后端技术架构选型](https://nageoffer.com/12306/framework)
     - [项目接口文档](https://nageoffer.com/12306/interface/)
     - [前端控制台手册](https://nageoffer.com/12306/console/)
