@@ -79,7 +79,7 @@ public final class IdempotentSpELByMQExecuteHandler extends AbstractIdempotentEx
         redisScript.setResultType(String.class);
 
         long millis = timeUnit.toMillis(timeout);
-        return ((StringRedisTemplate) distributedCache.getInstance()).execute(redisScript, List.of(key), value, millis);
+        return ((StringRedisTemplate) distributedCache.getInstance()).execute(redisScript, List.of(key), value, String.valueOf(millis));
     }
 
     @Override
