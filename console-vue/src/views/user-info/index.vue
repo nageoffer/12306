@@ -189,7 +189,7 @@ const handleContactSubmit = () => {
         state.contactEditType = 'view'
         message.success('修改信息成功')
       } else {
-        message.error('修改失败')
+        message.error(res.message)
       }
     })
     .catch((err) => {
@@ -207,7 +207,7 @@ const handleOtherSubmit = () => {
         state.otherEditType = 'view'
         message.success('修改信息成功')
       } else {
-        message.error('修改失败')
+        message.error(res.message)
       }
     })
     .catch((err) => {

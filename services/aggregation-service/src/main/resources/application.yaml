@@ -75,6 +75,14 @@ mybatis-plus:
 
 aggregation:
   remote-url: http://127.0.0.1:${server.port}
+  demo-mode:
+    enable: false
+    blacklist:
+      - /api/user-service/passenger/save
+      - /api/user-service/passenger/update
+      - /api/user-service/passenger/remove
+      - /api/user-service/update
+      - /api/user-service/deletion
 
 framework:
   fastjson:

@@ -34,7 +34,8 @@ import org.springframework.retry.annotation.EnableRetry;
         "org.opengoofy.index12306.biz.userservice",
         "org.opengoofy.index12306.biz.ticketservice",
         "org.opengoofy.index12306.biz.orderservice",
-        "org.opengoofy.index12306.biz.payservice"
+        "org.opengoofy.index12306.biz.payservice",
+        "org.opengoofy.index12306.biz.aggregationservice"
 })
 @EnableRetry
 @MapperScan(value = {
