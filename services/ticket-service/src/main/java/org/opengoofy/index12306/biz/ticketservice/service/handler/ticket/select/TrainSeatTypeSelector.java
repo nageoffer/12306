@@ -41,10 +41,10 @@ import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
@@ -68,9 +68,9 @@ public final class TrainSeatTypeSelector {
         List<PurchaseTicketPassengerDetailDTO> passengerDetails = requestParam.getPassengers();
         Map<Integer, List<PurchaseTicketPassengerDetailDTO>> seatTypeMap = passengerDetails.stream()
                 .collect(Collectors.groupingBy(PurchaseTicketPassengerDetailDTO::getSeatType));
-        List<TrainPurchaseTicketRespDTO> actualResult = new CopyOnWriteArrayList<>();
+        List<TrainPurchaseTicketRespDTO> actualResult = Collections.synchronizedList(new ArrayList<>(seatTypeMap.size()));
         if (seatTypeMap.size() > 1) {
-            List<Future<List<TrainPurchaseTicketRespDTO>>> futureResults = new ArrayList<>();
+            List<Future<List<TrainPurchaseTicketRespDTO>>> futureResults = new ArrayList<>(seatTypeMap.size());
             seatTypeMap.forEach((seatType, passengerSeatDetails) -> {
                 // 线程池参数如何设置？详情查看：https://nageoffer.com/12306/question
                 Future<List<TrainPurchaseTicketRespDTO>> completableFuture = selectSeatThreadPoolExecutor
