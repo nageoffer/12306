@@ -40,6 +40,9 @@ import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ClientException;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
+import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentSceneEnum;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentTypeEnum;
 import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.springframework.stereotype.Service;
 
@@ -149,6 +152,13 @@ public class PassengerServiceImpl implements PassengerService {
         delUserPassengerCache(username);
     }
 
+    @Idempotent(
+            uniqueKeyPrefix = "index12306-user:lock_passenger-alter:",
+            key = "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
+            type = IdempotentTypeEnum.SPEL,
+            scene = IdempotentSceneEnum.RESTAPI,
+            message = "正在移除乘车人，请稍后再试..."
+    )
     @Override
     public void removePassenger(PassengerRemoveReqDTO requestParam) {
         String username = UserContext.getUsername();

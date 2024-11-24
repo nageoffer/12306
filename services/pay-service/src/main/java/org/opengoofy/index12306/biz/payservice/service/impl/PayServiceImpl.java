@@ -47,6 +47,8 @@ import org.opengoofy.index12306.framework.starter.cache.DistributedCache;
 import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.designpattern.strategy.AbstractStrategyChoose;
+import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentTypeEnum;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,6 +72,11 @@ public class PayServiceImpl implements PayService {
     private final PayResultCallbackOrderSendProduce payResultCallbackOrderSendProduce;
     private final DistributedCache distributedCache;
 
+    @Idempotent(
+            type = IdempotentTypeEnum.SPEL,
+            uniqueKeyPrefix = "index12306-pay:lock_create_pay:",
+            key = "#requestParam.getOutOrderSn()"
+    )
     @Transactional(rollbackFor = Exception.class)
     @Override
     public PayRespDTO commonPay(PayRequest requestParam) {

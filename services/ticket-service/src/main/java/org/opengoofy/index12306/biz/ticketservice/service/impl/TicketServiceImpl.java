@@ -84,6 +84,10 @@ import org.opengoofy.index12306.framework.starter.common.toolkit.BeanUtil;
 import org.opengoofy.index12306.framework.starter.convention.exception.ServiceException;
 import org.opengoofy.index12306.framework.starter.convention.result.Result;
 import org.opengoofy.index12306.framework.starter.designpattern.chain.AbstractChainContext;
+import org.opengoofy.index12306.framework.starter.idempotent.annotation.Idempotent;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentSceneEnum;
+import org.opengoofy.index12306.framework.starter.idempotent.enums.IdempotentTypeEnum;
+import org.opengoofy.index12306.framework.starter.log.annotation.ILog;
 import org.opengoofy.index12306.frameworks.starter.user.core.UserContext;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -347,6 +351,16 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 .build();
     }
 
+    @ILog
+    @Idempotent(
+            uniqueKeyPrefix = "index12306-ticket:lock_purchase-tickets:",
+            key = "T(org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder).getBean('environment').getProperty('unique-name', '')"
+                    + "+'_'+"
+                    + "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
+            message = "正在执行下单流程，请稍后...",
+            scene = IdempotentSceneEnum.RESTAPI,
+            type = IdempotentTypeEnum.SPEL
+    )
     @Override
     public TicketPurchaseRespDTO purchaseTicketsV1(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
@@ -371,6 +385,16 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
 
+    @ILog
+    @Idempotent(
+            uniqueKeyPrefix = "index12306-ticket:lock_purchase-tickets:",
+            key = "T(org.opengoofy.index12306.framework.starter.bases.ApplicationContextHolder).getBean('environment').getProperty('unique-name', '')"
+                    + "+'_'+"
+                    + "T(org.opengoofy.index12306.frameworks.starter.user.core.UserContext).getUsername()",
+            message = "正在执行下单流程，请稍后...",
+            scene = IdempotentSceneEnum.RESTAPI,
+            type = IdempotentTypeEnum.SPEL
+    )
     @Override
     public TicketPurchaseRespDTO purchaseTicketsV2(PurchaseTicketReqDTO requestParam) {
         // 责任链模式，验证 1：参数必填 2：参数正确性 3：乘客是否已买当前车次等...
@@ -519,6 +543,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         return payRemoteService.getPayInfo(orderSn).getData();
     }
 
+    @ILog
     @Override
     public void cancelTicketOrder(CancelTicketOrderReqDTO requestParam) {
         Result<Void> cancelOrderResult = ticketOrderRemoteService.cancelTicketOrder(requestParam);

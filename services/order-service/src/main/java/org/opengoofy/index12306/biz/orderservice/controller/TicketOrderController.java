@@ -17,7 +17,6 @@
 
 package org.opengoofy.index12306.biz.orderservice.controller;
 
-import cn.crane4j.annotation.AutoOperate;
 import lombok.RequiredArgsConstructor;
 import org.opengoofy.index12306.biz.orderservice.dto.req.CancelTicketOrderReqDTO;
 import org.opengoofy.index12306.biz.orderservice.dto.req.TicketOrderCreateReqDTO;
@@ -70,7 +69,6 @@ public class TicketOrderController {
     /**
      * 分页查询车票订单
      */
-    @AutoOperate(type = TicketOrderDetailRespDTO.class, on = "data.records")
     @GetMapping("/api/order-service/order/ticket/page")
     public Result<PageResponse<TicketOrderDetailRespDTO>> pageTicketOrder(TicketOrderPageQueryReqDTO requestParam) {
         return Results.success(orderService.pageTicketOrder(requestParam));

@@ -17,6 +17,7 @@
 
 package org.opengoofy.index12306.biz.orderservice.service.impl;
 
+import cn.crane4j.annotation.AutoOperate;
 import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.text.StrBuilder;
 import com.alibaba.fastjson2.JSON;
@@ -100,6 +101,7 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
+    @AutoOperate(type = TicketOrderDetailRespDTO.class, on = "data.records")
     @Override
     public PageResponse<TicketOrderDetailRespDTO> pageTicketOrder(TicketOrderPageQueryReqDTO requestParam) {
         LambdaQueryWrapper<OrderDO> queryWrapper = Wrappers.lambdaQuery(OrderDO.class)
