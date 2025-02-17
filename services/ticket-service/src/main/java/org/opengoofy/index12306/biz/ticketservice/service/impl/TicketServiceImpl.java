@@ -671,7 +671,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
                 List<SeatTypeCountDTO> seatTypeCountDTOList = seatService.listSeatTypeCount(Long.parseLong(requestParam.getTrainId()), requestParam.getDeparture(), requestParam.getArrival(), seatTypes);
                 for (SeatTypeCountDTO each : seatTypeCountDTOList) {
                     Integer tokenCount = tokenCountMap.get(each.getSeatType());
-                    if (tokenCount < each.getSeatCount()) {
+                    if (each.getSeatCount() == null || tokenCount != each.getSeatCount()) {
                         ticketAvailabilityTokenBucket.delTokenInBucket(requestParam);
                         break;
                     }
