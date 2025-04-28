@@ -129,7 +129,7 @@ public class UserLoginServiceImpl implements UserLoginService {
                     .realName(userDO.getRealName())
                     .build();
             String accessToken = JWTUtil.generateAccessToken(userInfo);
-            UserLoginRespDTO actual = new UserLoginRespDTO(userInfo.getUserId(), requestParam.getUsernameOrMailOrPhone(), userDO.getRealName(), accessToken);
+            UserLoginRespDTO actual = new UserLoginRespDTO(userInfo.getUserId(), userInfo.getUsername(), userDO.getRealName(), accessToken);
             distributedCache.put(accessToken, JSON.toJSONString(actual), 30, TimeUnit.MINUTES);
             return actual;
         }
