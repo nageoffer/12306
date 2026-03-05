@@ -70,15 +70,15 @@ public final class StationCalculateUtil {
         if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
             return takeoutStationList;
         }
-        if (startIndex != 0) {
-            for (int i = 0; i < startIndex; i++) {
-                for (int j = 1; j < stations.size() - startIndex; j++) {
-                    takeoutStationList.add(new RouteDTO(stations.get(i), stations.get(startIndex + j)));
-                }
+        // 发车在 startStation 之前的 route
+        for (int i = 0; i < startIndex; i++) {
+            for (int j = startIndex + 1; j < stations.size(); j++) {
+                takeoutStationList.add(new RouteDTO(stations.get(i), stations.get(j)));
             }
         }
-        for (int i = startIndex; i <= endIndex; i++) {
-            for (int j = i + 1; j < stations.size() && i < endIndex; j++) {
+        // 发车在 startStation 及之后的 route
+        for (int i = startIndex; i < endIndex; i++) {
+            for (int j = i + 1; j < stations.size(); j++) {
                 takeoutStationList.add(new RouteDTO(stations.get(i), stations.get(j)));
             }
         }

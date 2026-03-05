@@ -420,7 +420,7 @@ public class TicketServiceImpl extends ServiceImpl<TicketMapper, TicketDO> imple
         List<RLock> distributedLockList = new ArrayList<>();
         Map<Integer, List<PurchaseTicketPassengerDetailDTO>> seatTypeMap = requestParam.getPassengers().stream()
                 .collect(Collectors.groupingBy(PurchaseTicketPassengerDetailDTO::getSeatType));
-        seatTypeMap.forEach((searType, count) -> {
+        seatTypeMap.keySet().stream().sorted().forEach((searType) -> {
             String lockKey = environment.resolvePlaceholders(String.format(LOCK_PURCHASE_TICKETS_V2, requestParam.getTrainId(), searType));
             ReentrantLock localLock = localLockMap.getIfPresent(lockKey);
             if (localLock == null) {
