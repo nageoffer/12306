@@ -9,7 +9,7 @@
 
 > 📢 新项目
 > 
-> [Ragent AI](https://nageoffer.com/ragent) —— 企业级 Agentic RAG 项目，拿个 offer 社群在 AI 领域的首个开源作品。架构设计、代码实现保持一贯的高标准，适合写进校招/社招简历。毕竟现在哪家公司不关注 AI？
+> [Ragent AI（点击跳转）](https://nageoffer.com/ragent) —— 企业级 Agentic RAG 项目，拿个 offer 社群在 AI 领域的首个开源作品。架构设计、代码实现保持一贯的高标准，适合写进校招/社招简历。毕竟现在哪家公司不关注 AI？
 
 12306 项目中包含了缓存、消息队列、分库分表、设计模式等代码，通过这些代码可以全面了解分布式系统的核心知识点。
 
