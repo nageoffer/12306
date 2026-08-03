@@ -23,6 +23,11 @@ spring:
       transport:
         dashboard: localhost:8686
         port: 8719
+
+index12306:
+  jwt:
+    secret: ${INDEX12306_JWT_SECRET}
+
 mybatis-plus:
   global-config:
     db-config:

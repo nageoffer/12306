@@ -41,8 +41,11 @@ import java.util.Objects;
 @Component
 public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFactory<Config> {
 
-    public TokenValidateGatewayFilterFactory() {
+    private final JWTUtil jwtUtil;
+
+    public TokenValidateGatewayFilterFactory(JWTUtil jwtUtil) {
         super(Config.class);
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -58,7 +61,7 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
             if (isPathInBlackPreList(requestPath, config.getBlackPathPre())) {
                 String token = request.getHeaders().getFirst("Authorization");
                 // TODO 需要验证 Token 是否有效，有可能用户注销了账户，但是 Token 有效期还未过
-                UserInfoDTO userInfo = JWTUtil.parseJwtToken(token);
+                UserInfoDTO userInfo = jwtUtil.parseJwtToken(token);
                 if (!validateToken(userInfo)) {
                     ServerHttpResponse response = exchange.getResponse();
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
