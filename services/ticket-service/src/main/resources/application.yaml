@@ -51,6 +51,10 @@ spring:
           keep-alive-time: 9999
           rejected-handler: CallerRunsPolicy
 
+index12306:
+  jwt:
+    secret: ${INDEX12306_JWT_SECRET}
+
 rocketmq:
   name-server: 127.0.0.1:9876
   producer:

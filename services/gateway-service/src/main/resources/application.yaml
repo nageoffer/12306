@@ -11,6 +11,10 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
 
+index12306:
+  jwt:
+    secret: ${INDEX12306_JWT_SECRET}
+
 management:
   endpoints:
     web:

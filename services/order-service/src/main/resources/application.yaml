@@ -23,6 +23,10 @@ spring:
       port: 6379
       password: 123456
 
+index12306:
+  jwt:
+    secret: ${INDEX12306_JWT_SECRET}
+
 mybatis-plus:
   global-config:
     db-config:

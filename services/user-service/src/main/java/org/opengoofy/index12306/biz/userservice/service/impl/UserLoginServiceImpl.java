@@ -90,6 +90,7 @@ public class UserLoginServiceImpl implements UserLoginService {
     private final DistributedCache distributedCache;
     private final AbstractChainContext<UserRegisterReqDTO> abstractChainContext;
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
+    private final JWTUtil jwtUtil;
 
     @Override
     public UserLoginRespDTO login(UserLoginReqDTO requestParam) {
@@ -128,7 +129,7 @@ public class UserLoginServiceImpl implements UserLoginService {
                     .username(userDO.getUsername())
                     .realName(userDO.getRealName())
                     .build();
-            String accessToken = JWTUtil.generateAccessToken(userInfo);
+            String accessToken = jwtUtil.generateAccessToken(userInfo);
             UserLoginRespDTO userLogin = UserLoginRespDTO.builder()
                     .userId(userInfo.getUserId())
                     .username(userInfo.getUsername())

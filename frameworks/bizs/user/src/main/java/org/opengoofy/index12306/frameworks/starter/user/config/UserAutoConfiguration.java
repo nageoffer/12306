@@ -18,6 +18,8 @@
 package org.opengoofy.index12306.frameworks.starter.user.config;
 
 import org.opengoofy.index12306.frameworks.starter.user.core.UserTransmitFilter;
+import org.opengoofy.index12306.frameworks.starter.user.toolkit.JWTUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +32,14 @@ import static org.opengoofy.index12306.framework.starter.bases.constant.FilterOr
  */
 @ConditionalOnWebApplication
 public class UserAutoConfiguration {
+
+    /**
+     * JWT utility configured with a deployment-specific signing secret.
+     */
+    @Bean
+    public JWTUtil jwtUtil(@Value("${index12306.jwt.secret}") String secret) {
+        return new JWTUtil(secret);
+    }
 
     /**
      * 用户信息传递过滤器

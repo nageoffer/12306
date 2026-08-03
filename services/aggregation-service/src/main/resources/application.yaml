@@ -45,6 +45,10 @@ spring:
   main:
     allow-bean-definition-overriding: true
 
+index12306:
+  jwt:
+    secret: ${INDEX12306_JWT_SECRET}
+
 rocketmq:
   name-server: 127.0.0.1:9876
   producer:
